@@ -1,0 +1,37 @@
+{
+  "expo": {
+    "name": "Trinkow",
+    "slug": "trinkow",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "trinkow",
+    "userInterfaceStyle": "light",
+    "icon": "./assets/images/icon.png",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.trinkow.app"
+    },
+    "android": {
+      "package": "com.trinkow.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#171C42",
+        "foregroundImage": "./assets/images/android-icon-foreground.png"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#171C42",
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 76
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
