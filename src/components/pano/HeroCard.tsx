@@ -1,55 +1,49 @@
 import { StyleSheet, View } from 'react-native';
-import Svg, { Circle } from 'react-native-svg';
 
-import { ClaySurface } from '@/components/ClaySurface';
 import { IconButton } from '@/components/IconButton';
 import { Txt } from '@/components/Txt';
 import { t } from '@/content/metinler';
 import { paraYaz } from '@/lib/para';
-import { color, gauge, radius, rhythm } from '@/theme/tokens';
+import { color, radius, rhythm } from '@/theme/tokens';
 
 /**
- * Günlük özet: solda harcanan, ortada dairesel limit kullanımı, sağda kalan.
- * Kalan değer limit aşımında sıfıra sıkıştırılmaz; negatif gösterilir.
+ * Günlük özet (tasarım kiti §7.3): etiket + tek büyük tutar + ince ilerleme
+ * çubuğu + tek cümle. Bugün büyük tutar KALAN'dır; limitsiz gün ve geçmiş
+ * günlerde HARCANAN'dır. Limit aşımında kalan sıfıra sıkıştırılmaz, negatif
+ * ve uyarı renginde gösterilir.
  */
 type Props = {
   gunFarki: number;
   harcananKurus: number;
   limitKurus: number | null;
-  /** Bu günün hiç kaydı yok */
-  bos: boolean;
   oncekiPasif: boolean;
   onOnceki: () => void;
   onSonraki: () => void;
   altMetin: string;
 };
 
-export function HeroCard({
-  gunFarki,
-  harcananKurus,
-  limitKurus,
-  bos,
-  oncekiPasif,
-  onOnceki,
-  onSonraki,
-  altMetin,
-}: Props) {
+export function HeroCard({ gunFarki, harcananKurus, limitKurus, oncekiPasif, onOnceki, onSonraki, altMetin }: Props) {
   const bugunMu = gunFarki === 0;
+  const limitli = limitKurus !== null && limitKurus > 0;
   const limitDisi = limitKurus !== null && harcananKurus > limitKurus;
-  const kalanKurus = limitKurus !== null ? limitKurus - harcananKurus : null;
+  const kalanGoster = bugunMu && limitKurus !== null;
 
-  const etiket = limitKurus === null
-    ? bugunMu
-      ? t['pano.hero.limitsiz']
-      : t['gunluk.hero.gecmis']
+  const etiket = kalanGoster
+    ? limitDisi
+      ? t['pano.hero.limit_disi']
+      : t['pano.hero.takip']
     : bugunMu
-      ? limitDisi
-        ? t['pano.hero.limit_disi']
-        : t['pano.hero.takip']
+      ? t['pano.hero.limitsiz']
       : t['gunluk.hero.gecmis'];
+  const tutarKurus = kalanGoster ? limitKurus - harcananKurus : harcananKurus;
+
+  const oran = limitli ? harcananKurus / limitKurus : 0;
+  const doluluk = Math.min(Math.max(oran, 0), 1);
+  const yuzde = Math.max(0, Math.round(oran * 100));
+  const a11yDeger = limitli ? `Limitin yüzde ${yuzde} kadarı kullanıldı` : `${paraYaz(harcananKurus)} harcandı`;
 
   return (
-    <ClaySurface level="raised" borderRadius={radius.hero} style={stil.kart}>
+    <View>
       <View style={stil.ustSatir}>
         <IconButton
           icon="chevron-left"
@@ -68,98 +62,41 @@ export function HeroCard({
         />
       </View>
 
-      <View style={{ height: rhythm.blockInCard }} />
+      <View style={{ height: rhythm.group }} />
 
-      <View style={stil.ozetSatiri}>
-        <OzetDegeri etiket="Harcanan" kurus={harcananKurus} />
-        <KullanimHalkasi harcananKurus={harcananKurus} limitKurus={limitKurus} bos={bos} />
-        <OzetDegeri etiket="Kalan" kurus={kalanKurus} uyari={limitDisi} />
+      <View style={stil.tutarSatiri} accessible accessibilityLabel={`${etiket} ${paraYaz(tutarKurus)}`}>
+        <Txt role="hero" tone={limitDisi && bugunMu ? color.warningInk : color.text} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+          {paraYaz(tutarKurus)}
+        </Txt>
       </View>
 
-      <View style={{ height: rhythm.blockInCard }} />
+      {limitli ? (
+        <>
+          <View style={{ height: rhythm.blockInCard }} />
+          <View
+            style={stil.oluk}
+            accessible
+            accessibilityRole="progressbar"
+            accessibilityLabel={a11yDeger}
+            accessibilityValue={{ min: 0, max: limitKurus, now: Math.min(harcananKurus, limitKurus) }}>
+            <View style={[stil.dolgu, { width: `${doluluk * 100}%`, backgroundColor: limitDisi ? color.warning : color.primary }]} />
+          </View>
+        </>
+      ) : null}
 
-      <Txt role="body" tone={color.text2}>
+      <View style={{ height: rhythm.group }} />
+
+      <Txt role="body" tone={color.text2} style={stil.ortali}>
         {altMetin}
       </Txt>
-    </ClaySurface>
-  );
-}
-
-function OzetDegeri({ etiket, kurus, uyari = false }: { etiket: string; kurus: number | null; uyari?: boolean }) {
-  return (
-    <View style={stil.degerBlogu}>
-      <Txt role="caption" tone={color.text2}>{etiket}</Txt>
-      <View style={{ height: rhythm.sameObject }} />
-      <Txt role="amount" tone={uyari ? color.warningInk : color.text} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.65}>
-        {kurus === null ? '—' : paraYaz(kurus)}
-      </Txt>
-    </View>
-  );
-}
-
-function KullanimHalkasi({ harcananKurus, limitKurus, bos }: { harcananKurus: number; limitKurus: number | null; bos: boolean }) {
-  const cap = gauge.summaryDiameter;
-  const kalinlik = gauge.summaryTrackWidth;
-  const yaricap = (cap - kalinlik * 2) / 2;
-  const cevre = 2 * Math.PI * yaricap;
-  const oran = limitKurus && limitKurus > 0 ? harcananKurus / limitKurus : 0;
-  const doluluk = bos ? 0 : Math.min(Math.max(oran, 0), 1);
-  const tasma = Math.min(Math.max(oran - 1, 0), 1);
-  const yuzde = limitKurus && limitKurus > 0 ? Math.max(0, Math.round(oran * 100)) : null;
-
-  return (
-    <View
-      style={stil.halka}
-      accessible
-      accessibilityRole="progressbar"
-      accessibilityLabel={limitKurus === null ? `Bugün ${paraYaz(harcananKurus)} harcandı` : `Limitin yüzde ${yuzde ?? 0} kadarı kullanıldı`}
-      accessibilityValue={limitKurus === null ? undefined : { min: 0, max: limitKurus, now: harcananKurus }}>
-      <Svg width={cap} height={cap} style={StyleSheet.absoluteFill} pointerEvents="none">
-        <Circle cx={cap / 2} cy={cap / 2} r={yaricap} fill="none" stroke={color.well} strokeWidth={kalinlik} />
-        {doluluk > 0 ? (
-          <Circle
-            cx={cap / 2}
-            cy={cap / 2}
-            r={yaricap}
-            fill="none"
-            stroke={color.primary}
-            strokeWidth={kalinlik}
-            strokeLinecap="round"
-            strokeDasharray={`${cevre * doluluk} ${cevre}`}
-            rotation={-90}
-            origin={`${cap / 2}, ${cap / 2}`}
-          />
-        ) : null}
-        {tasma > 0 ? (
-          <Circle
-            cx={cap / 2}
-            cy={cap / 2}
-            r={cap / 2 - gauge.summaryOverWidth / 2}
-            fill="none"
-            stroke={color.warning}
-            strokeWidth={gauge.summaryOverWidth}
-            strokeLinecap="round"
-            strokeDasharray={`${Math.PI * cap * tasma} ${Math.PI * cap}`}
-            rotation={-90}
-            origin={`${cap / 2}, ${cap / 2}`}
-          />
-        ) : null}
-      </Svg>
-      <Txt role="h2" tone={tasma > 0 ? color.warningInk : color.text}>{yuzde === null ? '∞' : `%${yuzde}`}</Txt>
-      <Txt role="micro" tone={color.text2}>{yuzde === null ? 'Limitsiz' : 'kullanıldı'}</Txt>
     </View>
   );
 }
 
 const stil = StyleSheet.create({
-  kart: { width: '100%', padding: rhythm.pad },
-  ustSatir: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  ozetSatiri: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' },
-  degerBlogu: { flex: 1, minWidth: 0, alignItems: 'center' },
-  halka: { width: gauge.summaryDiameter, height: gauge.summaryDiameter, alignItems: 'center', justifyContent: 'center', flexShrink: 0 },
+  ustSatir: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' },
+  tutarSatiri: { alignItems: 'center' },
+  oluk: { height: 8, borderRadius: radius.pill, backgroundColor: color.well, overflow: 'hidden' },
+  dolgu: { height: '100%', borderRadius: radius.pill },
+  ortali: { textAlign: 'center' },
 });

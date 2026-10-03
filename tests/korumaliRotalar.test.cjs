@@ -14,7 +14,7 @@ test("ana sekmeler ve 'birikimler' oturum-açık korumalı ekran grubunda listel
   assert.match(acikGrubu, /<Stack\.Screen name="birikimler" \/>/);
   assert.match(acikGrubu, /<Stack\.Screen name="\(tabs\)" /);
   // Stack'te kalan kardeş ekranların hâlâ koruma altında olduğunu doğrula.
-  for (const kardes of ['rutinler', 'favoriler', 'butce', 'ozet', 'limitler', 'kayitlar', 'seri', 'taksitler']) {
+  for (const kardes of ['rutinler', 'favoriler', 'butce', 'ozet', 'limitler', 'seri', 'taksitler']) {
     assert.match(acikGrubu, new RegExp(`<Stack\\.Screen name="${kardes}" `));
   }
   // Ana ekranların gerçek ve kalıcı Tabs navigator'da olduğunu doğrula.

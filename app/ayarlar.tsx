@@ -406,11 +406,11 @@ export default function AyarlarEkrani() {
             etiket={t['ayar.plan.tanit']}
             deger={katman2Deger}
             degerSoluk
-            onPress={() => router.push('/tanisma')}
+            onPress={() => router.push('/rutinler')}
             accessibilityLabel={t['ayar.plan.tanit']}
           />
           <View style={{ height: rhythm.blockInCard }} />
-          <ValueWell etiket={t['ayar.plan.gor']} deger="" onPress={() => router.push('/plan')} accessibilityLabel={t['ayar.plan.gor']} />
+          <ValueWell etiket={t['ayar.plan.gor']} deger="" onPress={() => router.push('/butce')} accessibilityLabel={t['ayar.plan.gor']} />
         </View>
 
         <View style={{ height: rhythm.section }} />

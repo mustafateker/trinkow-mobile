@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
+import { Accordion } from '@/components/Accordion';
 import { Button } from '@/components/Button';
 import { ClaySurface } from '@/components/ClaySurface';
 import { CelebrationOverlay } from '@/components/streak/CelebrationOverlay';
@@ -30,14 +31,14 @@ import {
   seriCipEtiketi,
   t,
 } from '@/content/metinler';
-import { ayarOku, ayarYaz } from '@/db/harcama';
+import { ayarOku, ayarYaz, sikAlinanlar, type SikAlinan } from '@/db/harcama';
 import { gunHarcamasizIsaretle } from '@/db/seri';
 import type { SeriDurumu } from '@/db/seri';
 import { usePano } from '@/db/usePano';
 import { paraYaz } from '@/lib/para';
-import { SABIT_ODEME_KATEGORILERI } from '@/lib/kategoriler';
+import { aileRenkleri, kategori as kategoriGetir } from '@/lib/kategoriler';
 import { gunAnahtari, gunlukBaslik } from '@/lib/tarih';
-import { veriDegisti } from '@/lib/veriBus';
+import { veriDegisimineAbone, veriDegisti } from '@/lib/veriBus';
 import { color, layout, radius, rhythm } from '@/theme/tokens';
 
 /**
@@ -70,11 +71,25 @@ export function GunlukSayfa({
   const bugunMu = gunFarki === 0;
   const bos = veri.harcamalar.length === 0;
 
-  // Boş durum CTA'sı formu artık kategorisiz açmıyor — kullanıcıyı ekrandaki
-  // kategori listesine (`CategoryQuickAddCard`) kaydırıyor. `kategoriYRef`
-  // o kartın ScrollView içindeki y konumunu `onLayout`'tan tutar.
-  const kaydirRef = useRef<ScrollView>(null);
-  const kategoriYRef = useRef(0);
+  const [tumHareketler, setTumHareketler] = useState(false);
+  const [kategorilerAcik, setKategorilerAcik] = useState(false);
+  const [sikKullanilanlar, setSikKullanilanlar] = useState<SikAlinan[]>([]);
+  const hareketSayisi = veri.harcamalar.length;
+
+  // "Sık kullanılanlar" — yalnız Bugün sayfasında; harcama eklenip silindikçe tazelenir.
+  useEffect(() => {
+    if (!bugunMu) return;
+    let canli = true;
+    const yukle = () => {
+      void sikAlinanlar(db, 6).then((l) => canli && setSikKullanilanlar(l)).catch(() => {});
+    };
+    yukle();
+    const iptal = veriDegisimineAbone(yukle);
+    return () => {
+      canli = false;
+      iptal();
+    };
+  }, [db, bugunMu]);
 
   const [ipucuKapatildi, setIpucuKapatildi] = useState(true);
   useEffect(() => {
@@ -102,21 +117,18 @@ export function GunlukSayfa({
     veriDegisti();
   }
 
-  function harcamaEkleyeGit(kategoriKodu: string) {
+  /** `kategoriKodu` verilmezse form kategoriyi kendisi tahmin eder. */
+  function harcamaEkleyeGit(kategoriKodu?: string) {
     const parcalar: string[] = [];
     if (!bugunMu) parcalar.push(`gunFarki=${gunFarki}`);
-    parcalar.push(`kategori=${kategoriKodu}`);
-    router.push(`/harcama-ekle?${parcalar.join('&')}` as never);
+    if (kategoriKodu) parcalar.push(`kategori=${kategoriKodu}`);
+    router.push((parcalar.length > 0 ? `/harcama-ekle?${parcalar.join('&')}` : '/harcama-ekle') as never);
   }
 
-  /**
-   * Boş durum CTA'sı — eskiden formu kategorisiz açıp "Diğer"e düşüyordu.
-   * Artık formu HİÇ açmıyor: kullanıcıyı aşağıdaki `CategoryQuickAddCard`
-   * listesine kaydırıyor; harcama oradaki bir kategorinin `+`'sına
-   * dokunularak (zaten kategori taşıyan tek yoldan) eklenir.
-   */
-  function kategorilereKaydir() {
-    kaydirRef.current?.scrollTo({ y: kategoriYRef.current, animated: true });
+  function sikKullanilanaGit(k: SikAlinan) {
+    router.push(
+      `/harcama-ekle?kategori=${k.kategori}&ad=${encodeURIComponent(k.urunAdi)}&tutarKurus=${k.tutarKurus}` as never,
+    );
   }
 
   if (veri.hata) {
@@ -181,19 +193,13 @@ export function GunlukSayfa({
     yuruyenToplam += h.tutarKurus;
     return { harcama: h, limitDisi: limitKurus !== null && yuruyenToplam > limitKurus };
   });
-  const sabitOdemeSatirlari = satirlar.filter((satir) =>
-    SABIT_ODEME_KATEGORILERI.includes(satir.harcama.kategori as (typeof SABIT_ODEME_KATEGORILERI)[number]),
-  );
-  const altListeSatirlari = bugunMu ? sabitOdemeSatirlari : satirlar;
+  // Tasarım kiti §7.3 — Bugün'de en son 3 hareket; "Tümünü gör" hepsini açar.
+  const sonHareketler = [...satirlar].reverse();
+  const gorunenHareketler = tumHareketler ? sonHareketler : sonHareketler.slice(0, 3);
 
-  const bugunBosCTA = bugunMu && bos && limitKurus !== null;
-  const seriBugunBaslar = bugunBosCTA && seriDurum && !seriDurum.kapali && seriDurum.mevcutSeri === 0;
+  const bugunBos = bugunMu && bos && limitKurus !== null;
+  const seriBugunBaslar = bugunBos && seriDurum && !seriDurum.kapali && seriDurum.mevcutSeri === 0;
   const kutlama = aktifMi && bugunMu && seriDurum?.kutlanacakMilestone != null;
-
-  // Tasarım kiti §7.3.3 — tekil coral CTA yalnız günün zaten hareketi varken
-  // burada gösterilir; boş günde CTA'nın işi `bugunBosCTA` bloğu görür (o da
-  // kategorisiz formu değil, aşağıdaki kategori listesini açar — bkz. yorum).
-  const kaliciCTA = bugunMu && !bos;
 
   return (
     <View style={stil.sayfa}>
@@ -201,14 +207,13 @@ export function GunlukSayfa({
         <Baslik gunFarki={gunFarki} tarih={veri.tarih} seriDurum={seriDurum} seriYukleniyor={seriYukleniyor} />
       </View>
 
-      <ScrollView ref={kaydirRef} style={kabukStil.scroll} contentContainerStyle={stil.kaydirIcerik} showsVerticalScrollIndicator={false}>
+      <ScrollView style={kabukStil.scroll} contentContainerStyle={stil.kaydirIcerik} showsVerticalScrollIndicator={false}>
         <ContentPanel>
         <View style={stil.pad}>
           <HeroCard
             gunFarki={gunFarki}
             harcananKurus={veri.harcananKurus}
             limitKurus={limitKurus}
-            bos={bos}
             oncekiPasif={veri.ilkGunMu}
             onOnceki={() => onGunDegistir(-1)}
             onSonraki={() => onGunDegistir(1)}
@@ -216,45 +221,13 @@ export function GunlukSayfa({
           />
         </View>
 
-        {/* Özet önce, günlük hızlı kararlar hemen ardından; kategori ekleme
-            seçenekleri bu iki bloğun altında kalır. */}
-        <RoutineQuickSection
-          gapUstu={rhythm.section}
-          tarih={veri.tarih}
-          gunAnahtariDeger={gunAnahtari(veri.tarih)}
-          bugunMu={bugunMu}
-          harcamalar={veri.harcamalar}
-        />
-
-        {kaliciCTA ? (
+        {/* Tasarım kiti §7.3 — özet, tek coral CTA, hareketler, sık kullanılanlar;
+            rutin ve kategori bölümleri bunların ALTINDA açılır kaplardır. */}
+        {bugunMu ? (
           <>
             <View style={{ height: rhythm.section }} />
             <View style={stil.pad}>
-              <Button label={t['gunluk.harcama_ekle']} variant="primary" icon="plus" onPress={() => harcamaEkleyeGit('diger')} />
-            </View>
-          </>
-        ) : null}
-
-        {bugunBosCTA ? (
-          <>
-            <View style={{ height: rhythm.blockInCard }} />
-            <View style={[stil.pad, stil.ortali]}>
-              <Txt role="h2">{t['bos.pano.baslik']}</Txt>
-            </View>
-            <View style={{ height: rhythm.blockInCard }} />
-            <View style={stil.pad}>
-              {/* Ekran başına birincil buton en fazla 1 (§7.1) — FAB bu sırada gizlenir.
-                  Kategorisiz form açmak yerine aşağıdaki kategori listesine kaydırır. */}
-              <Button label={t['bos.pano.eylem']} variant="primary" icon="chevron-down" onPress={kategorilereKaydir} />
-            </View>
-          </>
-        ) : null}
-
-        {bugunMu && ipucuKapatildi === false && !veri.ilkGunMu ? (
-          <>
-            <View style={{ height: rhythm.section }} />
-            <View style={stil.pad}>
-              <InfoStrip variant="info" icon="chevron-left" metin={t['gunluk.ipucu']} onKapat={ipucuKapat} kapatEtiketi={t['gunluk.ipucu_kapat']} />
+              <Button label={t['gunluk.harcama_ekle']} variant="primary" icon="plus" onPress={() => harcamaEkleyeGit()} />
             </View>
           </>
         ) : null}
@@ -264,6 +237,15 @@ export function GunlukSayfa({
             <View style={{ height: rhythm.section }} />
             <View style={stil.pad}>
               <InfoStrip variant="info" metin={`${t['gunluk.seri_baslar.baslik']}. ${t['gunluk.seri_baslar.govde']}`} />
+            </View>
+          </>
+        ) : null}
+
+        {bugunMu && ipucuKapatildi === false && !veri.ilkGunMu ? (
+          <>
+            <View style={{ height: rhythm.section }} />
+            <View style={stil.pad}>
+              <InfoStrip variant="info" icon="chevron-left" metin={t['gunluk.ipucu']} onKapat={ipucuKapat} kapatEtiketi={t['gunluk.ipucu_kapat']} />
             </View>
           </>
         ) : null}
@@ -284,35 +266,113 @@ export function GunlukSayfa({
           </>
         ) : null}
 
-        {bugunMu ? (
-          <>
-            <View style={{ height: rhythm.section }} />
-            <View
-              style={stil.pad}
-              onLayout={(e) => {
-                kategoriYRef.current = e.nativeEvent.layout.y;
-              }}>
-              <CategoryQuickAddCard
-                harcamalar={veri.harcamalar}
-                onEkle={(kategori) => harcamaEkleyeGit(kategori)}
-                onHarcamaPress={(harcama) => router.push(`/harcama/${harcama.id}`)}
-              />
-            </View>
-          </>
-        ) : null}
-
-        {altListeSatirlari.length > 0 ? (
+        {bugunMu && gorunenHareketler.length > 0 ? (
           <>
             <View style={{ height: rhythm.section }} />
             <View style={[stil.pad, stil.listeBasligi]}>
-              <Txt role="h2">{bugunMu ? 'Planlı ödemeler' : t['gunluk.liste_baslik.gecmis']}</Txt>
+              <Txt role="h2">{t['gunluk.hareketler']}</Txt>
               <Txt role="label" tone={color.text2}>
                 {gunToplamEtiketi(paraYaz(veri.harcananKurus))}
               </Txt>
             </View>
             <View style={{ height: rhythm.group }} />
             <View style={stil.pad}>
-              {altListeSatirlari.map((s, i) => (
+              {gorunenHareketler.map((s, i) => (
+                <View key={s.harcama.id}>
+                  {i > 0 ? <View style={{ height: rhythm.group }} /> : null}
+                  <ExpenseRow
+                    harcama={s.harcama}
+                    limitDisi={s.limitDisi}
+                    kaydirilabilir
+                    onPress={() => router.push(`/harcama/${s.harcama.id}`)}
+                  />
+                </View>
+              ))}
+              {hareketSayisi > 3 ? (
+                <>
+                  <View style={{ height: rhythm.group }} />
+                  <Button
+                    label={tumHareketler ? 'Daha az göster' : `${t['gunluk.tumunu_gor']} (${hareketSayisi})`}
+                    variant="secondary"
+                    auto
+                    onPress={() => setTumHareketler((a) => !a)}
+                  />
+                </>
+              ) : null}
+            </View>
+          </>
+        ) : null}
+
+        {bugunMu && sikKullanilanlar.length > 0 ? (
+          <>
+            <View style={{ height: rhythm.section }} />
+            <View style={stil.pad}>
+              <Txt role="h2">{t['gunluk.sik_kullanilanlar']}</Txt>
+            </View>
+            <View style={{ height: rhythm.group }} />
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={stil.yatayCipler}>
+              {sikKullanilanlar.map((k) => {
+                const kat = kategoriGetir(k.kategori);
+                return (
+                  <Chip
+                    key={`${k.kategori}:${k.urunAdi}`}
+                    ad={k.urunAdi}
+                    tutar={paraYaz(k.tutarKurus)}
+                    dotColor={aileRenkleri(kat.aile).solid}
+                    dotAlways
+                    onPress={() => sikKullanilanaGit(k)}
+                    accessibilityLabel={`${k.urunAdi}, ${paraYaz(k.tutarKurus)}, ${kat.ad}. Harcama olarak ekle`}
+                  />
+                );
+              })}
+            </ScrollView>
+          </>
+        ) : null}
+
+        <RoutineQuickSection
+          gapUstu={rhythm.section}
+          tarih={veri.tarih}
+          gunAnahtariDeger={gunAnahtari(veri.tarih)}
+          bugunMu={bugunMu}
+          harcamalar={veri.harcamalar}
+        />
+
+        {bugunMu ? (
+          <>
+            <View style={{ height: rhythm.section }} />
+            <View style={stil.pad}>
+              <Accordion
+                title={t['gunluk.kategoriler']}
+                summary={t['gunluk.kategoriler.ozet']}
+                expanded={kategorilerAcik}
+                onToggle={() => setKategorilerAcik((a) => !a)}
+                accessibilityLabel={`${t['gunluk.kategoriler']}. ${t['gunluk.kategoriler.ozet']}`}>
+                <CategoryQuickAddCard
+                  harcamalar={veri.harcamalar}
+                  onEkle={(kategori) => harcamaEkleyeGit(kategori)}
+                  onHarcamaPress={(harcama) => router.push(`/harcama/${harcama.id}`)}
+                />
+              </Accordion>
+            </View>
+          </>
+        ) : null}
+
+        {!bugunMu && satirlar.length > 0 ? (
+          <>
+            <View style={{ height: rhythm.section }} />
+            <View style={[stil.pad, stil.listeBasligi]}>
+              <Txt role="h2">{t['gunluk.liste_baslik.gecmis']}</Txt>
+              <Txt role="label" tone={color.text2}>
+                {gunToplamEtiketi(paraYaz(veri.harcananKurus))}
+              </Txt>
+            </View>
+            <View style={{ height: rhythm.group }} />
+            <View style={stil.pad}>
+              {satirlar.map((s, i) => (
                 <View key={s.harcama.id}>
                   {i > 0 ? <View style={{ height: rhythm.group }} /> : null}
                   <ExpenseRow
@@ -516,4 +576,5 @@ const stil = StyleSheet.create({
   kartIc: { padding: rhythm.pad, alignItems: 'center' },
   aralik: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' },
   ortali: { alignItems: 'center' },
+  yatayCipler: { flexDirection: 'row', alignItems: 'center', gap: rhythm.group, paddingHorizontal: layout.screenPaddingX },
 });

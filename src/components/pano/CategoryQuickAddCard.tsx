@@ -1,14 +1,13 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { CategoryIconBox } from '@/components/CategoryIconBox';
-import { ClaySurface } from '@/components/ClaySurface';
 import { Icon } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
 import type { Harcama } from '@/db/harcama';
 import { GUNLUK_HARCAMA_KATEGORILERI, KATEGORILER, type KategoriKodu } from '@/lib/kategoriler';
 import { paraYaz } from '@/lib/para';
 import { saatYaz } from '@/lib/tarih';
-import { a11y, clay, color, radius, rhythm, size } from '@/theme/tokens';
+import { a11y, color, radius, rhythm, size } from '@/theme/tokens';
 
 export function CategoryQuickAddCard({
   harcamalar,
@@ -20,11 +19,7 @@ export function CategoryQuickAddCard({
   onHarcamaPress: (harcama: Harcama) => void;
 }) {
   return (
-    <ClaySurface level="raised" borderRadius={radius.card} style={stil.kart}>
-      <Txt role="h2">Kategoriler</Txt>
-      <View style={{ height: rhythm.sameObject }} />
-      <Txt role="caption">Harcama eklemek istediğin kategorinin yanındaki artıya dokun.</Txt>
-      <View style={{ height: rhythm.pad }} />
+    <View>
       {GUNLUK_HARCAMA_KATEGORILERI.map((kod, index) => {
         const kategori = KATEGORILER[kod];
         const kategoriHarcamalari = harcamalar.filter((harcama) => harcama.kategori === kod);
@@ -46,7 +41,7 @@ export function CategoryQuickAddCard({
                 hitSlop={a11y.minTarget - size.iconButton}
                 style={({ pressed }) => [
                   stil.ekle,
-                  { backgroundColor: pressed ? color.well : color.surface, boxShadow: pressed ? clay.pressed : clay.raised },
+                  { backgroundColor: pressed ? color.primarySoft : color.groove },
                 ]}>
                 <Icon name="plus" size={20} color={color.primaryText} />
               </Pressable>
@@ -72,12 +67,11 @@ export function CategoryQuickAddCard({
           </View>
         );
       })}
-    </ClaySurface>
+    </View>
   );
 }
 
 const stil = StyleSheet.create({
-  kart: { padding: rhythm.pad },
   satir: { minHeight: a11y.minTarget, flexDirection: 'row', alignItems: 'center' },
   metin: { flex: 1, minWidth: 0 },
   ayrac: { height: 1, marginVertical: rhythm.group, marginLeft: size.iconButton + rhythm.blockInCard, backgroundColor: color.line },

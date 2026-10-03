@@ -56,28 +56,6 @@ export function lira(tutar: number): number {
  */
 const TUTAR_TAM_KISIM_MAKS = 10;
 
-/** Tuşa basılınca yeni buffer — geçersiz tuş (2. virgül, 3. kuruş hanesi) sessizce yok sayılır. */
-export function tutarGirisiEkle(buffer: string, tus: string): string {
-  const [tam, kurus] = buffer.split(',');
-  if (tus === ',') {
-    if (buffer.includes(',')) return buffer;
-    return `${tam || '0'},`;
-  }
-  // rakam
-  if (buffer.includes(',')) {
-    if ((kurus?.length ?? 0) >= 2) return buffer;
-    return `${tam},${(kurus ?? '') + tus}`;
-  }
-  const yeniTam = (tam ?? '') + tus;
-  if (yeniTam.replace(/^0+/, '').length > TUTAR_TAM_KISIM_MAKS) return buffer;
-  return yeniTam;
-}
-
-/** Son karakteri siler (rakam veya virgül). */
-export function tutarGirisiSil(buffer: string): string {
-  return buffer.slice(0, -1);
-}
-
 /** Ham buffer → `1.250,5` gösterimi (yazarken); boşsa `0`. */
 export function tutarGosterimi(buffer: string): string {
   if (!buffer) return '0';

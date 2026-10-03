@@ -6,10 +6,10 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 're
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { MoneyInput } from '@/components/MoneyInput';
-import { istek } from '@/lib/api';
+import { routinesGet, yeniId } from '@/lib/revApi';
 import { AmountWell, type AmountWellGunButonu } from '@/components/AmountWell';
 import { Button } from '@/components/Button';
-import { CategoryIconBox } from '@/components/CategoryIconBox';
+import { CategoryPicker } from '@/components/CategoryPicker';
 import { Chip } from '@/components/Chip';
 import { InfoStrip } from '@/components/InfoStrip';
 import { ScreenHeader } from '@/components/ScreenHeader';
@@ -19,13 +19,14 @@ import { SearchResultSkeleton } from '@/components/SearchResultSkeleton';
 import { SegmentedControl } from '@/components/SegmentedControl';
 import { TextField } from '@/components/TextField';
 import { Txt } from '@/components/Txt';
-import type { KatalogOgesi } from '@/content/urunKatalogu';
+import { aktifKatalogu, type KatalogOgesi } from '@/content/urunKatalogu';
 import {
   a11yEkleGun,
   a11yEkleOneriCip,
   a11yEkleSonKullanilan,
   ekleAramaSatirGecen,
   ekleAramaYeniBaslik,
+  ekleKategoriTahmini,
   ekleGunSeridi,
   ekleLimitDisiUyari,
   ekleTaksitOnizleme,
@@ -42,6 +43,7 @@ import {
   harcamaEkle,
   sikAlinanlar,
   taksitSerisiOlustur,
+  tahminGecmisi,
   urunAra,
   type OdemeTipi,
   type SikAlinan,
@@ -49,17 +51,10 @@ import {
 import { varsayilanOdemeOku } from '@/db/ayarTercihleri';
 import { tumOgrenilenKategoriler } from '@/db/urunKategori';
 import { aileRenkleri, kategori as kategoriGetir, type KategoriKodu } from '@/lib/kategoriler';
-import {
-  TUTAR_BUYUK_ESIK_KURUS,
-  paraYaz,
-  tutarGirisiEkle,
-  tutarGirisiSil,
-  tutarGirisindenKurus,
-  tutarGosterimi,
-  kurustanTutarGirisi,
-} from '@/lib/para';
+import { TUTAR_BUYUK_ESIK_KURUS, paraYaz, tutarGirisindenKurus, tutarGosterimi, kurustanTutarGirisi } from '@/lib/para';
 import { gunAnahtari, gunEkle, kisaTarih, uzunTarih } from '@/lib/tarih';
 import { katalogAra, turkceNormalize } from '@/lib/urunArama';
+import { tahminEt, type GecmisKayit, type KategoriTahmini } from '@/lib/kategoriTahmin';
 import { gunSeciciAbone } from '@/lib/gunSeciciBus';
 import { toastGoster } from '@/lib/toastBus';
 import { veriDegisti } from '@/lib/veriBus';
@@ -71,18 +66,9 @@ import { color, layout, rhythm } from '@/theme/tokens';
  * Ürün arama (F-18) bu bütçeyi UZATMAZ: arama boş bırakılırsa hiçbir dalda
  * doğrulama hatası doğmaz (delta-v4.md "Bilinçli tasarım kararları" #1).
  *
- * REV2: bu ekrana artık yalnız kategori bilgisi taşıyan yollardan girilir
- * (Günlük kategori "+", favoriler, rutinler — hepsi `?kategori=` route
- * param'ıyla açar) veya ürün seçimiyle kategori kendiliğinden dolar
- * (`urunSec`/`katalogSec`). Kategori artık ekranda SEÇİLEMEZ, yalnız
- * salt okunur bir gösterge olarak görünür. "Bugün boş" CTA'sı da artık
- * formu kategorisiz AÇMIYOR — kullanıcıyı Günlük'teki kategori listesine
- * kaydırıyor (bkz. `GunlukSayfa.kategorilereKaydir`); yani ekrana
- * kategorisiz ulaşan bilinen bir yol kalmadı. `kategoriKodu` başlangıç
- * değerindeki "Diğer" düşüşü yalnız savunma amaçlıdır (ör. ileride param
- * eksik bir route eklenirse ekranın çökmesini önler) — kullanıcı isterse
- * serbest ürün girişinde de kaydetmeden önce arama/favoriler üzerinden
- * doğru kategoriyi taşıyan bir ürün seçebilir.
+ * Kategori bu ekranda seçilir (`CategoryPicker`): `?kategori=` route param'ı ya da
+ * seçilen ürün ön-seçim verir, param yoksa "Diğer" ile açılır; kullanıcı kaydetmeden
+ * önce tek dokunuşla değiştirebilir.
  * Nakite dönülürse taksit sessizce sıfırlanır (K-023). Kaydet yalnız
  * tutar>0 iken etkin.
  */
@@ -104,7 +90,7 @@ export default function HarcamaEkleEkrani() {
 
   const [buffer, setBuffer] = useState(() => params.tutarKurus && Number(params.tutarKurus) > 0 ? kurustanTutarGirisi(Number(params.tutarKurus)) : '');
   const gonderiliyor = useRef(false);
-  const [istemciId] = useState(() => 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.floor(Math.random() * 16); return (c === 'x' ? r : (r & 3) | 8).toString(16); }));
+  const [istemciId] = useState(yeniId);
   const [rutinId, setRutinId] = useState<string | null>(params.rutinId ?? null);
   const [adet, setAdet] = useState('1');
   const [rutinler, setRutinler] = useState<{id:string;ad:string;kategori:string;birim_fiyat_kurus:number}[]>([]);
@@ -127,6 +113,11 @@ export default function HarcamaEkleEkrani() {
   const [kategoriKodu, setKategoriKodu] = useState<KategoriKodu>(() =>
     kategoriGetir(params.kategori ?? 'diger').kod,
   );
+  // Kategori tahmini: param, ürün seçimi ya da elle seçim kategoriyi KİLİTLER;
+  // kilitli değilken ürün adı/tutar/saat değiştikçe tahmin güncellenir.
+  const [kategoriKilitli, setKategoriKilitli] = useState(params.kategori !== undefined);
+  const [tahmin, setTahmin] = useState<KategoriTahmini | null>(null);
+  const [gecmisKayitlari, setGecmisKayitlari] = useState<GecmisKayit[]>([]);
 
   // D-2c-1b — Ayarlar'daki "varsayılan ödeme" ön-seçim olarak gelir; burada
   // değiştirmek yalnız BU kaydı etkiler, tercihi KALICI değiştirmez.
@@ -150,9 +141,10 @@ export default function HarcamaEkleEkrani() {
   useEffect(() => {
     let canli = true;
     void sikAlinanlar(db, 30).then((l) => canli && setSikAlinanlarListesi(l)).catch(() => {});
-    void istek<{rutinler:typeof rutinler}>(`/butce/rutinler?bugun=${gunAnahtari(new Date())}`, {tokenGerekli:true}).then(r => canli && setRutinler(r.rutinler)).catch(() => {});
+    void routinesGet().then((r) => canli && setRutinler(r.rutinler)).catch(() => {});
     void gunlukLimit(db).then((l) => canli && setLimitKurus(l)).catch(() => {});
     void tumOgrenilenKategoriler(db).then((m) => canli && setOgrenilenKategoriler(m)).catch(() => {});
+    void tahminGecmisi(db).then((l) => canli && setGecmisKayitlari(l)).catch(() => {});
     // K-072 — yalnız İLK yüklemede ön-seçim olarak uygulanır; kullanıcının
     // ekranda `odemeSec` ile yaptığı değişikliği bu efekt geç render'da EZMEZ
     // (bağımlılık dizisi yalnız `db`, taksitliAcik/odeme buraya eklenmez).
@@ -201,6 +193,26 @@ export default function HarcamaEkleEkrani() {
   }, [db, aramaMetni, urunAdi]);
 
   const tutarKurus = tutarGirisindenKurus(buffer);
+
+  useEffect(() => {
+    if (kategoriKilitli) return;
+    const sonuc = tahminEt({
+      urunAdi,
+      saat: new Date().getHours(),
+      tutarKurus,
+      ogrenilen: ogrenilenKategoriler,
+      gecmis: gecmisKayitlari,
+      katalog: aktifKatalogu(),
+    });
+    setTahmin(sonuc);
+    setKategoriKodu(sonuc ? sonuc.kategori : 'diger');
+  }, [kategoriKilitli, urunAdi, tutarKurus, ogrenilenKategoriler, gecmisKayitlari]);
+
+  function kategoriSec(kod: KategoriKodu) {
+    setKategoriKilitli(true);
+    setTahmin(null);
+    setKategoriKodu(kod);
+  }
   const tutarGosterim = tutarGosterimi(buffer);
   const limitDisiFarkKurus =
     limitKurus !== null && tutarKurus > 0 && gununToplamiKurus + tutarKurus > limitKurus
@@ -273,6 +285,8 @@ export default function HarcamaEkleEkrani() {
     setAdet('1');
     setUrunAdi(ad);
     setAramaMetni('');
+    setKategoriKilitli(true);
+    setTahmin(null);
     setKategoriKodu(kategoriKoduSecilen);
     setTutarHata(undefined);
     setBuffer(kurustanTutarGirisi(gecmisTutarKurus));
@@ -284,6 +298,8 @@ export default function HarcamaEkleEkrani() {
     const efektifKod = kategoriGetir(ogrenilenKategoriler.get(turkceNormalize(oge.ad)) ?? oge.kategori).kod;
     setUrunAdi(oge.ad);
     setAramaMetni('');
+    setKategoriKilitli(true);
+    setTahmin(null);
     setKategoriKodu(efektifKod);
     setOneriTutarKurus(null);
     // Katalogda fiyat yok (K-050/K-037): tutar 0 kalırsa "sen yaz" denir.
@@ -295,8 +311,7 @@ export default function HarcamaEkleEkrani() {
     if (!ad) return;
     setUrunAdi(ad);
     setAramaMetni('');
-    // REV2 — serbest ürün girişinde kategori arayüzü yok; mevcut değer
-    // (param'dan ya da varsayılan "Diğer") olduğu gibi korunur.
+    // Serbest ürün girişinde seçili kategori olduğu gibi korunur.
     setOneriTutarKurus(null);
     setTutarAltMetinTuru(null);
   }
@@ -561,15 +576,18 @@ export default function HarcamaEkleEkrani() {
               <Txt role="label" tone={color.text2}>
                 {t['ekle.kategori.etiket']}
               </Txt>
-              <View style={{ height: rhythm.group }} />
-              {/* REV2 — kategori artık seçilemez, yalnız salt okunur bir
-                  gösterge (param'dan ya da seçilen üründen gelir). */}
-              <View style={stil.satir}>
-                <CategoryIconBox kategori={kategoriGetir(kategoriKodu)} />
-                <View style={{ width: rhythm.blockInCard }} />
-                <Txt role="bodyStrong">{kategoriGetir(kategoriKodu).ad}</Txt>
-              </View>
             </View>
+            <View style={{ height: rhythm.group }} />
+            {/* Tasarım kiti §7.4 — kategori bu sheet'te seçilir. Param'dan ya da
+                seçilen üründen gelen değer ön-seçili durur, tek dokunuşla değişir. */}
+            <CategoryPicker value={kategoriKodu} onChange={kategoriSec} />
+            {tahmin && !kategoriKilitli ? (
+              <View style={[stil.pad, { marginTop: rhythm.group }]}>
+                <Txt role="caption" tone={color.text2}>
+                  {ekleKategoriTahmini(kategoriGetir(tahmin.kategori).ad)}
+                </Txt>
+              </View>
+            ) : null}
           </>
         )}
 

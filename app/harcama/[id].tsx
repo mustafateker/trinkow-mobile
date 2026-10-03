@@ -24,16 +24,7 @@ import { detayTaksitBilgi, silGovdeTaksit, t } from '@/content/metinler';
 import { harcamaGetir, harcamaGuncelle, type Harcama, type OdemeTipi } from '@/db/harcama';
 import { harcamaTekilSilVeGeriAlSun, taksitSerisiSilVeToastGoster } from '@/lib/harcamaEylemleri';
 import { aileRenkleri, kategori as kategoriGetir, type KategoriKodu } from '@/lib/kategoriler';
-import {
-  TUTAR_BUYUK_ESIK_KURUS,
-  kurustanTutarGirisi,
-  paraYaz,
-  sayiyaCevir,
-  tutarGirisiEkle,
-  tutarGirisiSil,
-  tutarGirisindenKurus,
-  tutarGosterimi,
-} from '@/lib/para';
+import { TUTAR_BUYUK_ESIK_KURUS, kurustanTutarGirisi, paraYaz, sayiyaCevir, tutarGirisindenKurus, tutarGosterimi } from '@/lib/para';
 import { eklenmeEtiketi, kisaTarih, saatYaz } from '@/lib/tarih';
 import { veriDegisti } from '@/lib/veriBus';
 import { clay, color, layout, radius, rhythm, size } from '@/theme/tokens';

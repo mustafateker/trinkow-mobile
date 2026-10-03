@@ -66,24 +66,6 @@ export const color = {
   successSoft: '#E2F6ED',
 } as const;
 
-/**
- * Plan pay çubuğunun (`ShareBar`/`ShareRow`) ÜÇ segment rengi.
- * `success` yalnız bu grafik bağlamda kullanılır ve ÜSTÜNDE METİN TAŞIMAZ
- * (pay adları çubuğun dışındaki `ShareRow`da).
- */
-export const share = {
-  zorunlu: color.primaryDeep,
-  sosyal: color.primary,
-  birikim: color.success,
-} as const;
-
-/** `Slider` — oluk/topuz/satır. */
-export const slider = {
-  track: 12,
-  knob: 32,
-  row: 44,
-} as const;
-
 /** Kategori aileleri — 6 aile, tasarım kitinin kategori paletinden. */
 export const catColor = {
   mavi: { solid: '#4B87FF', soft: '#E7EFFF' },
@@ -310,56 +292,6 @@ export const size = {
   switchTrackH: 32,
   switchTrackPad: 4,
   switchKnob: 24,
-} as const;
-
-/** §7.5 kahraman gösterge geometrisi — prototipteki ölçüler birebir. */
-export const gauge = {
-  /** Günlük özetindeki kompakt dairesel kullanım grafiği. */
-  summaryDiameter: 104,
-  summaryTrackWidth: 10,
-  summaryOverWidth: 4,
-  /** dış kabarık disk çapı */
-  diameter: 224,
-  /** oluk merkez yarıçapı (78..94) */
-  trackRadius: 86,
-  /** oluk + dolgu kalınlığı */
-  trackWidth: 16,
-  /** çukurluk kenar yayları */
-  edgeOuterRadius: 92.5,
-  edgeInnerRadius: 79.5,
-  edgeWidth: 2.5,
-  edgeOuterColor: 'rgba(23,28,66,0.13)',
-  edgeInnerColor: 'rgba(255,255,255,0.95)',
-  /** dolgu parlaması */
-  fillGlossWidth: 5,
-  fillGlossColor: 'rgba(255,255,255,0.30)',
-  /** yay açıklığı 270°, boşluk altta, başlangıç saat 7 */
-  sweepDegrees: 270,
-  startAngleDeg: 135,
-  /** topuz (§7.5) */
-  knobRadius: 13,
-  knobRingWidth: 4,
-  knobRingRadius: 11,
-  knobShadowRadius: 13.5,
-  knobShadowColor: 'rgba(23,28,66,0.18)',
-  knobGlossRadius: 8,
-  knobGlossWidth: 1.5,
-  knobGlossColor: 'rgba(255,255,255,0.55)',
-  /** taşma yayı — merkez yarıçapı 102, 8pt, saat 12'den saat yönünde */
-  overRadius: 102,
-  overWidth: 8,
-  overGlossWidth: 3,
-  overGlossColor: 'rgba(255,255,255,0.32)',
-  /** iç alan genişliği — uzun tutar kuralının ölçüldüğü yer */
-  innerWidth: 156,
-  /** §7.5 — 1.000 gibi dört haneli tutarlar iç daireye sığması için küçülür. */
-  heroDigitLimit: 5,
-  /** §7.8 boş durum illüstrasyonu */
-  emptyDiameter: 176,
-  emptyTrackRadius: 70,
-  emptyTrackWidth: 12,
-  emptyEdgeOuterRadius: 75,
-  emptyEdgeInnerRadius: 65,
 } as const;
 
 /* ------------------------------------------------------------ §8 HAREKET */

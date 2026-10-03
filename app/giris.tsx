@@ -14,7 +14,7 @@ import { Txt } from '@/components/Txt';
 import { ApiHatasi, GELISTIRME_GIRISI, benKimim, girisYap } from '@/lib/api';
 import { oturumYaz } from '@/lib/oturumDeposu';
 import { appleIleDevamEt, googleIleDevamEt, sosyalSaglayicilar } from '@/lib/sosyalGiris';
-import { color, rhythm } from '@/theme/tokens';
+import { rhythm } from '@/theme/tokens';
 
 export default function GirisEkrani() {
   const [eposta, setEposta] = useState('');

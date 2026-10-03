@@ -1,25 +1,8 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 
 import { kategoriLimitleriniTohumla } from '@/db/limitler';
-import {
-  katman1Kaydet as katman1KaydetIstegi,
-  katman2Kaydet as katman2KaydetIstegi,
-  kullaniciProfiliGetir,
-  gunlukLimitiAyarlaIstegi,
-  gunlukLimitOnerisiniReddetIstegi,
-  planiKurIstegi,
-  type AliskanlikGirdisi as ApiAliskanlikGirdisi,
-  type AliskanlikYaniti as ApiAliskanlikYaniti,
-  type Katman1IstegiGovdesi,
-  type Katman2IstegiGovdesi,
-  type KullaniciProfilYaniti,
-} from '@/lib/api';
-import {
-  abonelikAylikKurus,
-  aliskanlikAylikKurus,
-  type Siklik,
-  type YatirimNiyet,
-} from '@/lib/plan';
+import { katman1Kaydet as katman1KaydetIstegi, katman2Kaydet as katman2KaydetIstegi, kullaniciProfiliGetir, gunlukLimitiAyarlaIstegi, planiKurIstegi, type AliskanlikGirdisi as ApiAliskanlikGirdisi, type AliskanlikYaniti as ApiAliskanlikYaniti, type Katman1IstegiGovdesi, type Katman2IstegiGovdesi, type KullaniciProfilYaniti } from '@/lib/api';
+import { type Siklik, type YatirimNiyet } from '@/lib/plan';
 import { gunAnahtari } from '@/lib/tarih';
 
 /**
@@ -155,11 +138,6 @@ export async function oneriKabulEt(_db: SQLiteDatabase, limitKurus: number): Pro
   sonBilinenYanit = await gunlukLimitiAyarlaIstegi(limitKurus, gunAnahtari(new Date()));
 }
 
-/** "Başka bir sayı yaz" / "Limitsiz devam et" — öneri düşer, gerçek limit YAZILMAZ. */
-export async function oneriReddet(_db: SQLiteDatabase): Promise<void> {
-  sonBilinenYanit = await gunlukLimitOnerisiniReddetIstegi();
-}
-
 /* --------------------------------------------------------------------------
  * D-2c-1 · Ayarlar > Plan ve profil — E-01/E-02/E-03'ün tek alanlarını
  * onboarding akışının DIŞINDA, tek başına günceller (11-ayarlar.html "Aylık
@@ -234,24 +212,6 @@ export type ProfilDetay = {
   planKuruldu: boolean;
   /** D-2c-1 · E-20 `prof.taksit` — 8 karta dahil değil, yalnız profilleme sheet'i yazar. */
   taksitSiklik: TaksitSiklik | null;
-};
-
-export const DETAY_VARSAYILAN: ProfilDetay = {
-  kiraAidatKurus: null,
-  faturalarKurus: null,
-  ulasimYakitKurus: null,
-  krediTaksitKurus: null,
-  kahve: { siklik: null, serbestSayi: null, fiyatKurus: null },
-  sigara: { siklik: null, serbestSayi: null, fiyatKurus: null },
-  alkol: { siklik: null, serbestSayi: null, fiyatKurus: null },
-  yemek: { siklik: null, serbestSayi: null, fiyatKurus: null },
-  abonelikAdet: null,
-  abonelikOrtalamaKurus: null,
-  yatirimNiyet: null,
-  birikimYuzde: null,
-  sonKart: 1,
-  planKuruldu: false,
-  taksitSiklik: null,
 };
 
 function aliskanlikCevir(a: ApiAliskanlikYaniti): AliskanlikCevabi {
@@ -345,11 +305,6 @@ export async function profilDetayAlanKaydet(db: SQLiteDatabase, kolon: ProfilDet
   sonBilinenYanit = await katman2KaydetIstegi(govde);
 }
 
-/** "Kaldığın yerden" — hangi kartta kalındığını yazar. */
-export async function sonKartKaydet(_db: SQLiteDatabase, kart: number): Promise<void> {
-  sonBilinenYanit = await katman2KaydetIstegi({ son_kart: kart });
-}
-
 /**
  * E-26 "Planı kur" — zorunlu/sosyal/birikim paylarını ve günlük limiti artık
  * SUNUCU hesaplar (K-075, `POST /kullanici/plan/kur` gövde ALMAZ; mevcut
@@ -372,15 +327,6 @@ export async function planKur(
 ): Promise<void> {
   sonBilinenYanit = await planiKurIstegi(gunAnahtari(new Date()));
   await kategoriLimitleriniTohumla(db, aylikKurus);
-}
-
-/** Alışkanlık kartının aylık tutarı — dört kart için tek yardımcı (K-040). */
-export function aliskanlikSatiriKurus(c: AliskanlikCevabi): number {
-  return aliskanlikAylikKurus(c.siklik, c.fiyatKurus, c.serbestSayi);
-}
-
-export function abonelikSatiriKurus(detay: ProfilDetay): number {
-  return abonelikAylikKurus(detay.abonelikAdet, detay.abonelikOrtalamaKurus);
 }
 
 /**

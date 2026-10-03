@@ -19,9 +19,6 @@ export function ayKisaAdi(d: Date): string {
   return AYLAR_KISA[d.getMonth()];
 }
 
-/** "Pzt" · "Sal" · … — E-16 sütun grafiği gün etiketleri (Pazartesi başlangıçlı). */
-export const HAFTA_GUN_KISA = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
-
 /** "10 Eylül Perşembe" */
 export function uzunTarih(d: Date): string {
   return `${d.getDate()} ${AYLAR[d.getMonth()]} ${GUNLER[d.getDay()]}`;
@@ -102,24 +99,9 @@ export function ayAdiTek(ayAnahtariDeger: string): string {
   return AYLAR[ay - 1];
 }
 
-/** "Bugün" · "Dün" · "8 Eylül Salı" — gün grubu başlığı (E-14). */
-export function gunBasligi(gunAnahtariDeger: string, bugun: Date): string {
-  const bugunAnahtari = gunAnahtari(bugun);
-  const dunAnahtari = gunAnahtari(gunEkle(bugun, -1));
-  if (gunAnahtariDeger === bugunAnahtari) return 'Bugün';
-  if (gunAnahtariDeger === dunAnahtari) return 'Dün';
-  return uzunTarih(tarihtenGun(gunAnahtariDeger));
-}
-
 /** "10 Eylül" — kısa tarih (E-11 tarih çipi, E-12 eklenme satırı). */
 export function kisaTarih(d: Date): string {
   return `${d.getDate()} ${AYLAR[d.getMonth()]}`;
-}
-
-/** Haftanın Pazartesi'si (E-16 hafta değiştirici). Yerel gün, saat sıfırlanmaz. */
-export function haftaBaslangici(d: Date): Date {
-  const gun = (d.getDay() + 6) % 7; // Pazartesi=0 … Pazar=6
-  return gunEkle(d, -gun);
 }
 
 /** "31 Ağustos – 6 Eylül" — `ozet.hafta_araligi` (E-16). */
@@ -184,7 +166,6 @@ export function ayAnahtariFarkli(ayAnahtariDeger: string, fark: number): string 
  * "beş" ekini, "yirmi altı" → "altı" ekini vb.) — TDK'nin bilinen tarih
  * yazım kuralı, algoritma değil sabit tablo (yalnız 1-31 aralığı var).
  */
-const EK_BULUNMA = ['', 'inde', 'sinde', 'ünde', 'ünde', 'inde', 'sında', 'sinde', 'inde', 'unda'];
 const EK_IYELIK = ['', 'i', 'si', 'ü', 'ü', 'i', 'sı', 'si', 'i', 'u'];
 
 /** 1-9 birler ekinden farklı özel onluklar: on/yirmi/otuz kendi ekini taşır. */
@@ -193,18 +174,6 @@ function ozelOnlukEki(gun: number, tablo: 'bulunma' | 'iyelik'): string | null {
   if (gun === 20) return tablo === 'bulunma' ? 'sinde' : 'si';
   if (gun === 30) return tablo === 'bulunma' ? 'unda' : 'u';
   return null;
-}
-
-/**
- * Ayın günü + bulunma hâli eki: 15 → "15'inde" (`ob.maas.donem` cümlesi).
- * metinler.md'nin şablonu ekini örnek gün (15) için sabit yazmıştı; bu
- * yalnız birler basamağı {1,5,8}'de doğrudur, diğer 21 günde yanlış çıkardı
- * (K-040'ın uyardığı "yazılı olmayan sayı iki kez kodlanır" tuzağının metin
- * tarafı) — PM'e bildirildi, ek burada TEK yerden hesaplanır.
- */
-export function gunBulunmaEki(gun: number): string {
-  const ozel = ozelOnlukEki(gun, 'bulunma');
-  return `${gun}'${ozel ?? EK_BULUNMA[gun % 10]}`;
 }
 
 /** Ayın günü + iyelik eki: 15 → "15'i" (E-03 kurulum özeti değeri). */

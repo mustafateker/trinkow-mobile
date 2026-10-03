@@ -48,12 +48,15 @@ export function RealSavingsCard({
 
   return (
     <View>
-      <View style={stil.aralik}>
-        <Txt role="caption" style={stil.esnek}>
-          {birikimAySatiri(guncelAyMi, ayLokatifDeger, ayBirikimKurus)}
-        </Txt>
-        <Txt role="amount">{paraYaz(gercekBirikimKurus)}</Txt>
-      </View>
+      <Txt role="caption" tone={color.text2}>
+        {t['tasarruf.birikim.toplam']}
+      </Txt>
+      <Txt role="display" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+        {paraYaz(gercekBirikimKurus)}
+      </Txt>
+      <Txt role="caption" tone={color.text2}>
+        {birikimAySatiri(guncelAyMi, ayLokatifDeger, ayBirikimKurus)}
+      </Txt>
       <View style={{ height: rhythm.blockInCard }} />
       {hedefVar ? (
         <>

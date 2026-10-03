@@ -120,26 +120,26 @@ export default function ProfilEkrani() {
         <ErrorState baslik={t['profil.ayarlar.hata.baslik']} govde={t['profil.ayarlar.hata.alt']} onRetry={ayarVerisi.reload} />
       ) : (
         <>
-          <GrupBasligi metin="Para planın" />
+          <GrupBasligi metin="Planın" />
           <SettingGroup>
             <AyarSatiri icon="banknote" iconTone="green" baslik={t['profil.satir.butce']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? (ayarVerisi.data.gelirKurus != null ? profilSatirButceDeger(paraYaz(ayarVerisi.data.gelirKurus), ayarVerisi.data.sabitGiderSayisi) : t['tasarruf.gelirYok.baslik']) : t['profil.satir.butceBos']} onPress={() => router.push('/butce')} />
             <AyarSatiri icon="limitler" iconTone="blue" baslik={t['profil.satir.limitler']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? (ayarVerisi.data.gunlukLimitKurus != null ? profilSatirLimitlerDeger(paraYaz(ayarVerisi.data.gunlukLimitKurus), ayarVerisi.data.kategoriLimitSayisi) : t['profil.satir.limitlerBos']) : t['profil.satir.limitlerBos']} onPress={() => router.push('/limitler')} />
             <AyarSatiri icon="repeat" iconTone="orange" baslik={t['profil.satir.rutinler']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? profilSatirRutinlerDeger(ayarVerisi.data.rutinSayisi, paraYaz(ayarVerisi.data.rutinTasarrufBuAyKurus)) : t['profil.satir.rutinlerBos']} onPress={() => router.push('/rutinler')} />
+            <AyarSatiri icon="notebook" iconTone="pink" baslik={t['profil.satir.favoriler']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? profilSatirFavorilerDeger(ayarVerisi.data.favoriSayisi) : t['profil.satir.favorilerBos']} onPress={() => router.push('/favoriler')} />
           </SettingGroup>
 
           <View style={{ height: rhythm.section }} />
-          <GrupBasligi metin="Kayıtlar ve analiz" />
+          <GrupBasligi metin="Takip" />
           <SettingGroup>
-            <AyarSatiri icon="notebook" iconTone="pink" baslik={t['profil.satir.favoriler']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? profilSatirFavorilerDeger(ayarVerisi.data.favoriSayisi) : t['profil.satir.favorilerBos']} onPress={() => router.push('/favoriler')} />
-            <AyarSatiri icon="calendar-clock" iconTone="orange" baslik={t['profil.satir.taksitler']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? profilSatirTaksitlerDeger(ayarVerisi.data.taksitSeriSayisi, paraYaz(ayarVerisi.data.taksitBuAyToplamKurus)) : t['profil.satir.taksitlerBos']} onPress={() => router.push('/taksitler')} />
             <SettingRow icon="chart" iconTone="blue" baslik={t['profil.satir.ozet']} aciklama={t['profil.satir.ozetDeger']} onPress={() => router.push('/ozet')} accessibilityLabel={a11yProfilSatir(t['profil.satir.ozet'], t['profil.satir.ozetDeger'])} />
             <SettingRow icon="trending-up" iconTone="green" baslik={t['profil.satir.seri']} aciklama={profilSatirSeriDeger(seri.mevcutSeri, seri.enUzunSeri)} onPress={() => router.push('/seri')} accessibilityLabel={a11yProfilSatir(t['profil.satir.seri'], profilSatirSeriDeger(seri.mevcutSeri, seri.enUzunSeri))} />
+            <AyarSatiri icon="calendar-clock" iconTone="orange" baslik={t['profil.satir.taksitler']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? profilSatirTaksitlerDeger(ayarVerisi.data.taksitSeriSayisi, paraYaz(ayarVerisi.data.taksitBuAyToplamKurus)) : t['profil.satir.taksitlerBos']} onPress={() => router.push('/taksitler')} />
           </SettingGroup>
         </>
       )}
 
       <View style={{ height: rhythm.section }} />
-      <GrupBasligi metin="Uygulama ve destek" />
+      <GrupBasligi metin="Hesabın" />
       <SettingGroup>
         <SettingRow icon="ayarlar" iconTone="primary" baslik={t['profil.satir.ayarlar']} aciklama={t['profil.satir.ayarlarDeger']} onPress={() => router.push('/ayarlar')} accessibilityLabel={a11yProfilSatir(t['profil.satir.ayarlar'], t['profil.satir.ayarlarDeger'])} />
         <SettingRow icon="info" iconTone="neutral" baslik={t['profil.satir.yardim']} aciklama={t['profil.satir.yardimDeger']} onPress={() => router.push('/yardim')} accessibilityLabel={a11yProfilSatir(t['profil.satir.yardim'], t['profil.satir.yardimDeger'])} />

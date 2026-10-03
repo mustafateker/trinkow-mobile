@@ -108,8 +108,6 @@ function OturumGezgini() {
       <Stack.Protected guard={durum === 'acik'}>
         <Stack.Screen name="(tabs)" options={{ gestureEnabled: false }} />
         <Stack.Screen name="onboarding" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="tanisma" options={{ gestureEnabled: false }} />
-        <Stack.Screen name="plan" options={{ gestureEnabled: false }} />
         <Stack.Screen name="harcama-ekle" options={{ presentation: 'modal' }} />
         <Stack.Screen name="harcama/[id]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="ayarlar" />
@@ -121,7 +119,6 @@ function OturumGezgini() {
         <Stack.Screen name="kategori/[kod]" />
         <Stack.Screen name="ozet" />
         <Stack.Screen name="limitler" />
-        <Stack.Screen name="kayitlar" />
         <Stack.Screen name="seri" />
         <Stack.Screen name="taksitler" />
         <Stack.Screen name="gun-sec" />

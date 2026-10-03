@@ -488,11 +488,6 @@ export async function gunDurumuYazIstegi(gun: string, harcamasiz = true): Promis
   });
 }
 
-/** `GET /harcama/gun-durumu/{gun}` — bir günün "harcamasız" işaretli olup olmadığı. */
-export async function gunDurumuGetirIstegi(gun: string): Promise<GunDurumuYaniti> {
-  return istek<GunDurumuYaniti>(`/harcama/gun-durumu/${gun}`, { tokenGerekli: true });
-}
-
 export type EnEskiKayitGunuYaniti = { gun: string | null };
 
 /** `GET /harcama/ayar/en-eski-kayit-gunu` — K-085 Madde 4: istemcinin seri sınırı hesabı için. */
@@ -555,23 +550,6 @@ export type OzetDonemYaniti = {
 export async function ozetDonemGetir(baslangicGun: string, bitisGun: string, esikKurus?: number): Promise<OzetDonemYaniti> {
   return istek<OzetDonemYaniti>(
     `/ozet/donem${sorguDizesi({ baslangic_gun: baslangicGun, bitis_gun: bitisGun, esik_kurus: esikKurus })}`,
-    { tokenGerekli: true },
-  );
-}
-
-export type OzetKategoriSeyriGunuYaniti = { gun: string; toplam_kurus: number };
-export type OzetKategoriDetayYaniti = {
-  kategori: string;
-  baslangic_gun: string;
-  bitis_gun: string;
-  toplam_kurus: number;
-  gun_bazinda_seyir: OzetKategoriSeyriGunuYaniti[];
-};
-
-/** `GET /ozet/kategori/{kategori}` — E-15: tek kategorinin günlük seyri; kayıt LİSTESİ için `GET /harcama/?kategori=`. */
-export async function ozetKategoriGetir(kategori: string, baslangicGun: string, bitisGun: string): Promise<OzetKategoriDetayYaniti> {
-  return istek<OzetKategoriDetayYaniti>(
-    `/ozet/kategori/${encodeURIComponent(kategori)}${sorguDizesi({ baslangic_gun: baslangicGun, bitis_gun: bitisGun })}`,
     { tokenGerekli: true },
   );
 }

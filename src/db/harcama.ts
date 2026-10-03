@@ -1,4 +1,4 @@
-import type { SQLiteBindValue, SQLiteDatabase } from 'expo-sqlite';
+import type { SQLiteDatabase } from 'expo-sqlite';
 
 import { gunlukLimitKurusOku } from '@/db/profil';
 import {
@@ -15,6 +15,7 @@ import {
   type HarcamaListeSuzgeci,
   type HarcamaYaniti,
 } from '@/lib/api';
+import type { GecmisKayit } from '@/lib/kategoriTahmin';
 import { ayEkle, gunAnahtari } from '@/lib/tarih';
 import { turkceNormalize } from '@/lib/urunArama';
 
@@ -126,12 +127,6 @@ export type AySpecifiOzeti = { adet: number; toplamKurus: number };
 export async function ayOzeti(_db: SQLiteDatabase, ay: string): Promise<AySpecifiOzeti> {
   const kayitlar = await tumSayfalariGetir({ baslangic_gun: `${ay}-01`, bitis_gun: `${ay}-31` });
   return { adet: kayitlar.length, toplamKurus: kayitlar.reduce((t, k) => t + k.tutar_kurus, 0) };
-}
-
-/** E-14 — hiç kayıt yok mu (tüm zamanlar)? Ay değiştiricinin gösterilip gösterilmeyeceğini belirler. */
-export async function herhangiKayitVarMi(_db: SQLiteDatabase): Promise<boolean> {
-  const yanit = await harcamalariListeleIstegi({ sayfa: 1, sayfa_boyutu: 1 });
-  return yanit.toplam_kayit > 0;
 }
 
 export async function gunToplami(_db: SQLiteDatabase, gun: string): Promise<number> {
@@ -299,12 +294,6 @@ export async function harcamaSil(_db: SQLiteDatabase, id: string): Promise<void>
   await harcamaSilIstegi(id);
 }
 
-/** Aynı `taksitId`'ye sahip TÜM satırlar — E-12 taksit bilgi şeridi + E-13 özet satırı. */
-export async function taksitSerisi(_db: SQLiteDatabase, taksitId: string): Promise<Harcama[]> {
-  const kayitlar = await tumSayfalariGetir({});
-  return kayitlar.filter((k) => k.taksit_id === taksitId).sort((a, b) => (a.taksit_no ?? 0) - (b.taksit_no ?? 0)).map(cevir);
-}
-
 /** E-13 — taksit serisini TAMAMEN siler (K-029: onaylıdır, geri alma yoktur). */
 export async function taksitSerisiSil(_db: SQLiteDatabase, taksitId: string): Promise<void> {
   await taksitSerisiSilIstegi(taksitId);
@@ -383,12 +372,25 @@ export type SikAlinan = {
   sabitlenmis?: boolean;
 };
 
+/**
+ * Kategori tahmini için son kayıtlar (en yeni önce). Taksit satırları dışarıda
+ * bırakılır: tutarları toplam harcamayı değil taksit payını gösterir.
+ */
+export async function tahminGecmisi(_db: SQLiteDatabase): Promise<GecmisKayit[]> {
+  const yanit = await harcamalariListeleIstegi({ sayfa: 1, sayfa_boyutu: AZAMI_SAYFA_BOYUTU });
+  return yanit.kayitlar
+    .filter((k) => !k.taksit_id)
+    .map((k) => ({
+      urunAdi: k.urun_adi,
+      kategori: k.kategori,
+      tutarKurus: k.tutar_kurus,
+      saat: new Date(k.zaman).getHours(),
+    }))
+    .filter((k) => Number.isFinite(k.saat));
+}
+
 /** Sunucudan taze çekilecek son kayıt sayısı — sık alınanlar/ürün arama için "yeterince geniş" bir pencere. */
 const SIK_ALINAN_PENCERE = 200;
-
-async function urunGecmisiPenceresi(): Promise<HarcamaYaniti[]> {
-  return tumSayfalariGetir({ sayfa_boyutu: SIK_ALINAN_PENCERE }).then((kayitlar) => kayitlar.slice(0, SIK_ALINAN_PENCERE));
-}
 
 /**
  * E-11 "Sık alınanlar" — kullanıcının kendi geçmişinden gelir, tahminden
