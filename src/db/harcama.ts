@@ -121,6 +121,16 @@ export async function ayHarcamalari(_db: SQLiteDatabase, ay: string): Promise<Ha
   return kayitlar.map(cevir);
 }
 
+/** Analiz ekranı için iki gün (dahil) arasındaki tüm harcamalar. */
+export async function harcamaAraligi(
+  _db: SQLiteDatabase,
+  baslangicGun: string,
+  bitisGun: string,
+): Promise<Harcama[]> {
+  const kayitlar = await tumSayfalariGetir({ baslangic_gun: baslangicGun, bitis_gun: bitisGun });
+  return kayitlar.map(cevir);
+}
+
 export type AySpecifiOzeti = { adet: number; toplamKurus: number };
 
 /** `kayitlar.ay_ozet` — "{adet} kayıt · {tutar}" (E-14 ay değiştirici). */

@@ -409,7 +409,7 @@ export const t = {
   'gunlukRutin.baslik': 'Rutinler',
   'gunlukRutin.tumu': 'Tüm rutinler',
   'gunlukRutin.toast.geriAl': 'Geri al',
-  'gunlukRutin.hata.isaret': 'İşaret kaydedilemedi. Yeniden dene.',
+  'gunlukRutin.hata.isaret': 'Rutin harcaması kaydedilemedi. Yeniden dene.',
 
   // §28.2 — E-28 Profil
   'profil.baslik': 'Profil',

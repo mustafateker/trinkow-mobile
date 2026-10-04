@@ -32,12 +32,7 @@ import {
   obOzetMaasGunu,
   t,
 } from '@/content/metinler';
-import { bildirimIzniVarMi } from '@/lib/bildirimIzni';
 import {
-  bildirimAksamOzetKaydet,
-  bildirimAksamOzetOku,
-  bildirimSaatiKaydet,
-  bildirimSaatiOku,
   gunSiniriKaydet,
   gunSiniriOku,
   varsayilanOdemeKaydet,
@@ -91,8 +86,6 @@ const KIP_ETIKET: Record<Niyet, string> = {
   borc: t['pano.kip.borc'],
 };
 
-const BILDIRIM_SAAT_SECENEKLERI = ['19.00', '19.30', '20.00', '20.30', '21.00', '21.30', '22.00', '22.30', '23.00'];
-
 const GUN_SINIRI_SECENEKLERI: { value: `${GunSiniriSaat}`; label: string }[] = [
   { value: '0', label: t['ayar.gun_siniri.0'] },
   { value: '3', label: t['ayar.gun_siniri.3'] },
@@ -112,9 +105,6 @@ export default function AyarlarEkrani() {
 
   const [yukleniyor, setYukleniyor] = useState(true);
   const [hata, setHata] = useState(false);
-  const [izinVarMi, setIzinVarMi] = useState(true);
-  const [bildirimAcik, setBildirimAcik] = useState(true);
-  const [bildirimSaati, setBildirimSaati] = useState('21.00');
   const [gunSiniri, setGunSiniri] = useState<GunSiniriSaat>(0);
   const [odeme, setOdeme] = useState<OdemeTipi>('kart');
   const [niyet, setNiyet] = useState<Niyet>('takip');
@@ -125,7 +115,6 @@ export default function AyarlarEkrani() {
   const [kayitAdedi, setKayitAdedi] = useState(0);
   const [ilkKayitAyYil, setIlkKayitAyYil] = useState<string | null>(null);
 
-  const [saatSheetAcik, setSaatSheetAcik] = useState(false);
   const [kipSheetAcik, setKipSheetAcik] = useState(false);
   const [gelirDuzenleAcik, setGelirDuzenleAcik] = useState(false);
   const [gelirBuffer, setGelirBuffer] = useState('');
@@ -140,10 +129,7 @@ export default function AyarlarEkrani() {
     setYukleniyor(true);
     setHata(false);
     try {
-      const [izin, acik, saat, sinir, odemeD, profil, detay, adet, ilkGun, oturumKaydi] = await Promise.all([
-        bildirimIzniVarMi(),
-        bildirimAksamOzetOku(db),
-        bildirimSaatiOku(db),
+      const [sinir, odemeD, profil, detay, adet, ilkGun, oturumKaydi] = await Promise.all([
         gunSiniriOku(db),
         varsayilanOdemeOku(db),
         profilOku(db),
@@ -153,9 +139,6 @@ export default function AyarlarEkrani() {
         oturumOku(),
       ]);
       setOturum(oturumKaydi);
-      setIzinVarMi(izin);
-      setBildirimAcik(acik);
-      setBildirimSaati(saat);
       setGunSiniri(sinir);
       setOdeme(odemeD);
       setNiyet(profil.niyet ?? 'takip');
@@ -181,18 +164,6 @@ export default function AyarlarEkrani() {
   function yazmaBasarisiz() {
     islemHatasiniGoster();
     void oku();
-  }
-
-  async function bildirimAcikDegistir() {
-    const yeni = !bildirimAcik;
-    setBildirimAcik(yeni);
-    await bildirimAksamOzetKaydet(db, yeni);
-  }
-
-  async function bildirimSaatiSec(saat: string) {
-    setBildirimSaati(saat);
-    setSaatSheetAcik(false);
-    await bildirimSaatiKaydet(db, saat);
   }
 
   async function gunSiniriSec(deger: `${GunSiniriSaat}`) {
@@ -335,14 +306,6 @@ export default function AyarlarEkrani() {
         <Txt role="h2">Günlük kullanım</Txt>
         <View style={{ height: rhythm.blockInCard }} />
         <View style={stil.bolum}>
-          <SettingRow
-            baslik="Akşam motivasyon kartı"
-            aciklama="Günün kısa özetini uygulama içinde gösterir."
-            anahtarDegeri={bildirimAcik}
-            onAnahtarDegistir={() => void bildirimAcikDegistir().catch(yazmaBasarisiz)}
-            accessibilityLabel={`Uygulama içi motivasyon, ${bildirimAcik ? 'açık' : 'kapalı'}`}
-          />
-          <View style={stil.bolumAyraci} />
           <Txt role="bodyStrong">{t['ayar.gun_siniri']}</Txt>
           <View style={{ height: rhythm.sameObject }} />
           <Txt role="caption" tone={color.text2}>{t['ayar.gun_siniri_aciklama']}</Txt>
@@ -470,20 +433,6 @@ export default function AyarlarEkrani() {
         </Txt>
         </View>
       </ScrollView>
-
-      {/* Bildirim saati sheet */}
-      <BottomSheet visible={saatSheetAcik} onClose={() => setSaatSheetAcik(false)}>
-        <Txt role="h2">{t['ayar.bildirim_saat']}</Txt>
-        <View style={{ height: rhythm.blockInCard }} />
-        <View style={stil.cipAgi}>
-          {BILDIRIM_SAAT_SECENEKLERI.map((s) => (
-            <View key={s} style={stil.cipOge}>
-              <Chip ad={s} selected={s === bildirimSaati} onPress={() => void bildirimSaatiSec(s).catch(yazmaBasarisiz)} />
-            </View>
-          ))}
-        </View>
-        <View style={{ height: rhythm.pad }} />
-      </BottomSheet>
 
       {/* Kip sheet */}
       <BottomSheet visible={kipSheetAcik} onClose={() => setKipSheetAcik(false)}>

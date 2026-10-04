@@ -272,9 +272,9 @@ export const size = {
   chipMaxWidth: 240,
   chipNameMaxWidth: 120,
   /** §7.7 alt sekme çubuğu */
-  tabBarHeight: 60,
+  tabBarHeight: 72,
   tabItemWidth: 64,
-  tabItemHeight: 48,
+  tabItemHeight: 56,
   tabIconBox: 40,
   tabIconBoxHeight: 24,
   tabIconBoxHeightActive: 32,

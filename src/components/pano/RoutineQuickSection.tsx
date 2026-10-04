@@ -14,32 +14,25 @@ import {
   a11yBolumYukleniyor,
   a11yGunlukRutinAldim,
   a11yGunlukRutinAldimGecmis,
-  a11yGunlukRutinAlmadim,
-  a11yGunlukRutinAlmadimGecmis,
   a11yGunlukRutinBolum,
   a11yGunlukRutinBolumGecmis,
-  a11yGunlukRutinIsaretleniyor,
   a11yGunlukRutinYaziliyor,
-  gunlukRutinOzetSec,
   gunlukRutinToastAldim,
-  gunlukRutinToastAlmadim,
   t,
 } from '@/content/metinler';
 import { ayarOku, ayarYaz, harcamaEkle, harcamaSil, ODEME_VARSAYILAN, type Harcama } from '@/db/harcama';
 import {
   GUNLUK_RUTIN_GORUNEN_LIMIT,
-  almadimYeniAdet,
   rutinButonlariKilitli,
   rutinSatirDurumuHesapla,
   rutinSiralamasi,
-  tamGunVazgecildiMi,
   type RutinSatirDurumu,
 } from '@/lib/gunlukRutin';
 import { paraYaz } from '@/lib/para';
 import { kisaTarih } from '@/lib/tarih';
 import { toastGoster } from '@/lib/toastBus';
 import { veriDegisimineAbone, veriDegisti } from '@/lib/veriBus';
-import { routineSkip, routinesGet, yeniId, type Routine } from '@/lib/revApi';
+import { routinesGet, yeniId, type Routine } from '@/lib/revApi';
 import { a11y, clay, color, layout, radius, rhythm, size } from '@/theme/tokens';
 
 /** Bu bölümün cihazda kalıcı açık/kapalı ayarı (§10.2 — `Accordion`'un DEĞİL, ekran sahibinin hafızası). */
@@ -50,11 +43,10 @@ const AYAR_ACIK_ANAHTARI = 'gunluk_rutin_bolum_acik';
  * açılır rutin bölümü. Rutin YÖNETİMİ (ekle/düzenle/sil/adet) `/rutinler`de
  * kalır; burada yalnız günlük hızlı eylem var (§1).
  *
- * "Almadım" durumu artık KALICI: `GET /butce/rutinler` sorgulanan `gun`
- * için `vazgecilen_adet`'i geri okutuyor, bu yüzden oturum içi bir `Set`
- * TUTULMUYOR — satır durumu doğrudan sunucu yanıtından türetilir
- * (`rutinSatirDurumuHesapla`, bkz. `gunlukRutin.ts`). Kısmi `vazgecilen_adet`
- * kararı ve gerekçesi de o dosyada (`tamGunVazgecildiMi`).
+ * Kullanıcı yalnız gerçekleşen rutini `+` ile kaydeder. Kaydedilmeyen adetler
+ * kullanıcıdan ek bir onay istenmeden, gün kapandıktan sonra backend tarafından
+ * otomatik rutin tasarrufu olarak hesaplanır; bugün henüz tamamlanmadığı için
+ * tasarrufa dahil edilmez.
  */
 export function RoutineQuickSection({
   gapUstu,
@@ -138,7 +130,6 @@ export function RoutineQuickSection({
   }, [rutinler, sabitSira]);
 
   const [yaziliyorSet, setYaziliyorSet] = useState<Set<string>>(new Set());
-  const [isaretleniyorSet, setIsaretleniyorSet] = useState<Set<string>>(new Set());
 
   function harcamaKaydi(rutinId: string): Harcama | undefined {
     return harcamalar.find((h) => h.rutinId === rutinId);
@@ -150,21 +141,12 @@ export function RoutineQuickSection({
       .reduce((toplam, h) => toplam + (h.adet ?? 1), 0);
   }
 
-  // Yazma başarılı olduğunda `/rutinler`i baştan çağırmak yerine (ekstra
-  // tur, satır zıplaması riski) yalnız o rutinin `vazgecilen_adet`'ini
-  // burada YAMALAR — sunucu zaten doğruladı, `veriDegisimineAbone` sonraki
-  // gerçek değişiklikte (ör. başka bir ekrandan harcama silinmesi) tam
-  // listeyi zaten tazeler.
-  function vazgecilenAdediYamala(rutinId: string, yeniAdet: number) {
-    setRutinler((onceki) => onceki?.map((r) => (r.id === rutinId ? { ...r, vazgecilen_adet: yeniAdet } : r)) ?? onceki);
-  }
-
   function durum(rutin: Routine): RutinSatirDurumu {
     return rutinSatirDurumuHesapla({
       yaziliyor: yaziliyorSet.has(rutin.id),
-      isaretleniyor: isaretleniyorSet.has(rutin.id),
+      isaretleniyor: false,
       aldiMi: !!harcamaKaydi(rutin.id),
-      vazgecilenAdet: rutin.vazgecilen_adet,
+      vazgecilenAdet: 0,
       gunlukAdet: rutin.gunluk_adet,
     });
   }
@@ -172,18 +154,10 @@ export function RoutineQuickSection({
   async function aldimYaz(rutin: Routine) {
     // Hızlı çift dokunuşta (Pressable `disabled` yeniden render'ı bekler)
     // aynı güne iki yazma isteği atılmasın (§5/6 kilidin GERÇEK karşılığı).
-    if (yaziliyorSet.has(rutin.id) || isaretleniyorSet.has(rutin.id)) return;
+    if (yaziliyorSet.has(rutin.id)) return;
     setYazmaHatasi(false);
     setYaziliyorSet((s) => new Set(s).add(rutin.id));
     try {
-      if (rutin.vazgecilen_adet > 0) {
-        // §7 — "Aldım ⟵ almadım geçişi": önce vazgeçme kaldırılır, sonra
-        // harcama yazılır. Kısmi bir vazgeçme kalıntısı olsa bile (nadir:
-        // başka bir cihazdan gelen kısmi durum) burada sıfırlanır — "Aldım"
-        // niyeti nettir, geride vazgeçme izi kalmamalı.
-        await routineSkip(rutin.id, 0, gunAnahtariDeger);
-        vazgecilenAdediYamala(rutin.id, 0);
-      }
       // Her dokunuş bir gerçekleşme ekler. Aynı güne ayrı kayıt yazmak,
       // hızlı işlemi adet sınırından bağımsız ve geri alınabilir tutar.
       const tutarKurus = rutin.birim_fiyat_kurus;
@@ -224,48 +198,15 @@ export function RoutineQuickSection({
     }
   }
 
-  async function almadimIsaretle(rutin: Routine) {
-    if (yaziliyorSet.has(rutin.id) || isaretleniyorSet.has(rutin.id) || harcamaKaydi(rutin.id)) return;
-    const kaldiriliyorMu = tamGunVazgecildiMi(rutin.vazgecilen_adet, rutin.gunluk_adet);
-    const yeniAdet = almadimYeniAdet(rutin);
-    setYazmaHatasi(false);
-    setIsaretleniyorSet((s) => new Set(s).add(rutin.id));
-    try {
-      await routineSkip(rutin.id, yeniAdet, gunAnahtariDeger);
-      vazgecilenAdediYamala(rutin.id, yeniAdet);
-      if (!kaldiriliyorMu) {
-        toastGoster({
-          tur: 'undoInfo',
-          metin: gunlukRutinToastAlmadim(rutin.ad),
-          eylemEtiketi: t['gunlukRutin.toast.geriAl'],
-          onEylem: async () => {
-            await routineSkip(rutin.id, 0, gunAnahtariDeger);
-            vazgecilenAdediYamala(rutin.id, 0);
-          },
-        });
-      }
-    } catch {
-      // Hata: `rutinler` YAMALANMADI, satır sunucu onayı gelmeden önceki
-      // görünümüne (işaretsiz/vazgeçti — ne ise) otomatik döner.
-      setYazmaHatasi(true);
-    } finally {
-      setIsaretleniyorSet((s) => {
-        const n = new Set(s);
-        n.delete(rutin.id);
-        return n;
-      });
-    }
-  }
-
   // §5/1 — rutin hiç yoksa bölüm HİÇ ÇİZİLMEZ (yükleniyorken de değil: bu
   // durum yalnız gerçek veri "hiç rutin yok" dediğinde geçerlidir).
   if (!yukleniyor && !okumaHatasi && (rutinler?.length ?? 0) === 0) return null;
 
   const gun = kisaTarih(tarih);
   const toplam = rutinler?.length ?? 0;
-  const isaretsizSayisi = rutinler?.filter((r) => durum(r) === 'isaretsiz').length ?? 0;
   const hataMi = okumaHatasi || yazmaHatasi;
-  const ozet = gunlukRutinOzetSec(toplam, isaretsizSayisi, hataMi);
+  const kaydedilen = rutinler?.filter((r) => !!harcamaKaydi(r.id)).length ?? 0;
+  const ozet = hataMi ? `${toplam} rutin · yüklenemedi` : `${toplam} rutin · ${kaydedilen} kaydedildi`;
 
   const baslikA11y = yukleniyor
     ? a11yBolumYukleniyor(t['gunlukRutin.baslik'])
@@ -299,6 +240,10 @@ export function RoutineQuickSection({
             </View>
           ) : (
             <View>
+              <Txt role="caption" tone={color.text2}>
+                Kaydetmediklerin gün tamamlandığında otomatik tasarruf sayılır.
+              </Txt>
+              <View style={{ height: rhythm.blockInCard }} />
               {gorunenler.map((rutin, i) => (
                 <View key={rutin.id}>
                   {i > 0 ? <View style={{ height: rhythm.blockInCard }} /> : null}
@@ -309,7 +254,6 @@ export function RoutineQuickSection({
                     bugunMu={bugunMu}
                     gun={gun}
                     onAldim={() => void aldimYaz(rutin)}
-                    onAlmadim={() => void almadimIsaretle(rutin)}
                   />
                 </View>
               ))}
@@ -343,7 +287,6 @@ function RoutineQuickRow({
   bugunMu,
   gun,
   onAldim,
-  onAlmadim,
 }: {
   rutin: Routine;
   alinanAdet: number;
@@ -351,7 +294,6 @@ function RoutineQuickRow({
   bugunMu: boolean;
   gun: string;
   onAldim: () => void;
-  onAlmadim: () => void;
 }) {
   const tutarKurus = rutin.birim_fiyat_kurus;
   const tutar = paraYaz(tutarKurus);
@@ -363,12 +305,6 @@ function RoutineQuickRow({
       : bugunMu
         ? a11yGunlukRutinAldim(rutin.ad, tutar)
         : a11yGunlukRutinAldimGecmis(rutin.ad, gun, tutar);
-  const almadimEtiket =
-    durum === 'almadimIsaretleniyor'
-      ? a11yGunlukRutinIsaretleniyor(rutin.ad)
-      : bugunMu
-        ? a11yGunlukRutinAlmadim(rutin.ad, tutar)
-        : a11yGunlukRutinAlmadimGecmis(rutin.ad, gun, tutar);
 
   return (
     <View style={stil.satir}>
@@ -384,38 +320,22 @@ function RoutineQuickRow({
       <View style={{ width: rhythm.blockInCard }} />
       <RoutineActionButton
         icon="plus"
-        tur="aldim"
         selected={durum === 'aldi'}
         disabled={kilit.aldim}
         loading={durum === 'aldimYaziliyor'}
         accessibilityLabel={aldimEtiket}
         onPress={onAldim}
       />
-      <View style={{ width: rhythm.blockInCard }} />
-      <RoutineActionButton
-        icon="limit-kaldir"
-        tur="almadim"
-        selected={durum === 'vazgecti'}
-        disabled={kilit.almadim}
-        loading={durum === 'almadimIsaretleniyor'}
-        accessibilityLabel={almadimEtiket}
-        onPress={onAlmadim}
-      />
     </View>
   );
 }
 
 /**
- * §4.1 — 44×44 ikon-yalnız buton (kit §6.E); idle `well`+`sunken` · pasif
- * `disabledBg` · yükleniyor spinner. Seçili renk EYLEME göre ayrışır: harcama
- * yapılmayan "Almadım" olumlu sonuçtur → `success`; "Aldım" harcamanın
- * gerçekleştiğini NÖTR biçimde bildirir → `text` (ink-800) — ikisi de canlı
- * `primary` ile "ödüllendirilmez" (§1 "kırmızıyı suçluluk… kullanma" ilkesinin
- * tersi: harcamayı da övücü bir renkle vurgulama).
+ * 44×44 hızlı rutin kayıt düğmesi (kit §6.E). Aynı rutin gün içinde birden
+ * fazla gerçekleşebildiği için başarılı kayıttan sonra da kullanılabilir.
  */
 function RoutineActionButton({
   icon,
-  tur,
   selected,
   disabled,
   loading,
@@ -423,7 +343,6 @@ function RoutineActionButton({
   onPress,
 }: {
   icon: IconName;
-  tur: 'aldim' | 'almadim';
   selected: boolean;
   disabled: boolean;
   loading: boolean;
@@ -435,11 +354,10 @@ function RoutineActionButton({
   // sonraki dokunuş aynı rutinin bugünkü adedini artırır.
   const oncelSecili = selected || loading;
   const pasifGorunum = disabled && !oncelSecili;
-  const olumluMu = tur === 'almadim';
-  const seciliDolu = olumluMu ? color.success : color.primary;
-  const seciliBasili = olumluMu ? color.successInk : color.primaryDeep;
-  const bosZemin = olumluMu ? color.successSoft : color.primarySoft;
-  const bosIkon = olumluMu ? color.successInk : color.primaryText;
+  const seciliDolu = color.primary;
+  const seciliBasili = color.primaryDeep;
+  const bosZemin = color.primarySoft;
+  const bosIkon = color.primaryText;
 
   return (
     <Pressable
@@ -487,8 +405,6 @@ function RoutineSectionSkeleton() {
               <Skeleton width={120} height={16} />
             </View>
             <Skeleton width={56} height={24} />
-            <View style={{ width: rhythm.blockInCard }} />
-            <Skeleton width={a11y.minTarget} height={a11y.minTarget} borderRadius={radius.tile} />
             <View style={{ width: rhythm.blockInCard }} />
             <Skeleton width={a11y.minTarget} height={a11y.minTarget} borderRadius={radius.tile} />
           </View>

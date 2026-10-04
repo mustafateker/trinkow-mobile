@@ -1,7 +1,15 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { FlatList, StyleSheet, useWindowDimensions, View, type ViewToken } from 'react-native';
+import {
+  FlatList,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+  type ViewToken,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { TabDock } from '@/components/TabBar';
@@ -12,9 +20,9 @@ import { useSeriOzet } from '@/db/useSeriOzet';
 import { color } from '@/theme/tokens';
 
 /**
- * E-10 · Günlük — yatay tarih sayfalama (K-049/K-055). **Bugün en sağdaki
- * sayfadır**, geçmiş günler sola dizilir; geçmişe gitmek için parmak sağa
- * kaydırılır (takvim konvansiyonu). Sol uç = ilk kayıt/kurulum günü.
+ * E-10 · Günlük — yatay tarih sayfalama (K-049/K-055). Günler kronolojik
+ * dizilir: geçmiş gün solda, daha yeni gün sağdadır. Böylece geçmişe
+ * giderken eski gün soldan; Bugün'e dönerken yeni gün sağdan gelir.
  *
  * `?gun=-7` gibi bir parametreyle açılırsa (E-24 Gün seçici'den) doğrudan
  * o günün sayfasına gider.
@@ -29,7 +37,8 @@ export default function GunlukEkrani() {
   const seriOzet = useSeriOzet();
   const listRef = useRef<FlatList<number>>(null);
 
-  // En eski günden bugüne dizilmiş gün farkları — bugün DAİMA son (en sağ) eleman.
+  // İlk kayıt gününden bugüne kronolojik sıra — takvim geçiş yönünün görsel
+  // beklentiyle aynı kalmasını sağlar.
   const sayfalar = useMemo(() => {
     if (!sinir.hazir) return [0];
     const dizi: number[] = [];
@@ -37,7 +46,7 @@ export default function GunlukEkrani() {
     return dizi;
   }, [sinir.hazir, sinir.enEskiGunFarki]);
 
-  const [aktifIndex, setAktifIndex] = useState(sayfalar.length - 1);
+  const [aktifIndex, setAktifIndex] = useState(0);
   const kaydirmaKilidi = useRef(false);
 
   // Sınır hazır olunca (ya da `?gun=` parametresi geldiğinde) doğru sayfaya atla.
@@ -56,7 +65,9 @@ export default function GunlukEkrani() {
   }, [sinir.hazir, hedefGunFarki]);
 
   function gunDegistir(delta: number) {
-    const yeniIndex = Math.min(Math.max(aktifIndex + delta, 0), sayfalar.length - 1);
+    const aktifGun = sayfalar[aktifIndex] ?? 0;
+    const yeniIndex = sayfalar.indexOf(aktifGun + delta);
+    if (yeniIndex < 0) return;
     if (yeniIndex === aktifIndex) return;
     setAktifIndex(yeniIndex);
     listRef.current?.scrollToIndex({ index: yeniIndex, animated: true });
@@ -67,6 +78,15 @@ export default function GunlukEkrani() {
     const ilk = viewableItems[0];
     if (ilk && typeof ilk.index === 'number') setAktifIndex(ilk.index);
   }).current;
+
+  function kaydirmaBitti(event: NativeSyntheticEvent<NativeScrollEvent>) {
+    if (kaydirmaKilidi.current || genislik <= 0) return;
+    const index = Math.min(
+      Math.max(Math.round(event.nativeEvent.contentOffset.x / genislik), 0),
+      sayfalar.length - 1,
+    );
+    setAktifIndex(index);
+  }
 
   async function kutlamaGosterildi() {
     if (seriOzet.durum?.kutlanacakMilestone != null) {
@@ -85,11 +105,22 @@ export default function GunlukEkrani() {
         keyExtractor={(f) => String(f)}
         horizontal
         pagingEnabled
+        snapToInterval={genislik}
+        snapToAlignment="start"
+        decelerationRate="fast"
+        disableIntervalMomentum
+        directionalLockEnabled
+        nestedScrollEnabled
+        bounces={false}
+        overScrollMode="never"
         showsHorizontalScrollIndicator={false}
         initialScrollIndex={aktifIndex}
         getItemLayout={(_, i) => ({ length: genislik, offset: genislik * i, index: i })}
-        onScrollToIndexFailed={() => {}}
+        onScrollToIndexFailed={({ index }) => {
+          requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: index * genislik, animated: false }));
+        }}
         onViewableItemsChanged={gorunenDegisti}
+        onMomentumScrollEnd={kaydirmaBitti}
         viewabilityConfig={{ itemVisiblePercentThreshold: 60 }}
         renderItem={({ item, index }) => (
           <View style={{ width: genislik }}>

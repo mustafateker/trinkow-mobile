@@ -66,7 +66,7 @@ export function AmountWell({
         </View>
         <View style={{ height: rhythm.group }} />
         <View style={stil.paraSatiri}>
-          {onChangeText ? <MoneyInput hideLabel value={value ?? ''} onChangeText={onChangeText} label={ustSol} autoFocus={autoFocus} style={{ fontSize: uzun ? 32 : 56, lineHeight: 64, textAlign: 'center' }} /> : <Txt role={sayiRolu} numberOfLines={1}>
+          {onChangeText ? <MoneyInput hideLabel value={value ?? ''} onChangeText={onChangeText} label={ustSol} autoFocus={autoFocus} style={{ fontSize: uzun ? 32 : 36, lineHeight: 42, textAlign: 'center' }} /> : <Txt role={sayiRolu} numberOfLines={1}>
             {tutarGosterim}
           </Txt>}
           <View style={{ width: rhythm.group }} />

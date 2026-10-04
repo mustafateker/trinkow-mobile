@@ -2,17 +2,17 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { MoneyInput } from '@/components/MoneyInput';
 import { routinesGet, yeniId } from '@/lib/revApi';
 import { AmountWell, type AmountWellGunButonu } from '@/components/AmountWell';
 import { Button } from '@/components/Button';
 import { CategoryPicker } from '@/components/CategoryPicker';
 import { Chip } from '@/components/Chip';
 import { InfoStrip } from '@/components/InfoStrip';
-import { ScreenHeader } from '@/components/ScreenHeader';
+import { Icon } from '@/components/Icon';
+import { IconButton } from '@/components/IconButton';
 import { SearchField } from '@/components/SearchField';
 import { SearchResultRow } from '@/components/SearchResultRow';
 import { SearchResultSkeleton } from '@/components/SearchResultSkeleton';
@@ -58,7 +58,7 @@ import { tahminEt, type GecmisKayit, type KategoriTahmini } from '@/lib/kategori
 import { gunSeciciAbone } from '@/lib/gunSeciciBus';
 import { toastGoster } from '@/lib/toastBus';
 import { veriDegisti } from '@/lib/veriBus';
-import { color, layout, rhythm } from '@/theme/tokens';
+import { color, layout, radius, rhythm } from '@/theme/tokens';
 
 /**
  * E-11 · Harcama ekle. Referans: prototip-v4/02-harcama-ekle.html (17 yüzey, T-4).
@@ -92,7 +92,6 @@ export default function HarcamaEkleEkrani() {
   const gonderiliyor = useRef(false);
   const [istemciId] = useState(yeniId);
   const [rutinId, setRutinId] = useState<string | null>(params.rutinId ?? null);
-  const [adet, setAdet] = useState('1');
   const [rutinler, setRutinler] = useState<{id:string;ad:string;kategori:string;birim_fiyat_kurus:number}[]>([]);
 
   // F-18 — arama alanı. `urunAdi` doluysa alan "seçili" durumdadır (ürün
@@ -128,6 +127,7 @@ export default function HarcamaEkleEkrani() {
   // "Dün" sayfasından açılan akışın ilk değeri korunur (K-049).
   const [secilenGunFarki, setSecilenGunFarki] = useState<number | null>(gunFarkiParam === -1 ? -1 : null);
   const [notAcik, setNotAcik] = useState(false);
+  const [detaylarAcik, setDetaylarAcik] = useState(false);
   const [notMetni, setNotMetni] = useState('');
 
   const [tutarHata, setTutarHata] = useState<string | undefined>();
@@ -193,6 +193,15 @@ export default function HarcamaEkleEkrani() {
   }, [db, aramaMetni, urunAdi]);
 
   const tutarKurus = tutarGirisindenKurus(buffer);
+  const abonelikMi = kategoriKodu === 'abonelik';
+
+  // Abonelik kategorisi aylık periyottadır; taksit, aynı harcamayı aylara
+  // bölmek anlamına geldiği için abonelik periyoduyla birlikte kullanılamaz.
+  useEffect(() => {
+    if (!abonelikMi) return;
+    setTaksitliAcik(false);
+    setTaksitSayisi(null);
+  }, [abonelikMi]);
 
   useEffect(() => {
     if (kategoriKilitli) return;
@@ -282,7 +291,6 @@ export default function HarcamaEkleEkrani() {
   /** Ürün + kategori + (varsa) tutar tek kaynaktan geldi — kendi geçmişi ya da "Son kullandıkların" çipi. */
   function urunSec(ad: string, kategoriKoduSecilen: KategoriKodu, gecmisTutarKurus: number) {
     setRutinId(null);
-    setAdet('1');
     setUrunAdi(ad);
     setAramaMetni('');
     setKategoriKilitli(true);
@@ -333,7 +341,6 @@ export default function HarcamaEkleEkrani() {
 
   async function kaydet() {
     if (gonderiliyor.current) return;
-    if (rutinId && (!Number.isInteger(Number(adet)) || Number(adet) <= 0)) { setYazmaHata('Adet pozitif bir tam sayı olmalı.'); return; }
     if (tutarKurus <= 0) {
       setTutarHata(t['ekle.hata.tutar']);
       return;
@@ -358,7 +365,7 @@ export default function HarcamaEkleEkrani() {
         });
       } else {
         await harcamaEkle(db, {
-          istemciId, rutinId, adet: Number(adet) || 1,
+          istemciId, rutinId, adet: 1,
           tutarKurus,
           kategori: kategoriKodu,
           urunAdi: urunAdi.trim() || null,
@@ -390,25 +397,28 @@ export default function HarcamaEkleEkrani() {
 
   return (
     <KeyboardAvoidingView style={stil.ekran} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      <StatusBar style="dark" />
-      <View style={{ height: insets.top }} />
+      <StatusBar style="light" />
+      <View style={[stil.guvenliAlan, { height: insets.top }]} />
+      <View style={stil.koyuBaslik}>
+        <View style={stil.baslikMetni}>
+          <Txt role="caption" tone={color.navMuted}>Yeni kayıt</Txt>
+          <Txt role="h1" tone="#FFFFFF">{t['ekle.baslik']}</Txt>
+        </View>
+        <IconButton
+          icon="x"
+          accessibilityLabel={t['eylem.kapat']}
+          tone="#FFFFFF"
+          background={color.navGlassBg}
+          pressedBackground={color.navGlassBgPressed}
+          onPress={() => router.back()}
+        />
+      </View>
       <ScrollView
         style={stil.kaydir}
         contentContainerStyle={stil.kaydirIcerik}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled">
-        {/* Tasarım kiti §6.I — bottom sheet imzası: 36px tutamak. Modal tam
-            ekran açılsa da içerik dilinin "sheet" olduğunu okutur. */}
-        <View style={stil.tutamacSatiri}>
-          <View style={stil.tutamac} />
-        </View>
-        <ScreenHeader
-          baslik={t['ekle.baslik']}
-          actionIcon="x"
-          actionLabel={t['eylem.kapat']}
-          onActionPress={() => router.back()}
-        />
-
+        <View style={stil.panel}>
         <View style={stil.pad}>
           <AmountWell
             tutarGosterim={tutarGosterim}
@@ -461,21 +471,6 @@ export default function HarcamaEkleEkrani() {
           </>
         ) : null}
 
-        <View style={{ height: rhythm.group }} />
-        <View style={stil.pad}>
-          <SearchField
-            deger={aramaMetni}
-            onDegerDegisti={setAramaMetni}
-            secili={urunAdi.trim() ? urunAdi : null}
-            onKaldir={urunKaldir}
-            yukleniyor={gecmisYukleniyor}
-            placeholder={t['ekle.arama.placeholder']}
-            accessibilityLabel={t['a11y.ekle.arama']}
-            temizleEtiketi={t['a11y.ekle.aramaTemizle']}
-            kaldirEtiketi={t['a11y.ekle.urunKaldir']}
-          />
-        </View>
-
         {sonKullanilanStripGoster ? (
           <>
             <View style={{ height: rhythm.section }} />
@@ -504,14 +499,53 @@ export default function HarcamaEkleEkrani() {
           </>
         ) : null}
 
-        {!taksitliAcik && <View style={[stil.pad, {gap: 12, marginVertical: 16}]}>
-          <Txt role="label">Rutin harcama bağlantısı</Txt>
-          <ScrollView horizontal keyboardShouldPersistTaps="handled" contentContainerStyle={{gap: 8}}>
-            <Chip ad="Rutin değil" selected={!rutinId} onPress={() => setRutinId(null)} />
-            {rutinler.map(r => <Chip key={r.id} ad={r.ad} selected={rutinId === r.id} onPress={() => { urunSec(r.ad, kategoriGetir(r.kategori).kod, r.birim_fiyat_kurus); setRutinId(r.id); }} />)}
-          </ScrollView>
-          {rutinId && <><Txt role="caption">Kaç adet aldın? Yukarıdaki tutar toplam harcama tutarıdır.</Txt><MoneyInput value={adet} onChangeText={setAdet} label="Alınan adet" integerOnly /></>}
-        </View>}
+        {rutinler.length > 0 && !taksitliAcik ? (
+          <>
+            <View style={{ height: rhythm.section }} />
+            <View style={stil.pad}>
+              <Txt role="label" tone={color.text2}>Rutin harcamalar</Txt>
+              <View style={{ height: rhythm.sameObject }} />
+              <Txt role="caption">Tek dokunuşla tutar ve kategoriyi doldur.</Txt>
+            </View>
+            <View style={{ height: rhythm.group }} />
+            <ScrollView
+              horizontal
+              keyboardShouldPersistTaps="handled"
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={[stil.yatayKaydir, { paddingHorizontal: layout.screenPaddingX }]}>
+              {rutinId ? <Chip ad="Rutin bağlantısını kaldır" onPress={() => setRutinId(null)} /> : null}
+              {rutinler.map((r) => (
+                <Chip
+                  key={r.id}
+                  ad={`${r.ad} · ${paraYaz(r.birim_fiyat_kurus)}`}
+                  selected={rutinId === r.id}
+                  dotColor={aileRenkleri(kategoriGetir(r.kategori).aile).solid}
+                  onPress={() => {
+                    urunSec(r.ad, kategoriGetir(r.kategori).kod, r.birim_fiyat_kurus);
+                    setRutinId(r.id);
+                  }}
+                />
+              ))}
+            </ScrollView>
+          </>
+        ) : null}
+
+        <View style={{ height: rhythm.section }} />
+        <View style={stil.pad}>
+          <Txt role="label" tone={color.text2}>Ürün veya açıklama</Txt>
+          <View style={{ height: rhythm.group }} />
+          <SearchField
+            deger={aramaMetni}
+            onDegerDegisti={setAramaMetni}
+            secili={urunAdi.trim() ? urunAdi : null}
+            onKaldir={urunKaldir}
+            yukleniyor={gecmisYukleniyor}
+            placeholder={t['ekle.arama.placeholder']}
+            accessibilityLabel={t['a11y.ekle.arama']}
+            temizleEtiketi={t['a11y.ekle.aramaTemizle']}
+            kaldirEtiketi={t['a11y.ekle.urunKaldir']}
+          />
+        </View>
 
         {aramaAktif ? (
           <View style={stil.pad}>
@@ -581,6 +615,22 @@ export default function HarcamaEkleEkrani() {
             {/* Tasarım kiti §7.4 — kategori bu sheet'te seçilir. Param'dan ya da
                 seçilen üründen gelen değer ön-seçili durur, tek dokunuşla değişir. */}
             <CategoryPicker value={kategoriKodu} onChange={kategoriSec} />
+            {abonelikMi ? (
+              <View style={[stil.pad, { marginTop: rhythm.blockInCard }]}>
+                <Txt role="label" tone={color.text2}>Ödeme periyodu</Txt>
+                <View style={{ height: rhythm.group }} />
+                <View style={stil.satir}>
+                  <Chip
+                    ad="Aylık"
+                    selected
+                    dotColor={color.primary}
+                    accessibilityLabel="Abonelik ödeme periyodu, aylık"
+                  />
+                </View>
+                <View style={{ height: rhythm.group }} />
+                <Txt role="caption" tone={color.text2}>Abonelik tutarı aylık gider olarak kaydedilir.</Txt>
+              </View>
+            ) : null}
             {tahmin && !kategoriKilitli ? (
               <View style={[stil.pad, { marginTop: rhythm.group }]}>
                 <Txt role="caption" tone={color.text2}>
@@ -591,6 +641,27 @@ export default function HarcamaEkleEkrani() {
           </>
         )}
 
+        {!aramaAktif ? <>
+          <View style={{ height: rhythm.section }} />
+          <View style={stil.pad}>
+            <Pressable
+              onPress={() => setDetaylarAcik((v) => !v)}
+              accessibilityRole="button"
+              accessibilityState={{ expanded: detaylarAcik }}
+              style={({ pressed }) => [stil.detaySatiri, pressed && stil.detaySatiriBasili]}>
+              <View style={stil.detayIkon}><Icon name="limitler" size={20} color={color.primary} /></View>
+              <View style={stil.esnek}>
+                <Txt role="bodyStrong">Diğer detaylar</Txt>
+                <Txt role="caption">{abonelikMi ? 'Aylık · ' : ''}{odeme === 'kart' ? 'Kart' : 'Nakit'}{taksitSayisi ? ` · ${taksitSayisi} taksit` : ''}{notMetni.trim() ? ' · Not eklendi' : ''}</Txt>
+              </View>
+              <View style={detaylarAcik ? stil.okAcik : undefined}>
+                <Icon name="chevron-down" size={20} color={color.text2} />
+              </View>
+            </Pressable>
+          </View>
+        </> : null}
+
+        {detaylarAcik && !aramaAktif ? <>
         <View style={{ height: rhythm.section }} />
         <View style={stil.pad}>
           <Txt role="label" tone={color.text2}>
@@ -608,7 +679,7 @@ export default function HarcamaEkleEkrani() {
                 onChange={odemeSec}
               />
             </View>
-            {odeme === 'kart' ? (
+            {odeme === 'kart' && !abonelikMi ? (
               <>
                 <View style={{ width: rhythm.blockInCard }} />
                 <Chip
@@ -683,8 +754,10 @@ export default function HarcamaEkleEkrani() {
             </View>
           </>
         ) : null}
+        </> : null}
 
         <View style={{ height: rhythm.section }} />
+        </View>
       </ScrollView>
 
       <View style={[stil.altSabit, { paddingBottom: insets.bottom + rhythm.group }]}>
@@ -698,7 +771,7 @@ export default function HarcamaEkleEkrani() {
             </>
           ) : null}
           <Button
-            label={t['eylem.kaydet']}
+            label="Harcamayı kaydet"
             variant="primary"
             disabled={tutarKurus <= 0}
             loading={kaydediliyor}
@@ -711,16 +784,24 @@ export default function HarcamaEkleEkrani() {
 }
 
 const stil = StyleSheet.create({
-  ekran: { flex: 1, backgroundColor: color.bg },
-  kaydir: { flex: 1 },
-  kaydirIcerik: { paddingBottom: rhythm.section },
+  ekran: { flex: 1, backgroundColor: color.navDark },
+  guvenliAlan: { backgroundColor: color.navDark },
+  koyuBaslik: { backgroundColor: color.navDark, paddingHorizontal: layout.screenPaddingX, paddingTop: rhythm.group, paddingBottom: rhythm.pad, flexDirection: 'row', alignItems: 'center', gap: rhythm.group },
+  baslikMetni: { flex: 1, minWidth: 0 },
+  kaydir: { flex: 1, backgroundColor: color.navDark },
+  kaydirIcerik: { flexGrow: 1 },
+  panel: { flexGrow: 1, backgroundColor: color.surface, borderTopLeftRadius: radius.hero, borderTopRightRadius: radius.hero, paddingTop: rhythm.section, paddingBottom: 112 },
   pad: { paddingHorizontal: layout.screenPaddingX },
+  esnek: { flex: 1, minWidth: 0 },
   satir: { flexDirection: 'row', alignItems: 'center' },
   odemeSatiri: { flexDirection: 'row', alignItems: 'center' },
   segmentEsnek: { flex: 1 },
   yatayKaydir: { flexDirection: 'row', alignItems: 'center', gap: rhythm.group },
   // §3.1 sabit alt blok üst boşluğu 8
-  altSabit: { paddingTop: rhythm.group },
-  tutamacSatiri: { alignItems: 'center', paddingTop: rhythm.group },
-  tutamac: { width: 44, height: 4, borderRadius: 999, backgroundColor: color.line },
+  altSabit: { paddingTop: rhythm.group, backgroundColor: color.surface, borderTopWidth: 1, borderTopColor: color.line },
+  detaySatiri: { minHeight: 68, paddingHorizontal: rhythm.pad, flexDirection: 'row', alignItems: 'center', gap: rhythm.blockInCard, borderRadius: radius.tile, backgroundColor: color.groove },
+  detaySatiriBasili: { backgroundColor: color.primarySoft },
+  detayIkon: { width: 40, height: 40, borderRadius: 12, backgroundColor: color.primarySoft, alignItems: 'center', justifyContent: 'center' },
+  detayBlok: { gap: rhythm.blockInCard, marginTop: rhythm.pad },
+  okAcik: { transform: [{ rotate: '180deg' }] },
 });

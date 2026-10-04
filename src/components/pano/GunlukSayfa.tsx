@@ -223,14 +223,17 @@ export function GunlukSayfa({
 
         {/* Tasarım kiti §7.3 — özet, tek coral CTA, hareketler, sık kullanılanlar;
             rutin ve kategori bölümleri bunların ALTINDA açılır kaplardır. */}
-        {bugunMu ? (
-          <>
-            <View style={{ height: rhythm.section }} />
-            <View style={stil.pad}>
-              <Button label={t['gunluk.harcama_ekle']} variant="primary" icon="plus" onPress={() => harcamaEkleyeGit()} />
-            </View>
-          </>
-        ) : null}
+        <>
+          <View style={{ height: rhythm.section }} />
+          <View style={stil.pad}>
+            <Button
+              label={bugunMu ? t['gunluk.harcama_ekle'] : 'Bu güne harcama ekle'}
+              variant="primary"
+              icon="plus"
+              onPress={() => harcamaEkleyeGit()}
+            />
+          </View>
+        </>
 
         {seriBugunBaslar ? (
           <>
