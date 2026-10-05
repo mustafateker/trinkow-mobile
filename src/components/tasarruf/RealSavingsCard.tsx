@@ -6,11 +6,6 @@ import { LoadBar } from '@/components/LoadBar';
 import { Txt } from '@/components/Txt';
 import {
   t,
-  tasarrufBirikimAyCekmeBuAy,
-  tasarrufBirikimAyCekmeGecmisAy,
-  tasarrufBirikimAyEklemeBuAy,
-  tasarrufBirikimAyEklemeGecmisAy,
-  tasarrufBirikimAyYokGecmisAy,
   tasarrufBirikimHedef,
 } from '@/content/metinler';
 import { paraYaz } from '@/lib/para';
@@ -25,19 +20,15 @@ import { color, rhythm } from '@/theme/tokens';
  * §3.3) düğmenin hemen üstüne indi — `motivasyonStrip` olarak dışarıdan verilir.
  */
 export function RealSavingsCard({
-  guncelAyMi,
-  ayLokatifDeger,
   gercekBirikimKurus,
-  ayBirikimKurus,
+  donemBirikimKurus,
   hedefBirikimKurus,
   motivasyonStrip,
   onEklePress,
   onHedefPress,
 }: {
-  guncelAyMi: boolean;
-  ayLokatifDeger: string;
   gercekBirikimKurus: number;
-  ayBirikimKurus: number;
+  donemBirikimKurus: number;
   hedefBirikimKurus: number;
   motivasyonStrip?: ReactNode;
   onEklePress: () => void;
@@ -54,9 +45,12 @@ export function RealSavingsCard({
       <Txt role="display" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
         {paraYaz(gercekBirikimKurus)}
       </Txt>
-      <Txt role="caption" tone={color.text2}>
-        {birikimAySatiri(guncelAyMi, ayLokatifDeger, ayBirikimKurus)}
-      </Txt>
+      <View style={stil.aralik}>
+        <Txt role="caption" tone={color.text2}>Bu dönem net hareket</Txt>
+        <Txt role="amount" tone={donemBirikimKurus < 0 ? color.warningInk : color.text}>
+          {donemBirikimKurus > 0 ? '+' : ''}{paraYaz(donemBirikimKurus)}
+        </Txt>
+      </View>
       <View style={{ height: rhythm.blockInCard }} />
       {hedefVar ? (
         <>
@@ -85,14 +79,6 @@ export function RealSavingsCard({
       <Button variant="secondary" icon="plus" label={t['tasarruf.birikim.ekleBtn']} onPress={onEklePress} />
     </View>
   );
-}
-
-/** Kapalı akordiyon özetinde de ("… kayıt yok" varyantı) kullanılır — bkz. `tasarruflar.tsx`. */
-export function birikimAySatiri(guncelAyMi: boolean, ayLokatifDeger: string, ayBirikimKurus: number): string {
-  if (ayBirikimKurus === 0) return guncelAyMi ? t['tasarruf.birikim.ayYok.buAy'] : tasarrufBirikimAyYokGecmisAy(ayLokatifDeger);
-  const tutar = paraYaz(Math.abs(ayBirikimKurus));
-  if (ayBirikimKurus > 0) return guncelAyMi ? tasarrufBirikimAyEklemeBuAy(tutar) : tasarrufBirikimAyEklemeGecmisAy(ayLokatifDeger, tutar);
-  return guncelAyMi ? tasarrufBirikimAyCekmeBuAy(tutar) : tasarrufBirikimAyCekmeGecmisAy(ayLokatifDeger, tutar);
 }
 
 const stil = StyleSheet.create({

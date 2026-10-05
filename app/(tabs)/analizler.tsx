@@ -1,5 +1,5 @@
 import { useSQLiteContext } from 'expo-sqlite';
-import { Fragment, useCallback, useMemo, useState } from 'react';
+import { Fragment, useCallback, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
 
@@ -17,10 +17,9 @@ import { color, layout, radius, rhythm } from '@/theme/tokens';
 
 type Donem = 'hafta' | 'ay' | 'yil';
 type KategoriOzeti = { kod: string; tutar: number; renk: string; pay: number; gelirYuku: number };
-type Cubuk = { etiket: string; gider: number; gelir: number };
+type Cubuk = { etiket: string; gider: number };
 type AnalizVerisi = {
   baslik: string;
-  gelir: number;
   gider: number;
   kategoriler: KategoriOzeti[];
   cubuklar: Cubuk[];
@@ -61,13 +60,12 @@ function gelirHesapla(aylik: number, donem: Donem, baslangic: Date, bitis: Date)
   return Math.round((aylik / ayGunSayisi(`${bitis.getFullYear()}-${String(bitis.getMonth() + 1).padStart(2, '0')}`)) * gunSayisi(baslangic, bitis));
 }
 
-function cubuklariOlustur(harcamalar: Harcama[], donem: Donem, baslangic: Date, bitis: Date, gelir: number): Cubuk[] {
+function cubuklariOlustur(harcamalar: Harcama[], donem: Donem, baslangic: Date, bitis: Date): Cubuk[] {
   if (donem === 'hafta') {
     const gunler = ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pa'];
-    const gunlukGelir = gelir / Math.max(1, gunSayisi(baslangic, bitis));
-    return gunler.slice(0, gunSayisi(baslangic, bitis)).map((etiket, i) => {
+    return gunler.map((etiket, i) => {
       const d = new Date(baslangic); d.setDate(d.getDate() + i);
-      return { etiket, gelir: gunlukGelir, gider: harcamalar.filter((h) => h.gun === gunAnahtari(d)).reduce((t, h) => t + h.tutarKurus, 0) };
+      return { etiket, gider: harcamalar.filter((h) => h.gun === gunAnahtari(d)).reduce((t, h) => t + h.tutarKurus, 0) };
     });
   }
   if (donem === 'ay') {
@@ -75,13 +73,12 @@ function cubuklariOlustur(harcamalar: Harcama[], donem: Donem, baslangic: Date, 
     return dilimler.map((ilk, i) => {
       const son = i === 3 ? bitis.getDate() : Math.min(ilk + 6, bitis.getDate());
       const gider = harcamalar.filter((h) => Number(h.gun.slice(8, 10)) >= ilk && Number(h.gun.slice(8, 10)) <= son).reduce((t, h) => t + h.tutarKurus, 0);
-      return { etiket: `${i + 1}. hf.`, gelir: gelir * Math.max(0, son - ilk + 1) / ayGunSayisi(`${bitis.getFullYear()}-${String(bitis.getMonth() + 1).padStart(2, '0')}`), gider };
+      return { etiket: `${i + 1}. hf.`, gider };
     });
   }
   const aylar = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
   return aylar.map((etiket, ay) => ({
     etiket,
-    gelir: gelir / 12,
     gider: harcamalar.filter((h) => Number(h.gun.slice(5, 7)) === ay + 1).reduce((t, h) => t + h.tutarKurus, 0),
   }));
 }
@@ -106,12 +103,12 @@ export default function AnalizlerEkrani() {
       pay: gider > 0 ? tutar / gider : 0,
       gelirYuku: gelir > 0 ? tutar / gelir : 0,
     }));
-    return { baslik: secim.baslik, gelir, gider, kategoriler, cubuklar: cubuklariOlustur(harcamalar, donem, secim.baslangic, secim.bitis, gelir) };
+    return { baslik: secim.baslik, gider, kategoriler, cubuklar: cubuklariOlustur(harcamalar, donem, secim.baslangic, secim.bitis) };
   }, [db, donem]));
 
   const header = <View style={stil.header}>
     <View style={stil.esnek}>
-      <Txt role="caption" tone={color.navMuted}>Gelir ve gider görünümü</Txt>
+      <Txt role="caption" tone={color.navMuted}>Gider görünümü</Txt>
       <Txt role="h2" tone="#FFFFFF">Analizler</Txt>
     </View>
     <View style={stil.donemSecici} accessibilityRole="tablist">
@@ -127,15 +124,12 @@ export default function AnalizlerEkrani() {
 }
 
 function AnalizIcerigi({ veri }: { veri: AnalizVerisi }) {
-  const tasarruf = Math.max(0, veri.gelir - veri.gider);
-  const tasarrufOrani = veri.gelir > 0 ? tasarruf / veri.gelir : 0;
   return <>
     <View style={stil.ustSatir}>
       <View><Txt role="caption">Seçili dönem</Txt><Txt role="bodyStrong">{veri.baslik}</Txt></View>
-      {tasarruf > 0 ? <View style={stil.tasarrufPill}><Txt role="label" tone={color.successInk}>%{Math.round(tasarrufOrani * 100)} tasarruf</Txt></View> : null}
     </View>
     <View style={{ height: rhythm.section }} />
-    <GelirGiderGrafigi cubuklar={veri.cubuklar} gelir={veri.gelir} gider={veri.gider} />
+    <GiderGrafigi cubuklar={veri.cubuklar} gider={veri.gider} />
     <View style={{ height: rhythm.section }} />
     <View style={stil.bolumBasligi}><View><Txt role="h2">Kategori dağılımı</Txt><Txt role="caption">Gider içindeki yüzdesel pay</Txt></View></View>
     <View style={{ height: rhythm.pad }} />
@@ -149,16 +143,14 @@ function AnalizIcerigi({ veri }: { veri: AnalizVerisi }) {
     <View style={stil.bolumBasligi}><View><Txt role="h2">Kategori yükü</Txt><Txt role="caption">Gelirinin ne kadarını kullandı?</Txt></View></View>
     <View style={{ height: rhythm.group }} />
     {veri.kategoriler.length === 0 ? <View style={stil.bos}><Txt role="bodyStrong">Bu dönemde harcama yok.</Txt><Txt role="caption">Harcama eklediğinde kategori oranları burada görünür.</Txt></View> : veri.kategoriler.map((k, i) => <Fragment key={k.kod}>{i > 0 ? <View style={stil.ayrac} /> : null}<KategoriYuku item={k} /></Fragment>)}
-    {tasarruf > 0 ? <><View style={{ height: rhythm.section }} /><View style={stil.tasarrufKart}><View><Txt role="caption" tone={color.successInk}>Bu dönemin tasarrufu</Txt><Txt role="h2" tone={color.successInk}>{paraYaz(tasarruf)}</Txt></View><Txt role="amount" tone={color.successInk}>%{Math.round(tasarrufOrani * 100)}</Txt></View></> : null}
   </>;
 }
 
-function GelirGiderGrafigi({ cubuklar, gelir, gider }: { cubuklar: Cubuk[]; gelir: number; gider: number }) {
-  const max = Math.max(1, ...cubuklar.flatMap((c) => [c.gelir, c.gider]));
+function GiderGrafigi({ cubuklar, gider }: { cubuklar: Cubuk[]; gider: number }) {
+  const max = Math.max(1, ...cubuklar.map((c) => c.gider));
   return <View style={stil.grafikKart}>
-    <View style={stil.ozetSatiri}><View><Txt role="caption">Dönem geliri</Txt><Txt role="amount">{gelir > 0 ? paraYaz(gelir) : 'Belirlenmedi'}</Txt></View><View style={stil.saga}><Txt role="caption">Toplam gider</Txt><Txt role="amount">{paraYaz(gider)}</Txt></View></View>
-    <View style={stil.legend}><View style={[stil.nokta, { backgroundColor: color.primary }]} /><Txt role="micro">Gelir</Txt><View style={[stil.nokta, { backgroundColor: color.action }]} /><Txt role="micro">Gider</Txt></View>
-    <View style={stil.cubukAlan}>{cubuklar.map((c) => <View key={c.etiket} style={stil.cubukKolon}><View style={stil.cubukCifti}><View style={[stil.cubuk, { height: Math.max(3, (c.gelir / max) * 96), backgroundColor: color.primary }]} /><View style={[stil.cubuk, { height: Math.max(3, (c.gider / max) * 96), backgroundColor: color.action }]} /></View><Txt role="micro" numberOfLines={1}>{c.etiket}</Txt></View>)}</View>
+    <View><Txt role="caption">Toplam gider</Txt><Txt role="h2">{paraYaz(gider)}</Txt></View>
+    <View style={stil.cubukAlan}>{cubuklar.map((c) => <View key={c.etiket} style={stil.cubukKolon}><View style={stil.cubukYuvasi}><View style={[stil.cubuk, { height: c.gider === 0 ? 3 : Math.max(8, (c.gider / max) * 96) }]} /></View><Txt role="micro" tone={color.text2} numberOfLines={1}>{c.etiket}</Txt></View>)}</View>
   </View>;
 }
 
@@ -182,16 +174,13 @@ const stil = StyleSheet.create({
   donem: { minHeight: 36, minWidth: 48, paddingHorizontal: 8, alignItems: 'center', justifyContent: 'center', borderRadius: radius.pill },
   donemAktif: { backgroundColor: '#FFFFFF' },
   ustSatir: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: rhythm.group },
-  tasarrufPill: { backgroundColor: color.successSoft, borderRadius: radius.pill, paddingHorizontal: 12, paddingVertical: 8 },
   grafikKart: { borderWidth: 1, borderColor: color.line, borderRadius: radius.tile, padding: rhythm.pad },
   ozetSatiri: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: rhythm.group },
-  saga: { alignItems: 'flex-end' },
-  legend: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 8, marginTop: 16 },
   nokta: { width: 8, height: 8, borderRadius: 4 },
-  cubukAlan: { height: 132, marginTop: 12, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: 4 },
+  cubukAlan: { height: 132, marginTop: rhythm.pad, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', gap: rhythm.sameObject },
   cubukKolon: { flex: 1, minWidth: 0, alignItems: 'center', gap: 6 },
-  cubukCifti: { height: 96, flexDirection: 'row', alignItems: 'flex-end', gap: 3 },
-  cubuk: { width: 7, borderTopLeftRadius: 4, borderTopRightRadius: 4 },
+  cubukYuvasi: { height: 96, width: '100%', alignItems: 'center', justifyContent: 'flex-end' },
+  cubuk: { width: 14, borderTopLeftRadius: 7, borderTopRightRadius: 7, backgroundColor: color.action },
   bolumBasligi: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   halkaBolumu: { flexDirection: 'row', alignItems: 'center', gap: 20 },
   halkaKap: { width: 124, height: 124, alignItems: 'center', justifyContent: 'center' },
@@ -202,6 +191,5 @@ const stil = StyleSheet.create({
   kategoriOrta: { flex: 1, minWidth: 0, marginLeft: 12 },
   yukEtiketleri: { marginTop: 4, flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
   ayrac: { height: 1, backgroundColor: color.line, marginLeft: 56 },
-  tasarrufKart: { backgroundColor: color.successSoft, borderRadius: radius.tile, padding: rhythm.pad, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   bos: { backgroundColor: color.groove, borderRadius: radius.tile, padding: rhythm.pad, gap: 4 },
 });

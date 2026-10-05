@@ -1,46 +1,67 @@
 import { StyleSheet, View } from 'react-native';
 
 import { Skeleton } from '@/components/Skeleton';
-import { Txt } from '@/components/Txt';
 import { color, radius, rhythm } from '@/theme/tokens';
 
-/** Yeni üç katmanlı Tasarruf düzeninin sakin, zıplamayan yükleme karşılığı. */
+/** Son içerikle aynı ritimde kalır; veri gelince bölüm sırası zıplamaz. */
 export function SavingsSkeleton() {
   return (
     <View>
       <View style={stil.ozet}>
-        <View style={stil.ucKolon}>
-          {[0, 1, 2].map((i) => <Skeleton key={i} width="28%" height={44} borderRadius={radius.tile} />)}
+        <View style={stil.kazanim}>
+          <Skeleton width="46%" height={16} borderRadius={radius.pill} />
+          <View style={{ height: rhythm.group }} />
+          <Skeleton width="58%" height={16} borderRadius={radius.pill} />
+          <View style={{ height: rhythm.group }} />
+          <Skeleton width="74%" height={38} borderRadius={radius.tile} />
+          <View style={{ height: rhythm.group }} />
+          <Skeleton width="88%" height={16} borderRadius={radius.pill} />
         </View>
-        <View style={{ height: rhythm.blockInCard }} />
-        <Skeleton width="100%" height={8} borderRadius={radius.pill} />
       </View>
 
       <View style={{ height: rhythm.section }} />
-      <Txt role="h2">Gerçek birikim</Txt>
+      <Skeleton width="46%" height={26} />
       <View style={{ height: rhythm.blockInCard }} />
-      <View style={stil.bolum}>
-        <Skeleton width="58%" height={24} />
-        <View style={{ height: rhythm.blockInCard }} />
-        <Skeleton width="100%" height={8} borderRadius={radius.pill} />
+      <View>
+        <Skeleton width="38%" height={16} />
+        <View style={{ height: rhythm.group }} />
+        <Skeleton width="62%" height={38} />
         <View style={{ height: rhythm.section }} />
-        <Skeleton width="100%" height={52} borderRadius={radius.pill} />
+        {[0, 1].map((i) => (
+          <View key={i} style={stil.rutinSatiri}>
+            <Skeleton width={44} height={44} borderRadius={radius.tile} />
+            <View style={stil.esnek}>
+              <Skeleton width="100%" height={18} />
+              <View style={{ height: rhythm.group }} />
+              <Skeleton width="100%" height={8} borderRadius={radius.pill} />
+            </View>
+          </View>
+        ))}
       </View>
 
-      <View style={{ height: rhythm.section }} />
-      <Txt role="h2">Aylık analiz</Txt>
+      <View style={stil.ayrac} />
+      <Skeleton width="52%" height={26} />
       <View style={{ height: rhythm.blockInCard }} />
-      <View style={stil.bolum}>
-        <Skeleton width="100%" height={68} borderRadius={radius.tile} />
-        <View style={{ height: 1, backgroundColor: color.line }} />
-        <Skeleton width="100%" height={68} borderRadius={radius.tile} />
-      </View>
+      {[0, 1, 2].map((i) => (
+        <View key={i} style={stil.kategoriSatiri}>
+          <Skeleton width={44} height={44} borderRadius={radius.tile} />
+          <View style={stil.esnek}>
+            <Skeleton width="100%" height={18} />
+            <View style={{ height: rhythm.group }} />
+            <Skeleton width="100%" height={12} borderRadius={radius.pill} />
+          </View>
+        </View>
+      ))}
     </View>
   );
 }
 
 const stil = StyleSheet.create({
   ozet: { paddingBottom: rhythm.section, borderBottomWidth: 1, borderBottomColor: color.line },
-  ucKolon: { flexDirection: 'row', justifyContent: 'space-between' },
-  bolum: { padding: rhythm.pad, borderWidth: 1, borderColor: color.line, borderRadius: radius.tile },
+  kazanim: { paddingVertical: rhythm.group },
+  satir: { flexDirection: 'row', alignItems: 'center', gap: rhythm.blockInCard },
+  esnek: { flex: 1, minWidth: 0 },
+  ayrac: { height: 1, backgroundColor: color.line, marginVertical: rhythm.section },
+  rutinSatiri: { flexDirection: 'row', alignItems: 'center', gap: rhythm.blockInCard, paddingVertical: rhythm.blockInCard, borderBottomWidth: 1, borderBottomColor: color.line },
+  kategoriSatiri: { flexDirection: 'row', alignItems: 'center', gap: rhythm.blockInCard, marginBottom: rhythm.blockInCard },
 });

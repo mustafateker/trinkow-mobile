@@ -1,10 +1,9 @@
 import { router } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
-import { Accordion } from '@/components/Accordion';
 import { ErrorState } from '@/components/ErrorState';
-import { IconButton } from '@/components/IconButton';
+import { Icon } from '@/components/Icon';
 import { RevScreen, useRevLoad } from '@/components/RevScreen';
 import { SavingsSheet, type BirikimGirdisi } from '@/components/SavingsSheet';
 import { CategoryDistributionCard } from '@/components/tasarruf/CategoryDistributionCard';
@@ -12,15 +11,16 @@ import { MovementsSection } from '@/components/tasarruf/MovementsSection';
 import { RealSavingsCard } from '@/components/tasarruf/RealSavingsCard';
 import { RoutineSavingsCard } from '@/components/tasarruf/RoutineSavingsCard';
 import { SavingsHeroCard } from '@/components/tasarruf/SavingsHeroCard';
+import { SavingsPeriodSheet } from '@/components/tasarruf/SavingsPeriodSheet';
 import { SavingsSkeleton } from '@/components/tasarruf/SavingsSkeleton';
 import { Txt } from '@/components/Txt';
-import { ayLokatif, t, tasarrufHareketKaydedildiToast, tasarrufHareketSilindiToast, tasarrufOzetRutin, tasarrufUstSatir } from '@/content/metinler';
-import { bugun, movementDelete, movementPut, routinesGet, savingsGet, movementsGet, yeniId, type Movement } from '@/lib/revApi';
+import { t, tasarrufHareketKaydedildiToast, tasarrufHareketSilindiToast } from '@/content/metinler';
+import { bugun, movementDelete, movementPut, routinesGet, savingsPeriodGet, movementsPeriodGet, yeniId, type Movement } from '@/lib/revApi';
 import { paraYaz } from '@/lib/para';
-import { ayAnahtariFarkli, ayBasligi } from '@/lib/tarih';
+import { tasarrufDonemBasligi, tasarrufDonemKisaEtiketi, tasarrufDonemSinirlari, type TasarrufDonemi } from '@/lib/tasarrufDonem';
 import { toastGoster } from '@/lib/toastBus';
 import { veriDegisti } from '@/lib/veriBus';
-import { color, layout, rhythm } from '@/theme/tokens';
+import { a11y, color, layout, radius, rhythm } from '@/theme/tokens';
 
 /**
  * rev2-tasarruf-profil.md §3.12 — E-27 Tasarruf. Kahraman gösterge + DÖRT
@@ -29,32 +29,30 @@ import { color, layout, rhythm } from '@/theme/tokens';
  * *gerçek birikim* (B) · *rutin tasarrufu* (D) — üçü hiçbir yerde toplanmaz.
  */
 export default function TasarruflarEkrani() {
-  const [ay, setAy] = useState(() => bugun().slice(0, 7));
-  const guncelAyMi = ay === bugun().slice(0, 7);
+  const [donem, setDonem] = useState<TasarrufDonemi>('ay');
+  const [donemSheetAcik, setDonemSheetAcik] = useState(false);
+  const referansGun = bugun();
+  const sinirlar = tasarrufDonemSinirlari(donem, referansGun);
+  const donemBasligi = tasarrufDonemBasligi(donem, referansGun);
 
   const fetcher = useCallback(async () => {
-    const [savings, ledger, rutinYaniti] = await Promise.all([savingsGet(ay), movementsGet(ay), routinesGet()]);
-    return { savings, ledger, toplamRutinSayisi: rutinYaniti.rutinler.length };
-  }, [ay]);
+    const [savings, ledger, rutinYaniti] = await Promise.all([
+      savingsPeriodGet(donem, referansGun),
+      movementsPeriodGet(sinirlar.baslangic, sinirlar.bitis),
+      routinesGet(),
+    ]);
+    return { savings, ledger, toplamRutinSayisi: rutinYaniti.rutinler.filter((rutin) => rutin.aktif).length };
+  }, [donem, referansGun, sinirlar.baslangic, sinirlar.bitis]);
   const load = useRevLoad(fetcher);
   const d = load.data?.savings;
   const ledger = load.data?.ledger;
   const toplamRutinSayisi = load.data?.toplamRutinSayisi;
-
-  const [rutinAcik, setRutinAcik] = useState(false);
 
   const [sheetAcik, setSheetAcik] = useState(false);
   const [duzenlenen, setDuzenlenen] = useState<Movement | null>(null);
   const [sheetYeniId, setSheetYeniId] = useState(yeniId);
   const [sheetBusy, setSheetBusy] = useState(false);
   const [sheetHata, setSheetHata] = useState<string>();
-
-  function ayDegistir(fark: number) {
-    setAy((onceki) => ayAnahtariFarkli(onceki, fark));
-  }
-
-  const ayAdiYil = ayBasligi(ay);
-  const ayLokatifDeger = ayLokatif(Number(ay.split('-')[1]));
 
   function ekleAc() {
     setDuzenlenen(null);
@@ -113,16 +111,20 @@ export default function TasarruflarEkrani() {
     <View style={stil.ekranBasi}>
       <View style={stil.esnek}>
         <Txt role="caption" tone={color.navMuted}>
-          {load.error ? t['tasarruf.ustSatir.hata'] : load.loading ? ayAdiYil : tasarrufUstSatir(ayAdiYil, !guncelAyMi)}
+          {load.error ? t['tasarruf.ustSatir.hata'] : donemBasligi}
         </Txt>
         <Txt role="h2" tone="#FFFFFF" numberOfLines={1}>
           {t['tasarruf.baslik']}
         </Txt>
       </View>
-      <View style={stil.ayGezinme}>
-        <IconButton icon="chevron-left" accessibilityLabel={t['a11y.tasarruf.oncekiAy']} tone="#FFFFFF" background={color.navGlassBg} pressedBackground={color.navGlassBgPressed} onPress={() => ayDegistir(-1)} />
-        <IconButton icon="chevron-right" accessibilityLabel={t['a11y.tasarruf.sonrakiAy']} tone="#FFFFFF" background={color.navGlassBg} pressedBackground={color.navGlassBgPressed} onPress={() => ayDegistir(1)} disabled={guncelAyMi} />
-      </View>
+      <Pressable
+        onPress={() => setDonemSheetAcik(true)}
+        accessibilityRole="button"
+        accessibilityLabel={`Tasarruf dönemi: ${tasarrufDonemKisaEtiketi(donem)}`}
+        style={({ pressed }) => [stil.donemButonu, pressed && stil.donemButonuBasili]}>
+        <Txt role="label" tone="#FFFFFF">{tasarrufDonemKisaEtiketi(donem)}</Txt>
+        <Icon name="chevron-down" size={20} color="#FFFFFF" />
+      </Pressable>
     </View>
   );
 
@@ -132,17 +134,6 @@ export default function TasarruflarEkrani() {
 
       {load.error ? (
         <>
-          <View style={stil.hataPagerSatiri}>
-            <IconButton icon="chevron-left" accessibilityLabel={t['a11y.tasarruf.oncekiAy']} onPress={() => ayDegistir(-1)} />
-            <Txt role="label">{ayAdiYil}</Txt>
-            <IconButton
-              icon="chevron-right"
-              accessibilityLabel={t['a11y.tasarruf.sonrakiAy']}
-              onPress={() => ayDegistir(1)}
-              disabled={guncelAyMi}
-            />
-          </View>
-          <View style={{ height: rhythm.section }} />
           <ErrorState
             icon="wifi-off"
             baslik={t['tasarruf.hata.baslik']}
@@ -156,70 +147,58 @@ export default function TasarruflarEkrani() {
 
       {d && ledger && toplamRutinSayisi !== undefined && !load.loading && !load.error ? (
         <>
-          <View style={stil.ozetBolumu}>
-            <SavingsHeroCard
+          <SavingsHeroCard
             harcanabilirKurus={d.harcanabilir_kurus}
-            harcananKurus={d.harcanan_kurus}
-            kalanKurus={d.kalan_kurus}
-            tamamlananGun={d.tamamlanan_gun_sayisi}
-            guncelAyMi={guncelAyMi}
-            ayLokatifDeger={ayLokatifDeger}
+            hesaplananTasarrufKurus={d.hesaplanan_tasarruf_kurus}
+            donemBasligi={donemBasligi}
             onButcePress={() => router.push('/butce')}
           />
-          </View>
 
           <View style={{ height: rhythm.section }} />
-          <Txt role="h2">{t['tasarruf.bolum.birikim']}</Txt>
+          <RoutineSavingsCard
+            rutinler={d.rutinler}
+            toplamKurus={d.rutin_tasarruf_kurus}
+            toplamRutinSayisi={toplamRutinSayisi}
+            onRutinleriAcPress={() => router.push('/rutinler')}
+          />
+
+          <View style={stil.bolumAyraci} />
+          <BolumBasligi baslik={t['tasarruf.bolum.kategori']} />
+          <View style={{ height: rhythm.blockInCard }} />
+          <CategoryDistributionCard
+            kategoriler={d.kategoriler}
+            harcananToplam={d.harcanan_kurus}
+            onTumunuGorPress={() => router.push('/ozet')}
+          />
+
+          <View style={stil.bolumAyraci} />
+          <BolumBasligi baslik={t['tasarruf.bolum.birikim']} />
           <View style={{ height: rhythm.blockInCard }} />
           <RealSavingsCard
-            guncelAyMi={guncelAyMi}
-            ayLokatifDeger={ayLokatifDeger}
             gercekBirikimKurus={d.gercek_birikim_kurus}
-            ayBirikimKurus={d.ay_birikim_kurus}
+            donemBirikimKurus={d.donem_birikim_kurus ?? d.ay_birikim_kurus}
             hedefBirikimKurus={d.hedef_birikim_kurus}
             onEklePress={ekleAc}
             onHedefPress={() => router.push('/butce')}
           />
           <View style={{ height: rhythm.section }} />
           <MovementsSection
-            guncelAyMi={guncelAyMi}
-            ayLokatifDeger={ayLokatifDeger}
             hareketler={ledger.hareketler}
             toplamKayit={ledger.hareketler.length}
             onRowPress={duzenleAc}
             onSwipeDelete={silBaslat}
-            onTumuPress={() => router.push({ pathname: '/birikimler', params: { ay } })}
+            onTumuPress={() => router.push({ pathname: '/birikimler', params: { baslangic: sinirlar.baslangic, bitis: sinirlar.bitis, donem: donemBasligi } })}
           />
 
-          <View style={{ height: rhythm.section }} />
-          <Txt role="h2">{t['tasarruf.bolum.kategori']}</Txt>
-          <View style={{ height: rhythm.blockInCard }} />
-          <CategoryDistributionCard
-            guncelAyMi={guncelAyMi}
-            ayLokatifDeger={ayLokatifDeger}
-            kategoriler={d.kategoriler}
-            harcananToplam={d.harcanan_kurus}
-            onTumunuGorPress={() => router.push('/ozet')}
-          />
-
-          <View style={{ height: rhythm.section }} />
-          <Accordion
-            title={t['tasarruf.bolum.rutin']}
-            summary={toplamRutinSayisi === 0 ? t['tasarruf.ozet.rutinYok'] : tasarrufOzetRutin(paraYaz(d.rutin_tasarruf_kurus), toplamRutinSayisi)}
-            expanded={rutinAcik}
-            onToggle={() => setRutinAcik((a) => !a)}
-            accessibilityLabel={`${t['tasarruf.bolum.rutin']}. ${toplamRutinSayisi === 0 ? t['tasarruf.ozet.rutinYok'] : tasarrufOzetRutin(paraYaz(d.rutin_tasarruf_kurus), toplamRutinSayisi)}`}>
-            <RoutineSavingsCard
-              guncelAyMi={guncelAyMi}
-              ayLokatifDeger={ayLokatifDeger}
-              rutinler={d.rutinler}
-              toplamKurus={d.rutin_tasarruf_kurus}
-              toplamRutinSayisi={toplamRutinSayisi}
-              onRutinleriAcPress={() => router.push('/rutinler')}
-            />
-          </Accordion>
         </>
       ) : null}
+
+      <SavingsPeriodSheet
+        visible={donemSheetAcik}
+        value={donem}
+        onChange={setDonem}
+        onClose={() => setDonemSheetAcik(false)}
+      />
 
       <SavingsSheet
         visible={sheetAcik}
@@ -236,6 +215,12 @@ export default function TasarruflarEkrani() {
   );
 }
 
+function BolumBasligi({ baslik }: { baslik: string }) {
+  return (
+    <Txt role="h2">{baslik}</Txt>
+  );
+}
+
 const stil = StyleSheet.create({
   ekranBasi: {
     flexDirection: 'row',
@@ -244,11 +229,17 @@ const stil = StyleSheet.create({
     paddingHorizontal: layout.screenPaddingX,
   },
   esnek: { flex: 1, minWidth: 0 },
-  hataPagerSatiri: {
+  donemButonu: {
+    minWidth: 88,
+    height: a11y.minTarget,
+    paddingHorizontal: rhythm.blockInCard,
+    borderRadius: radius.pill,
+    backgroundColor: color.navGlassBg,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
+    gap: rhythm.sameObject,
   },
-  ayGezinme: { flexDirection: 'row', gap: rhythm.group },
-  ozetBolumu: { paddingBottom: rhythm.section, borderBottomWidth: 1, borderBottomColor: color.line },
+  donemButonuBasili: { backgroundColor: color.navGlassBgPressed },
+  bolumAyraci: { height: 1, backgroundColor: color.line, marginVertical: rhythm.section },
 });

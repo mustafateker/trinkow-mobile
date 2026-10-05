@@ -5,7 +5,7 @@ import { Button } from '@/components/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { SavingsMovementRow } from '@/components/SavingsMovementRow';
 import { Txt } from '@/components/Txt';
-import { t, tasarrufHareketBosAltGecmisAy, tasarrufHareketSayi } from '@/content/metinler';
+import { t, tasarrufHareketSayi } from '@/content/metinler';
 import type { Movement } from '@/lib/revApi';
 import { color, rhythm } from '@/theme/tokens';
 
@@ -18,16 +18,12 @@ const GORUNEN_LIMIT = 5;
  * düğme YOK (aynı eylem `RealSavingsCard`'da zaten duruyor, §7.8).
  */
 export function MovementsSection({
-  guncelAyMi,
-  ayLokatifDeger,
   hareketler,
   toplamKayit,
   onRowPress,
   onSwipeDelete,
   onTumuPress,
 }: {
-  guncelAyMi: boolean;
-  ayLokatifDeger: string;
   hareketler: Movement[];
   toplamKayit: number;
   onRowPress: (m: Movement) => void;
@@ -51,7 +47,7 @@ export function MovementsSection({
         <EmptyState
           icon="banknote"
           baslik={t['tasarruf.hareket.bos.baslik']}
-          govde={guncelAyMi ? t['tasarruf.hareket.bos.alt.buAy'] : tasarrufHareketBosAltGecmisAy(ayLokatifDeger)}
+          govde="Bu dönemde birikim hareketi yok."
         />
       ) : (
         <>

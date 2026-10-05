@@ -354,6 +354,9 @@ export const t = {
   'tasarruf.gelirYok.baslik': 'Gelirini ekle',
   'tasarruf.gelirYok.alt': 'Aylık gelirini yazınca bu ayın payını hesaplarız.',
   'tasarruf.gelirYok.btn': 'Bütçeyi düzenle',
+  'tasarruf.kazanim.etiket': 'AYIN KAZANIMI',
+  'tasarruf.kazanim.pozitif': 'Tamamlanan günlerden kalan',
+  'tasarruf.kazanim.negatif': 'Tamamlanan günlerin bütçe farkı',
   'tasarruf.butce.harcanan': 'Harcanan',
   'tasarruf.birikim.ayYok.buAy': 'Bu ay kayıt yok',
   'tasarruf.birikim.toplam': 'Toplam birikim',
@@ -373,6 +376,10 @@ export const t = {
   'tasarruf.rutin.bos.buAy': 'Bu ay vazgeçtiğin rutin yok.',
   'tasarruf.rutin.hicYok': 'Rutin eklemedin. Vazgeçtiğin harcamalar burada toplanır.',
   'tasarruf.rutin.btn': 'Rutinleri aç',
+  'tasarruf.rutin.kazanimEtiket': 'Bu ay rutinlerden',
+  'tasarruf.rutin.otomatik': 'Harcama eklenmeyen rutinler otomatik hesaplanır.',
+  'tasarruf.rutin.otomatikKisa': 'Otomatik hesaplandı',
+  'tasarruf.rutin.gunGun': 'GÜN GÜN TASARRUF',
   'tasarruf.hata.baslik': 'Bilgiler yüklenemedi',
   'tasarruf.hata.alt': 'Bağlantını kontrol edip yeniden dene.',
   'tasarruf.hata.btn': 'Yeniden dene',
@@ -396,8 +403,11 @@ export const t = {
   'a11y.tasarruf.sonrakiAy': 'Sonraki ay',
   'a11y.tasarruf.hareketSil': 'Bu hareketi sil',
   'tasarruf.bolum.birikim': 'Gerçek birikim',
+  'tasarruf.bolum.birikimAlt': 'Gerçekten kenara ayırdığın parayı burada takip et.',
   'tasarruf.bolum.kategori': 'Kategori dağılımı',
+  'tasarruf.bolum.kategoriAlt': 'Bu ay paran en çok hangi alanlara gitti?',
   'tasarruf.bolum.rutin': 'Rutin tasarrufu',
+  'tasarruf.bolum.rutinAlt': 'Almadığın küçük rutinlerin ay boyunca bıraktığı alan.',
   'tasarruf.ozet.kategoriYok': 'Harcama yok',
   'tasarruf.ozet.rutinYok': 'Rutin eklemedin',
   'tasarruf.ozet.acilamadi': 'Açılamadı',
@@ -928,6 +938,21 @@ export function tasarrufKategoriBosGecmisAy(ayLokatifDeger: string): string {
 /** `tasarruf.rutin.bos.gecmisAy` — "{AyLokatif} vazgeçtiğin rutin yok." */
 export function tasarrufRutinBosGecmisAy(ayLokatifDeger: string): string {
   return `${ayLokatifDeger} vazgeçtiğin rutin yok.`;
+}
+
+/** Rutin akordiyonu kapalı özeti: kaç gün ve kaç adet alınmadı. */
+export function tasarrufRutinOzet(gunSayisi: number, adet: number): string {
+  return `${gunSayisi} gün · ${adet} adet alınmadı`;
+}
+
+/** Rutin akordiyonu günlük satır açıklaması. */
+export function tasarrufRutinGunDetay(adet: number, birimTutar: string): string {
+  return `${adet} adet alınmadı · birim ${birimTutar}`;
+}
+
+/** Akordiyonda ilk yedi günün arkasındaki günler de toplama dahildir. */
+export function tasarrufRutinFazlaGun(adet: number): string {
+  return `+${adet} gün daha bu toplama dahil`;
 }
 
 // §28.3 — E-27 akordiyon özetleri (REV3)

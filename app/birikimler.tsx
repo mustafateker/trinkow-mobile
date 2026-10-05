@@ -9,7 +9,7 @@ import { PushHeader } from '@/components/PushHeader';
 import { Skeleton } from '@/components/Skeleton';
 import { Txt } from '@/components/Txt';
 import { t, tasarrufHareketBosAltGecmisAy } from '@/content/metinler';
-import { movementsGet, bugun, type Movement } from '@/lib/revApi';
+import { movementsGet, movementsPeriodGet, bugun, type Movement } from '@/lib/revApi';
 import { useRevLoad } from '@/components/RevScreen';
 import { ayAdiTek, ayAnahtari, tarihtenGun } from '@/lib/tarih';
 import { paraYaz } from '@/lib/para';
@@ -22,10 +22,13 @@ import { color, layout, radius, rhythm } from '@/theme/tokens';
  * kalır); ghost düğmesi ölü bağlantı bırakmasın diye eklendi (PM'e raporlanmıştır).
  */
 export default function TumHareketlerEkrani() {
-  const { ay } = useLocalSearchParams<{ ay?: string }>();
+  const { ay, baslangic, bitis } = useLocalSearchParams<{ ay?: string; baslangic?: string; bitis?: string; donem?: string }>();
   const gosterilenAy = ay ?? bugun().slice(0, 7);
   const insets = useSafeAreaInsets();
-  const load = useRevLoad(useCallback(() => movementsGet(gosterilenAy), [gosterilenAy]));
+  const load = useRevLoad(useCallback(
+    () => baslangic && bitis ? movementsPeriodGet(baslangic, bitis) : movementsGet(gosterilenAy),
+    [baslangic, bitis, gosterilenAy],
+  ));
   const guncelAyMi = gosterilenAy === bugun().slice(0, 7);
 
   return (
@@ -55,7 +58,7 @@ export default function TumHareketlerEkrani() {
               <EmptyState
                 icon="banknote"
                 baslik={t['tasarruf.hareket.bos.baslik']}
-                govde={guncelAyMi ? t['tasarruf.hareket.bos.alt.buAy'] : tasarrufHareketBosAltGecmisAy(ayAdiTek(gosterilenAy))}
+                govde={baslangic && bitis ? 'Bu dönemde birikim hareketi yok.' : guncelAyMi ? t['tasarruf.hareket.bos.alt.buAy'] : tasarrufHareketBosAltGecmisAy(ayAdiTek(gosterilenAy))}
               />
             }
           />

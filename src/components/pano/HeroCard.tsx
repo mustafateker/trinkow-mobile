@@ -43,6 +43,7 @@ export function HeroCard({ gunFarki, harcananKurus, limitKurus, oncekiPasif, onO
   const yuzde = Math.max(0, Math.round(oran * 100));
   const a11yDeger = limitli ? `Limitin yüzde ${yuzde} kadarı kullanıldı` : `${paraYaz(harcananKurus)} harcandı`;
   const kalanKurus = limitKurus !== null ? limitKurus - harcananKurus : 0;
+  const ustEtiket = limitli ? 'Günlük bütçe' : etiket;
 
   return (
     <View>
@@ -54,7 +55,7 @@ export function HeroCard({ gunFarki, harcananKurus, limitKurus, oncekiPasif, onO
           disabled={oncekiPasif}
         />
         <Txt role="label" tone={color.text2}>
-          {etiket}
+          {ustEtiket}
         </Txt>
         <IconButton
           icon="chevron-right"
@@ -66,11 +67,14 @@ export function HeroCard({ gunFarki, harcananKurus, limitKurus, oncekiPasif, onO
 
       <View style={{ height: rhythm.group }} />
 
-      {bugunMu && limitli ? (
+      {limitli ? (
         <GunlukCircleChart
+          bugunMu={bugunMu}
           harcananKurus={harcananKurus}
           kalanKurus={kalanKurus}
+          limitKurus={limitKurus}
           doluluk={doluluk}
+          yuzde={yuzde}
           limitDisi={limitDisi}
         />
       ) : (
@@ -97,42 +101,55 @@ export function HeroCard({ gunFarki, harcananKurus, limitKurus, oncekiPasif, onO
         </>
       )}
 
-      <View style={{ height: rhythm.group }} />
-
-      <Txt role="body" tone={color.text2} style={stil.ortali}>
-        {altMetin}
-      </Txt>
+      {limitli ? null : (
+        <>
+          <View style={{ height: rhythm.group }} />
+          <Txt role="body" tone={color.text2} style={stil.ortali}>
+            {altMetin}
+          </Txt>
+        </>
+      )}
     </View>
   );
 }
 
-const GRAFIK_BOYUT = 152;
-const GRAFIK_YARICAP = 60;
+const GRAFIK_BOYUT = 184;
+const GRAFIK_YARICAP = 72;
 const GRAFIK_CEVRE = 2 * Math.PI * GRAFIK_YARICAP;
 
 function GunlukCircleChart({
+  bugunMu,
   harcananKurus,
   kalanKurus,
+  limitKurus,
   doluluk,
+  yuzde,
   limitDisi,
 }: {
+  bugunMu: boolean;
   harcananKurus: number;
   kalanKurus: number;
+  limitKurus: number;
   doluluk: number;
+  yuzde: number;
   limitDisi: boolean;
 }) {
   const kalanEtiketi = limitDisi ? 'Bütçe dışı' : 'Kalan';
   const kalanTutar = paraYaz(Math.abs(kalanKurus));
   const vurgu = limitDisi ? color.warning : color.primary;
+  const gunBaglami = bugunMu ? 'Bugünkü' : 'O günkü';
+  const durumMetni = limitDisi
+    ? `${gunBaglami} limitinin ${kalanTutar} üzerine çıktın.`
+    : `${gunBaglami} limitinin yüzde ${yuzde} kadarı kullanıldı.`;
 
   return (
     <View
-      style={stil.grafikSatiri}
+      style={stil.grafikAlan}
       accessible
       accessibilityRole="progressbar"
       accessibilityLabel={`Harcanan ${paraYaz(harcananKurus)}. ${kalanEtiketi} ${kalanTutar}`}
       accessibilityValue={{ min: 0, max: 100, now: Math.round(doluluk * 100) }}>
-      <View style={stil.grafikKabı}>
+      <View style={stil.grafikKabi}>
         <Svg width={GRAFIK_BOYUT} height={GRAFIK_BOYUT}>
           <Circle
             cx={GRAFIK_BOYUT / 2}
@@ -140,7 +157,7 @@ function GunlukCircleChart({
             r={GRAFIK_YARICAP}
             fill="none"
             stroke={color.well}
-            strokeWidth={14}
+            strokeWidth={16}
           />
           <Circle
             cx={GRAFIK_BOYUT / 2}
@@ -148,7 +165,7 @@ function GunlukCircleChart({
             r={GRAFIK_YARICAP}
             fill="none"
             stroke={vurgu}
-            strokeWidth={14}
+            strokeWidth={16}
             strokeLinecap="round"
             strokeDasharray={`${GRAFIK_CEVRE} ${GRAFIK_CEVRE}`}
             strokeDashoffset={GRAFIK_CEVRE * (1 - doluluk)}
@@ -158,30 +175,38 @@ function GunlukCircleChart({
         </Svg>
         <View style={stil.grafikMerkez}>
           <Txt role="caption" tone={color.text2}>{kalanEtiketi}</Txt>
-          <Txt role="amount" tone={limitDisi ? color.warningInk : color.text} numberOfLines={1} adjustsFontSizeToFit>
+          <Txt
+            role="display"
+            tone={limitDisi ? color.warningInk : color.text}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.65}>
             {kalanTutar}
           </Txt>
         </View>
       </View>
 
-      <View style={stil.grafikOzet}>
-        <View style={stil.grafikDeger}>
-          <View style={[stil.grafikNokta, { backgroundColor: vurgu }]} />
-          <View style={stil.grafikMetin}>
+      <View style={stil.ozetSeridi}>
+        <View style={stil.ozetHucre}>
+          <View style={stil.ozetEtiketSatiri}>
+            <View style={[stil.grafikNokta, { backgroundColor: vurgu }]} />
             <Txt role="caption" tone={color.text2}>Harcanan</Txt>
-            <Txt role="amount" numberOfLines={1} adjustsFontSizeToFit>{paraYaz(harcananKurus)}</Txt>
           </View>
+          <Txt role="amount" numberOfLines={1} adjustsFontSizeToFit>{paraYaz(harcananKurus)}</Txt>
         </View>
-        <View style={stil.grafikDeger}>
-          <View style={[stil.grafikNokta, { backgroundColor: color.well }]} />
-          <View style={stil.grafikMetin}>
-            <Txt role="caption" tone={color.text2}>{kalanEtiketi}</Txt>
-            <Txt role="amount" tone={limitDisi ? color.warningInk : color.text} numberOfLines={1} adjustsFontSizeToFit>
-              {kalanTutar}
-            </Txt>
+        <View style={stil.ozetAyrac} />
+        <View style={stil.ozetHucre}>
+          <View style={stil.ozetEtiketSatiri}>
+            <View style={[stil.grafikNokta, { backgroundColor: color.text3 }]} />
+            <Txt role="caption" tone={color.text2}>Günlük limit</Txt>
           </View>
+          <Txt role="amount" numberOfLines={1} adjustsFontSizeToFit>{paraYaz(limitKurus)}</Txt>
         </View>
       </View>
+
+      <Txt role="caption" tone={limitDisi ? color.warningInk : color.text2} style={stil.ortali}>
+        {durumMetni}
+      </Txt>
     </View>
   );
 }
@@ -189,13 +214,22 @@ function GunlukCircleChart({
 const stil = StyleSheet.create({
   ustSatir: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' },
   tutarSatiri: { alignItems: 'center' },
-  grafikSatiri: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: rhythm.pad },
-  grafikKabı: { width: GRAFIK_BOYUT, height: GRAFIK_BOYUT, alignItems: 'center', justifyContent: 'center' },
-  grafikMerkez: { position: 'absolute', width: 104, alignItems: 'center', gap: 4 },
-  grafikOzet: { flex: 1, maxWidth: 152, gap: rhythm.pad },
-  grafikDeger: { flexDirection: 'row', alignItems: 'center', gap: rhythm.group },
-  grafikNokta: { width: 12, height: 12, borderRadius: radius.pill },
-  grafikMetin: { flex: 1, minWidth: 0 },
+  grafikAlan: { alignItems: 'center', width: '100%', gap: rhythm.blockInCard },
+  grafikKabi: { width: GRAFIK_BOYUT, height: GRAFIK_BOYUT, alignItems: 'center', justifyContent: 'center' },
+  grafikMerkez: { position: 'absolute', width: 132, alignItems: 'center', gap: rhythm.sameObject },
+  ozetSeridi: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    backgroundColor: color.well,
+    borderRadius: radius.tile,
+    paddingVertical: rhythm.blockInCard,
+    paddingHorizontal: rhythm.pad,
+  },
+  ozetHucre: { flex: 1, minWidth: 0, gap: rhythm.sameObject },
+  ozetEtiketSatiri: { flexDirection: 'row', alignItems: 'center', gap: rhythm.group },
+  ozetAyrac: { width: 1, backgroundColor: color.line, marginHorizontal: rhythm.pad },
+  grafikNokta: { width: 8, height: 8, borderRadius: radius.pill },
   oluk: { height: 8, borderRadius: radius.pill, backgroundColor: color.well, overflow: 'hidden' },
   dolgu: { height: '100%', borderRadius: radius.pill },
   ortali: { textAlign: 'center' },

@@ -4,7 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { Button } from '@/components/Button';
 import { CategoryShareRow } from '@/components/CategoryShareRow';
 import { Txt } from '@/components/Txt';
-import { t, tasarrufKategoriBosGecmisAy } from '@/content/metinler';
+import { t } from '@/content/metinler';
 import { paraYaz } from '@/lib/para';
 import { rhythm } from '@/theme/tokens';
 
@@ -16,14 +16,10 @@ const GORUNEN_LIMIT = 5;
  * değeri içeriğin ilk satırında durur (kaybolmaz), en çok 5 satır + "Tümünü gör".
  */
 export function CategoryDistributionCard({
-  guncelAyMi,
-  ayLokatifDeger,
   kategoriler,
   harcananToplam,
   onTumunuGorPress,
 }: {
-  guncelAyMi: boolean;
-  ayLokatifDeger: string;
   kategoriler: { kategori: string; harcanan_kurus: number; rutin_tasarruf_kurus: number }[];
   harcananToplam: number;
   onTumunuGorPress: () => void;
@@ -36,7 +32,7 @@ export function CategoryDistributionCard({
     <View>
       {gorunenler.length === 0 ? (
         <>
-          <Txt role="body">{guncelAyMi ? t['tasarruf.kategori.bos.buAy'] : tasarrufKategoriBosGecmisAy(ayLokatifDeger)}</Txt>
+          <Txt role="body">Bu dönemde kategori harcaması yok.</Txt>
           <View style={{ height: rhythm.group }} />
           <Txt role="caption">{t['tasarruf.kategori.bos.alt']}</Txt>
         </>
