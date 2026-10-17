@@ -1,4 +1,4 @@
-import type { SQLiteDatabase } from 'expo-sqlite';
+import type { VeriBaglami } from '@/db/baglam';
 
 import { bildirimAksamOzetKaydet, bildirimTercihBelirlendiMi, kurulumGunuOku } from '@/db/ayarTercihleri';
 import { ayarOku, ayarYaz } from '@/db/harcama';
@@ -35,27 +35,27 @@ const RED_COOLDOWN_GUN = 14;
 export const SORU_GUNU: Record<ProfillemeSoruId, number> = { yatirim: 2, taksit: 3, bildirim: 4 };
 const SIRA: ProfillemeSoruId[] = ['yatirim', 'taksit', 'bildirim'];
 
-async function kurulumdanBuGune(db: SQLiteDatabase): Promise<number> {
+async function kurulumdanBuGune(db: VeriBaglami): Promise<number> {
   // K-084/2 — sunucudaki tercihler.kurulum_gunu TEK otoritedir.
   const kurulum = await kurulumGunuOku(db);
   // kurulum günü = gün 1 (henüz uygulamayı yeni açmış birine "2. gün" gösterilmez).
   return gunFarkiHesapla(new Date(), tarihtenGun(kurulum)) + 1;
 }
 
-async function cevaplandiMi(db: SQLiteDatabase, id: ProfillemeSoruId): Promise<boolean> {
+async function cevaplandiMi(db: VeriBaglami, id: ProfillemeSoruId): Promise<boolean> {
   if (id === 'yatirim') return (await profilDetayOku(db)).yatirimNiyet !== null;
   if (id === 'taksit') return (await profilDetayOku(db)).taksitSiklik !== null;
   return bildirimTercihBelirlendiMi(db);
 }
 
-async function redCooldowndaMi(db: SQLiteDatabase, id: ProfillemeSoruId): Promise<boolean> {
+async function redCooldowndaMi(db: VeriBaglami, id: ProfillemeSoruId): Promise<boolean> {
   const redTarihi = await ayarOku(db, `profilleme_red_${id}`);
   if (!redTarihi) return false;
   return gunFarkiHesapla(new Date(), tarihtenGun(redTarihi)) < RED_COOLDOWN_GUN;
 }
 
 /** Bugün gösterilecek soru var mı? Yoksa `null` (bileşen bu turda hiç render edilmez). */
-export async function aktifProfillemeSorusu(db: SQLiteDatabase): Promise<ProfillemeSoruId | null> {
+export async function aktifProfillemeSorusu(db: VeriBaglami): Promise<ProfillemeSoruId | null> {
   const profil = await profilOku(db);
   if (!profil.onboardingTamamlandi) return null;
 
@@ -74,27 +74,27 @@ export async function aktifProfillemeSorusu(db: SQLiteDatabase): Promise<Profill
   return null;
 }
 
-async function gosterildiIsaretle(db: SQLiteDatabase): Promise<void> {
+async function gosterildiIsaretle(db: VeriBaglami): Promise<void> {
   await ayarYaz(db, 'profilleme_son_gosterim_gun', gunAnahtari(new Date()));
 }
 
 /** "Şimdi değil" / kapatma (X) — ikisi de reddet sayılır, 14 gün cooldown başlar. */
-export async function profillemeReddet(db: SQLiteDatabase, id: ProfillemeSoruId): Promise<void> {
+export async function profillemeReddet(db: VeriBaglami, id: ProfillemeSoruId): Promise<void> {
   await ayarYaz(db, `profilleme_red_${id}`, gunAnahtari(new Date()));
   await gosterildiIsaretle(db);
 }
 
-export async function profillemeYatirimCevapla(db: SQLiteDatabase, niyet: YatirimNiyet): Promise<void> {
+export async function profillemeYatirimCevapla(db: VeriBaglami, niyet: YatirimNiyet): Promise<void> {
   await profilDetayAlanKaydet(db, 'yatirim_niyet', niyet);
   await gosterildiIsaretle(db);
 }
 
-export async function profillemeTaksitCevapla(db: SQLiteDatabase, siklik: TaksitSiklik): Promise<void> {
+export async function profillemeTaksitCevapla(db: VeriBaglami, siklik: TaksitSiklik): Promise<void> {
   await profilDetayAlanKaydet(db, 'taksit_siklik', siklik);
   await gosterildiIsaretle(db);
 }
 
-export async function profillemeBildirimCevapla(db: SQLiteDatabase, gonder: boolean): Promise<void> {
+export async function profillemeBildirimCevapla(db: VeriBaglami, gonder: boolean): Promise<void> {
   await bildirimAksamOzetKaydet(db, gonder);
   await gosterildiIsaretle(db);
 }

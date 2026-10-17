@@ -1,7 +1,7 @@
 import { ErrorState } from '@/components/ErrorState';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -48,7 +48,7 @@ export default function HarcamaDetayEkrani() {
   // ve NaN üretirdi (sözleşme uyuşmazlığı, PM'e bildirildi). Route parametresi
   // zaten string, doğrudan kullanılır.
   const harcamaId = id ?? '';
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const insets = useSafeAreaInsets();
 
   const [harcama, setHarcama] = useState<Harcama | null>(null);

@@ -47,3 +47,11 @@ test('kayıt ekranı sosyal giriş içermez ve yasal onay bağlantılarını kor
   assert.match(kaynak, /\*\*Kullanım şartlarını\*\*/);
   assert.match(kaynak, /\*\*Gizlilik politikasını\*\*/);
 });
+
+test('giriş ekranında Google düğmesi gerçek akışa bağlı ve koşulsuz pasif değil', () => {
+  const fs = require('node:fs');
+  const kaynak = fs.readFileSync(require('node:path').resolve(__dirname, '..', 'app/giris.tsx'), 'utf8');
+  assert.match(kaynak, /googleGonder\(\)/);
+  assert.match(kaynak, /provider === 'apple'/);
+  assert.doesNotMatch(kaynak, /<SocialAuthButton provider=\{provider\} disabled onPress=/);
+});

@@ -1,5 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
@@ -28,7 +28,7 @@ import { color } from '@/theme/tokens';
  * o günün sayfasına gider.
  */
 export default function GunlukEkrani() {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const { gun } = useLocalSearchParams<{ gun?: string }>();
   const hedefGunFarki = gun !== undefined ? Number.parseInt(gun, 10) || 0 : 0;
   const insets = useSafeAreaInsets();

@@ -6,7 +6,6 @@ import { PlusJakartaSans_700Bold } from '@expo-google-fonts/plus-jakarta-sans/70
 import { PlusJakartaSans_800ExtraBold } from '@expo-google-fonts/plus-jakarta-sans/800ExtraBold';
 import { useFonts } from 'expo-font';
 import { router, Stack, useRootNavigationState } from 'expo-router';
-import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationBar } from 'expo-navigation-bar';
 import * as SystemUI from 'expo-system-ui';
@@ -16,7 +15,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 
-import { DB_ADI, semayiKur } from '@/db';
+import { useVeriBaglami } from '@/db/baglam';
 import { onboardingTamamlandiMi } from '@/db/profil';
 import { gunSiniriOku, kurulumGunuBaslat } from '@/db/ayarTercihleri';
 import { katalogTazele } from '@/db/katalog';
@@ -51,7 +50,7 @@ function IlkYonlendirme({ onboarding }: { onboarding: boolean }) {
 
 /** Ekranlar oturum ve gün sınırı okunmadan API çağırmaya başlamaz. */
 function OturumGezgini() {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const [tetik, setTetik] = useState(0);
   const [durum, setDurum] = useState<'yukleniyor' | 'kapali' | 'acik'>('yukleniyor');
   const [ilkEkran, setIlkEkran] = useState('(tabs)');
@@ -170,11 +169,9 @@ export default function RootLayout() {
         <StatusBar style="light" />
         <NavigationBar style="light" />
         <View style={{ flex: 1, backgroundColor: color.bg }}>
-          <SQLiteProvider databaseName={DB_ADI} onInit={semayiKur}>
-            <OturumGezgini />
-            <ToastHost />
-            <InAppUpdateHost />
-          </SQLiteProvider>
+          <OturumGezgini />
+          <ToastHost />
+          <InAppUpdateHost />
         </View>
       </SafeAreaProvider>
     </GestureHandlerRootView>

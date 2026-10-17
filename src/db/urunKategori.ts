@@ -1,4 +1,4 @@
-import type { SQLiteDatabase } from 'expo-sqlite';
+import type { VeriBaglami } from '@/db/baglam';
 
 import { urunKategoriOgrenIstegi, urunKategoriOgrenmeleriGetirIstegi } from '@/lib/api';
 
@@ -17,7 +17,7 @@ import { urunKategoriOgrenIstegi, urunKategoriOgrenmeleriGetirIstegi } from '@/l
 
 /** Bir ürün adı için kategoriyi elle öğretir/düzeltir (E-11 — kategori dropdown'undan değiştirme). */
 export async function urunKategoriOgren(
-  _db: SQLiteDatabase,
+  _db: VeriBaglami,
   urunAdi: string,
   kategori: string,
 ): Promise<void> {
@@ -26,7 +26,7 @@ export async function urunKategoriOgren(
 }
 
 /** Tüm öğrenilmiş eşlemeler — arama ekranında bir kerede yüklenip katalog sonuçlarına uygulanır. */
-export async function tumOgrenilenKategoriler(_db: SQLiteDatabase): Promise<Map<string, string>> {
+export async function tumOgrenilenKategoriler(_db: VeriBaglami): Promise<Map<string, string>> {
   const satirlar = await urunKategoriOgrenmeleriGetirIstegi();
   return new Map(satirlar.map((s) => [s.urun_anahtari, s.kategori]));
 }

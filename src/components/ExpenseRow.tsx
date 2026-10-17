@@ -1,6 +1,6 @@
 import { islemHatasiniGoster } from '@/lib/islemHatasi';
 import { useState } from 'react';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 
@@ -47,7 +47,7 @@ export function ExpenseRow({
   /** E-10/E-14 satırlarında true — Akış C/D kaydırma eylemlerini açar. */
   kaydirilabilir?: boolean;
 }) {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const [silDialogAcik, setSilDialogAcik] = useState(false);
   const [siliniyor, setSiliniyor] = useState(false);
 

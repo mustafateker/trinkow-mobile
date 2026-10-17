@@ -1,4 +1,4 @@
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useState } from 'react';
 
 import { gunAraligiToplamlari } from '@/db/harcama';
@@ -45,7 +45,7 @@ const BOS_OZET: GunSeciciOzeti = { kayitliGun: 0, limitAltiGun: 0, birikenKurus:
  * sunucudakiyle birebir aynı kuralı uygular.
  */
 export function useGunSecici(ay: string): GunSeciciVerisi & { yenile: () => void } {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const [veri, setVeri] = useState<GunSeciciVerisi>({
     yukleniyor: true,
     hata: false,

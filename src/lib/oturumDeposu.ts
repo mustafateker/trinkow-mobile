@@ -1,8 +1,6 @@
 /** Kalıcı oturum Keychain/Keystore'da, hatırlanmayan oturum yalnız bellekte. */
 import * as SecureStore from 'expo-secure-store';
-import { openDatabaseAsync } from 'expo-sqlite';
 import { Platform } from 'react-native';
-import { DB_ADI } from '@/db/sabitler';
 
 export type Oturum = {
   erisimTokeni: string;
@@ -25,18 +23,6 @@ async function baslat(): Promise<void> {
     if (ham) {
       try { bellek = JSON.parse(ham) as Oturum; kalici = true; }
       catch { await SecureStore.deleteItemAsync(ANAHTAR); }
-    }
-    // Eski açık SQLite token'larını bir kez taşı ve güvenli yazım sonrası sil.
-    const db = await openDatabaseAsync(DB_ADI);
-    const tablo = await db.getFirstAsync<{ name: string }>("SELECT name FROM sqlite_master WHERE type='table' AND name='oturum'");
-    if (tablo) {
-      const eski = await db.getFirstAsync<{ erisim_tokeni: string; yenileme_tokeni: string; kullanici_id: string; email: string; kimlik_saglayici: string }>('SELECT * FROM oturum WHERE id = 1');
-      if (!bellek && eski) {
-        bellek = { erisimTokeni: eski.erisim_tokeni, yenilemeTokeni: eski.yenileme_tokeni, kullaniciId: eski.kullanici_id, email: eski.email, kimlikSaglayici: eski.kimlik_saglayici, oturumKimligi: kimlik() };
-        kalici = Platform.OS !== 'web';
-        if (kalici) await SecureStore.setItemAsync(ANAHTAR, JSON.stringify(bellek));
-      }
-      await db.execAsync('PRAGMA secure_delete = ON; DELETE FROM oturum;');
     }
   })().catch((hata) => { hazir = null; throw hata; });
   await hazir;

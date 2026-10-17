@@ -1,4 +1,4 @@
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useState } from 'react';
 
 import { gununHarcamalari, type Harcama, type KategoriDurumu } from '@/db/harcama';
@@ -48,7 +48,7 @@ const BOS_SERI: GunSeriBilgisi = {
  * DÖNMEZ, yalnız aggregate alanlar döner (backend/README.md "ozet" bölümü).
  */
 export function usePano(gunFarki = 0): PanoVerisi & { yenile: () => void } {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const tarih = gunEkle(new Date(), gunFarki);
   const gun = gunAnahtari(tarih);
   const bugunMu = gunFarki === 0;

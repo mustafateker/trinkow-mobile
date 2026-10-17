@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
@@ -69,7 +69,7 @@ export function GunlukSayfa({
   /** Ok butonları — `FlatList`'i `app/index.tsx`'te kaydırır (route param DEĞİL). */
   onGunDegistir: (delta: number) => void;
 }) {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const veri = usePano(gunFarki);
   const bugunMu = gunFarki === 0;
   const bos = veri.harcamalar.length === 0;

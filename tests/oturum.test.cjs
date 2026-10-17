@@ -2,22 +2,16 @@ const { test } = require('node:test');
 const assert = require('node:assert/strict');
 const { yukle } = require('./yukle.cjs');
 
-function ortam(depo = new Map(), eski = null) {
-  let temizlendi = false;
+function ortam(depo = new Map()) {
   const api = yukle('src/lib/oturumDeposu.ts', {
     'expo-secure-store': {
       getItemAsync: async (k) => depo.get(k) ?? null,
       setItemAsync: async (k, v) => { depo.set(k, v); },
       deleteItemAsync: async (k) => { depo.delete(k); },
     },
-    'expo-sqlite': { openDatabaseAsync: async () => ({
-      getFirstAsync: async (sql) => sql.includes('sqlite_master') ? (eski ? { name: 'oturum' } : null) : eski,
-      execAsync: async () => { temizlendi = true; },
-    }) },
     'react-native': { Platform: { OS: 'ios' } },
-    '@/db/sabitler': { DB_ADI: 'test.db' },
   });
-  return { api, depo, temizlendi: () => temizlendi };
+  return { api, depo };
 }
 
 const kayit = { erisimTokeni:'a', yenilemeTokeni:'r', kullaniciId:'u', email:'u@example.com', kimlikSaglayici:'eposta' };
@@ -37,10 +31,9 @@ test('beni hatırla güvenli depodan yeni süreçte geri yüklenir', async () =>
   assert.equal((await ortam(ilk.depo).api.oturumOku()).kullaniciId, 'u');
 });
 
-test('eski SQLite oturumu güvenli depoya taşınıp açık metin kayıt temizlenir', async () => {
-  const eski = { erisim_tokeni:'a', yenileme_tokeni:'r', kullanici_id:'u', email:'u@example.com', kimlik_saglayici:'eposta' };
-  const state = ortam(new Map(), eski);
-  assert.equal((await state.api.oturumOku()).email, 'u@example.com');
-  assert.equal(state.depo.size, 1);
-  assert.equal(state.temizlendi(), true);
+test('bozuk güvenli depo kaydı temizlenir ve oturum kapalı açılır', async () => {
+  const depo = new Map([['trinkow.oturum.v2', '{bozuk-json']]);
+  const state = ortam(depo);
+  assert.equal(await state.api.oturumOku(), null);
+  assert.equal(state.depo.size, 0);
 });

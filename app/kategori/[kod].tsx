@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -37,7 +37,7 @@ export default function KategoriDetayEkrani() {
   const { kod } = useLocalSearchParams<{ kod: string }>();
   const kat = kategori(kod ?? 'market');
   const renk = aileRenkleri(kat.aile);
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const insets = useSafeAreaInsets();
 
   const [ayGosterge, setAyGosterge] = useState(() => new Date());

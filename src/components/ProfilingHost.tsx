@@ -1,5 +1,5 @@
 import { usePathname } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -51,7 +51,7 @@ const BILDIRIM_SECENEK: { v: boolean; etiket: string }[] = [
  * bırakıldı; onun yerine aynı metinle bir toast gösterilir (bkz. rapor).
  */
 export function ProfilingHost() {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const pathname = usePathname();
   const [soruId, setSoruId] = useState<ProfillemeSoruId | null>(null);
 

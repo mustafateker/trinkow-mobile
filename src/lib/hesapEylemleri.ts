@@ -16,6 +16,7 @@
  */
 import { hesapSilIstegi, oturumKapatIstegi } from '@/lib/api';
 import { oturumOku, oturumSil } from '@/lib/oturumDeposu';
+import { googleOturumunuKapat } from '@/lib/sosyalGiris';
 
 export async function oturumuKapat(): Promise<void> {
   const oturum = await oturumOku();
@@ -25,6 +26,7 @@ export async function oturumuKapat(): Promise<void> {
     } catch {
       // bkz. üstteki not — yerel çıkış yine de tamamlanır.
     }
+    if (oturum.kimlikSaglayici === 'google') await googleOturumunuKapat();
   }
   await oturumSil();
 }

@@ -1,4 +1,4 @@
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { Fragment, useCallback, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Circle, Defs, G, Line, LinearGradient, Path, Stop } from 'react-native-svg';
@@ -38,7 +38,7 @@ const DONEMLER: { key: AnalizDonemi; label: string }[] = [
 ];
 
 export default function AnalizlerEkrani() {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const [donem, setDonem] = useState<AnalizDonemi>('hafta');
   const veri = useRevLoad(useCallback(async (): Promise<AnalizVerisi> => {
     const secim = analizAraligi(donem);

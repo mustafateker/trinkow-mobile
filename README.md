@@ -20,6 +20,21 @@ başlatıcı ayrıca **Test hesabıyla devam et** seçeneğini açar; bu seçene
 geliştirme içindir ve normal formun doğrulamasını gevşetmez. İlk girişte onboarding
 gelir.
 
+Google ile giriş Android native geliştirme derlemelerinde desteklenir
+(Expo Go native modülü yükleyemediği için kullanılamaz). Mobil build içine hiçbir
+OAuth kimliği gömülmemesi politikasıyla Google girişi şu anda Android'de açıktır.
+iOS native Google SDK, callback için public iOS istemci kimliğinden türetilen URL
+scheme'ini Info.plist'e gömmeyi zorunlu kılar; iOS için sıfır-gömülü-kimlik
+yaklaşımı backend aracılı web OAuth akışı gerektirir. Google Cloud Console'da:
+
+- Android istemcisine `com.triworkster.trinkow` paketini ve debug/upload/Play App
+  Signing SHA-1 parmak izlerini ekle.
+- Web OAuth istemci kimliği yalnız backend'deki `GOOGLE_OAUTH_CLIENT_IDS`
+  ayarında tutulur. Mobil uygulama public kimliği `/auth/google/yapilandirma`
+  endpoint'inden çalışma anında alır; build içine OAuth kimliği gömülmez.
+- Native ayarlar değiştiği için uygulamayı yeniden derle (`npm run android` veya
+  `npm run ios`); yalnız Metro'yu yeniden başlatmak yeterli değildir.
+
 Test hesabı da gerçek JWT ve ayrı bir yerel backend kullanır. Veriler
 `../backend/.local/data` içinde kalıcı, `trinkow_demo` veritabanındadır. Atlas `.env` ve
 mevcut Atlas verileri değiştirilmez.
@@ -77,5 +92,5 @@ Web hedefi bu mobil projenin kurulu bağımlılıkları arasında değildir.
 E-posta ile parola sıfırlama gerçek, süreli ve tek kullanımlık bağlantıyla çalışır;
 yerelde backend posta kutusuna, canlı ayarda SMTP'ye gönderilir. Hatırlanan oturum
 SecureStore'da tutulur; hatırlanmayan oturum uygulama belleğiyle sınırlıdır.
-Apple/Google girişi ve gerçek telefon bildirimleri bu turun kapsamında değildir;
-giriş düğmeleri bağlantının henüz hazır olmadığını açıkça bildirir.
+Google girişi aktiftir. Apple girişi ve gerçek telefon bildirimleri henüz bağlı
+değildir; Apple düğmesi iOS'ta pasif gösterilir.

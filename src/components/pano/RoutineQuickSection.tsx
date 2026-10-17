@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -76,7 +76,7 @@ export function RoutineQuickSection({
   bugunMu: boolean;
   harcamalar: Harcama[];
 }) {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
 
   const [rutinler, setRutinler] = useState<Routine[] | null>(null);
   const [abonelikTakvimi, setAbonelikTakvimi] = useState<SubscriptionSchedule | null>(null);
@@ -338,11 +338,6 @@ export function RoutineQuickSection({
                 ) : null}
                 {!okumaHatasi && gorunenler.length > 0 ? (
                   <View style={bugunAbonelikler.length > 0 ? stil.bolumArasi : undefined}>
-                    <Txt role="caption" tone={color.text2}>Günlük rutinler</Txt>
-                    <View style={{ height: rhythm.sameObject }} />
-                    <Txt role="caption" tone={color.text2}>
-                      Kaydetmediklerin gün tamamlandığında otomatik tasarruf sayılır.
-                    </Txt>
                     <View style={{ height: rhythm.blockInCard }} />
                     {gorunenler.map((rutin, i) => (
                       <View key={rutin.id}>

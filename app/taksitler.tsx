@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { LayoutAnimation, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -75,7 +75,7 @@ type Veri = {
  * gösterir.
  */
 export default function TaksitlerEkrani() {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const insets = useSafeAreaInsets();
   const reduceMotion = useReduceMotion();
 

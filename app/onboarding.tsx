@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Animated, StyleSheet, View } from 'react-native';
 
@@ -40,7 +40,7 @@ const NIYET_SIRASI: [Niyet, IconName][] = [
 type GiderAlan = 'kira' | 'fatura' | 'ulasim' | 'kredi';
 
 export default function Onboarding() {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const shellRef = useRef<SetupShellHandle>(null);
   const reduceMotion = useReduceMotion();
   const anim = useRef(new Animated.Value(1)).current;

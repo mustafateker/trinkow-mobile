@@ -1,6 +1,6 @@
 import { islemHatasiniGoster } from '@/lib/islemHatasi';
 import { router, useFocusEffect } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useState } from 'react';
 import { ScrollView, Share, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -99,7 +99,7 @@ const ODEME_SECENEKLERI: { value: OdemeTipi; label: string; icon: 'banknote' | '
 const MAAS_GUNLERI = Array.from({ length: 31 }, (_, i) => i + 1);
 
 export default function AyarlarEkrani() {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const insets = useSafeAreaInsets();
 
   const [yukleniyor, setYukleniyor] = useState(true);

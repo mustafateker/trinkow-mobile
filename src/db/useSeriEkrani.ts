@@ -1,4 +1,4 @@
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useState } from 'react';
 
 import { seriGorunumuGetir, type GunSeriDurumu, type SeriDurumu } from '@/db/seri';
@@ -23,7 +23,7 @@ export type SeriEkraniVerisi = {
  * pencereden FARKLI — bkz. rapor "sapmalar").
  */
 export function useSeriEkrani(): SeriEkraniVerisi & { yenile: () => void } {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const [veri, setVeri] = useState<SeriEkraniVerisi>({
     yukleniyor: true,
     hata: false,

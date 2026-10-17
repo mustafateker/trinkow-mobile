@@ -128,6 +128,16 @@ async function tokenYenile(yenilemeTokeni: string): Promise<boolean> {
 
 export type TokenCifti = { erisimTokeni: string; yenilemeTokeni: string };
 
+/** Google'ın public OAuth kimliğini backend'den çalışma anında alır. */
+export async function googleYapilandirmasiniGetir(): Promise<{ webClientId: string }> {
+  const yanit = await istek<{ web_istemci_kimligi: string }>('/auth/google/yapilandirma');
+  const webClientId = yanit.web_istemci_kimligi?.trim();
+  if (!webClientId?.endsWith('.apps.googleusercontent.com')) {
+    throw new ApiHatasi(503, 'GOOGLE_GIRISI_YAPILANDIRILMADI', 'Google yapılandırması geçersiz.');
+  }
+  return { webClientId };
+}
+
 /** `POST /auth/kayit` — 201, doğrudan oturum açtırır. 409 → e-posta kayıtlı. */
 export async function kayitOl(email: string, sifre: string): Promise<TokenCifti> {
   const yanit = await istek<{ erisim_tokeni: string; yenileme_tokeni: string }>('/auth/kayit', {
@@ -142,6 +152,15 @@ export async function girisYap(email: string, sifre: string, demo = false): Prom
   const yanit = await istek<{ erisim_tokeni: string; yenileme_tokeni: string }>(demo && GELISTIRME_GIRISI ? '/auth/gelistirme-giris' : '/auth/giris', {
     yontem: 'POST',
     govde: { email, sifre },
+  });
+  return { erisimTokeni: yanit.erisim_tokeni, yenilemeTokeni: yanit.yenileme_tokeni };
+}
+
+/** `POST /auth/google` — native Google SDK'sının ID token'ıyla oturum açar. */
+export async function googleIleGirisYap(idTokeni: string): Promise<TokenCifti> {
+  const yanit = await istek<{ erisim_tokeni: string; yenileme_tokeni: string }>('/auth/google', {
+    yontem: 'POST',
+    govde: { id_token: idTokeni },
   });
   return { erisimTokeni: yanit.erisim_tokeni, yenilemeTokeni: yanit.yenileme_tokeni };
 }

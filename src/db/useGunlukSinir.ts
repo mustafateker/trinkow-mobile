@@ -1,4 +1,4 @@
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { useEffect, useState } from 'react';
 
 import { ilkSinirGunu } from '@/db/seri';
@@ -10,7 +10,7 @@ import { veriDegisimineAbone } from '@/lib/veriBus';
  * günü). `app/index.tsx` bunu bir kez okuyup sayfalama dizisini kurar.
  */
 export function useGunlukSinir(): { enEskiGunFarki: number; hazir: boolean } {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const [durum, setDurum] = useState({ enEskiGunFarki: 0, hazir: false });
 
   useEffect(() => {

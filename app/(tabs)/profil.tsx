@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { IconName } from '@/components/Icon';
@@ -55,7 +55,7 @@ type AyarVerisi = {
  * yalnız Ayarlar'dan değişir (§26.3), tek eylem hiyerarşisi §7/5 gereği.
  */
 export default function ProfilEkrani() {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const oturum = useRevLoad(useCallback(oturumOku, []));
 
   const ayarVerisi = useRevLoad(

@@ -38,6 +38,30 @@ test('Test hesabı yalnız geliştirmede açıkça istendiğinde kullanılır', 
   }
 });
 
+test('Google ID tokenı backend Google giriş ucuna taşınır', async () => {
+  const { api } = ortam(async (url, options) => {
+    assert.ok(url.endsWith('/auth/google'));
+    assert.equal(options.method, 'POST');
+    assert.deepEqual(JSON.parse(options.body), { id_token: 'google-id-token' });
+    return yanit({ erisim_tokeni: 'google-access', yenileme_tokeni: 'google-refresh' });
+  });
+
+  const tokenlar = await api.googleIleGirisYap('google-id-token');
+  assert.equal(tokenlar.erisimTokeni, 'google-access');
+  assert.equal(tokenlar.yenilemeTokeni, 'google-refresh');
+});
+
+test('Google public OAuth yapılandırması backendden alınır', async () => {
+  const { api } = ortam(async (url, options) => {
+    assert.ok(url.endsWith('/auth/google/yapilandirma'));
+    assert.equal(options.method, 'GET');
+    return yanit({ web_istemci_kimligi: 'web.apps.googleusercontent.com' });
+  });
+
+  const yapilandirma = await api.googleYapilandirmasiniGetir();
+  assert.equal(yapilandirma.webClientId, 'web.apps.googleusercontent.com');
+});
+
 test('Eşzamanlı 401 yanıtları tek yenileme yapar', async () => {
   let yenileme = 0;
   const { api, oturum } = ortam(async (url, options) => {

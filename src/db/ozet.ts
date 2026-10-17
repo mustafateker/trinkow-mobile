@@ -1,4 +1,4 @@
-import type { SQLiteDatabase } from 'expo-sqlite';
+import type { VeriBaglami } from '@/db/baglam';
 
 import { tumSayfalariGetir } from '@/db/harcama';
 import { ozetDonemGetir, type OzetDonemYaniti } from '@/lib/api';
@@ -21,7 +21,7 @@ export type GunToplami = { gun: string; toplamKurus: number };
 
 /** Hafta aralığındaki (dahil) günlük toplamlar — veri olmayan günler listede yok. */
 export async function haftaGunToplamlari(
-  _db: SQLiteDatabase,
+  _db: VeriBaglami,
   baslangicGunu: string,
   bitisGunu: string,
 ): Promise<GunToplami[]> {
@@ -58,7 +58,7 @@ export type KategoriPayi = { kategori: string; toplamKurus: number };
 
 /** Hafta aralığında kategoriye göre toplam — sunucu zaten büyükten küçüğe sıralı döner. */
 export async function haftaKategoriDagilimi(
-  _db: SQLiteDatabase,
+  _db: VeriBaglami,
   baslangicGunu: string,
   bitisGunu: string,
 ): Promise<KategoriPayi[]> {
@@ -70,7 +70,7 @@ export type KucukHarcamaOzeti = { adet: number; toplamKurus: number };
 
 /** "50 ₺ altı" harcamaların adedi + toplamı (Latte Faktörü — ürünün varlık sebebi). */
 export async function haftaKucukHarcamaOzeti(
-  _db: SQLiteDatabase,
+  _db: VeriBaglami,
   baslangicGunu: string,
   bitisGunu: string,
   esikKurus = VARSAYILAN_ESIK_KURUS,

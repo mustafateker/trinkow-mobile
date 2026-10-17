@@ -1,4 +1,4 @@
-import type { SQLiteDatabase } from 'expo-sqlite';
+import type { VeriBaglami } from '@/db/baglam';
 
 import {
   gunlukLimitiAyarlaIstegi,
@@ -12,7 +12,7 @@ import { gunAnahtari } from '@/lib/tarih';
 
 /**
  * E-17 — günlük limit + kategori limitleri yazma/okuma. BE-6d (K-087): TAMAMI
- * artık sunucuda — `db: SQLiteDatabase` parametreleri yalnız dışa verilen
+ * artık sunucuda — `db: VeriBaglami` parametreleri yalnız dışa verilen
  * imzayı korumak için tutuldu (`db/profil.ts`teki `_db` deseniyle aynı).
  *
  * Günlük limitin OKUNMASI `db/profil.ts#gunlukLimitKurusOku`den yapılır (tek
@@ -23,7 +23,7 @@ import { gunAnahtari } from '@/lib/tarih';
  */
 
 /** Tüm kategori limitleri — yalnız DEĞERİ OLANLAR (Record: kod → kuruş). */
-export async function tumKategoriLimitleri(_db: SQLiteDatabase): Promise<Record<string, number>> {
+export async function tumKategoriLimitleri(_db: VeriBaglami): Promise<Record<string, number>> {
   const satirlar = await kategoriLimitleriGetirIstegi();
   const sonuc: Record<string, number> = {};
   for (const s of satirlar) sonuc[s.kategori] = s.limit_kurus;
@@ -32,7 +32,7 @@ export async function tumKategoriLimitleri(_db: SQLiteDatabase): Promise<Record<
 
 /** Kategori limiti yaz/güncelle. `sira` kategori listesindeki sabit sıradan gelir. */
 export async function kategoriLimitiKaydet(
-  _db: SQLiteDatabase,
+  _db: VeriBaglami,
   kod: KategoriKodu,
   limitKurus: number,
 ): Promise<void> {
@@ -46,7 +46,7 @@ export async function kategoriLimitiKaydet(
  * (204, idempotent) — geri al (K-029) `kategoriLimitiKaydet` ile eski değeri
  * yeniden yazar.
  */
-export async function kategoriLimitiSil(_db: SQLiteDatabase, kod: KategoriKodu): Promise<void> {
+export async function kategoriLimitiSil(_db: VeriBaglami, kod: KategoriKodu): Promise<void> {
   await kategoriLimitiSilIstegi(kod);
 }
 
@@ -66,7 +66,7 @@ export async function kategoriLimitiSil(_db: SQLiteDatabase, kod: KategoriKodu):
  *    çağrılır, tekrar tekrar tetiklenmez).
  */
 export async function kategoriLimitleriniTohumla(
-  db: SQLiteDatabase,
+  db: VeriBaglami,
   aylikKurus: { kafe: number; restoran: number; abonelik: number; aliskanliklar: number },
 ): Promise<void> {
   const girdiler: [KategoriKodu, number][] = [
@@ -86,7 +86,7 @@ export async function kategoriLimitleriniTohumla(
  * (`kullanici_profilleri.gunluk_limit_kurus`) hem `limit_gecmisi`yi günceller
  * (K-085 Madde 6) — istemci ikinci bir `limit_gecmisi` yazmaz.
  */
-export async function gunlukLimitKaydet(_db: SQLiteDatabase, limitKurus: number): Promise<void> {
+export async function gunlukLimitKaydet(_db: VeriBaglami, limitKurus: number): Promise<void> {
   await gunlukLimitiAyarlaIstegi(Math.round(limitKurus), gunAnahtari(new Date()));
 }
 

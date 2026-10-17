@@ -1,4 +1,4 @@
-import type { SQLiteDatabase } from 'expo-sqlite';
+import type { VeriBaglami } from '@/db/baglam';
 
 import { t, toastTekrarlandi } from '@/content/metinler';
 import { harcamaEkle, harcamaSil, taksitSerisiSil, type Harcama } from '@/db/harcama';
@@ -12,7 +12,7 @@ import { veriDegisti } from '@/lib/veriBus';
  * E-12 (detay ekranı "Sil") ve E-10/E-14 satır kaydırması (Akış D) bu
  * TEK fonksiyonu paylaşır — mantık iki yerde yazılmaz.
  */
-export async function harcamaTekilSilVeGeriAlSun(db: SQLiteDatabase, yedek: Harcama): Promise<void> {
+export async function harcamaTekilSilVeGeriAlSun(db: VeriBaglami, yedek: Harcama): Promise<void> {
   await harcamaSil(db, yedek.id);
   veriDegisti();
   toastGoster({
@@ -39,7 +39,7 @@ export async function harcamaTekilSilVeGeriAlSun(db: SQLiteDatabase, yedek: Harc
 }
 
 /** E-13 — taksit serisi silme: onaylı (Dialog çağıranın sorumluluğunda), geri alma yok. */
-export async function taksitSerisiSilVeToastGoster(db: SQLiteDatabase, taksitId: string): Promise<void> {
+export async function taksitSerisiSilVeToastGoster(db: VeriBaglami, taksitId: string): Promise<void> {
   await taksitSerisiSil(db, taksitId);
   veriDegisti();
   toastGoster({ tur: 'info', metin: t['toast.taksit_silindi'] });
@@ -50,7 +50,7 @@ export async function taksitSerisiSilVeToastGoster(db: SQLiteDatabase, taksitId:
  * taksitsiz tek kayıt. Not taşınmaz (yeni an, yeni bağlam); taksitli bir
  * kaynaktan tekrarlansa bile sonuç her zaman tek harcamadır. 6 sn geri al.
  */
-export async function harcamaTekrarla(db: SQLiteDatabase, kaynak: Harcama): Promise<void> {
+export async function harcamaTekrarla(db: VeriBaglami, kaynak: Harcama): Promise<void> {
   const simdi = new Date();
   const yeniId = await harcamaEkle(db, {
     tutarKurus: kaynak.tutarKurus,

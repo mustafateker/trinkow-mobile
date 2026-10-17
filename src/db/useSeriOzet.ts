@@ -1,4 +1,4 @@
-import { useSQLiteContext } from 'expo-sqlite';
+import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useState } from 'react';
 
 import { seriDurumuHesapla, type SeriDurumu } from '@/db/seri';
@@ -12,7 +12,7 @@ import { veriDegisimineAbone } from '@/lib/veriBus';
  * BE-6c: `GET /ozet/seri` üzerinden sunucudan gelir (bkz. `db/seri.ts`).
  */
 export function useSeriOzet(): { yukleniyor: boolean; hata: boolean; durum: SeriDurumu | null; yenile: () => void } {
-  const db = useSQLiteContext();
+  const db = useVeriBaglami();
   const [veri, setVeri] = useState<{ yukleniyor: boolean; hata: boolean; durum: SeriDurumu | null }>({
     yukleniyor: true,
     hata: false,
