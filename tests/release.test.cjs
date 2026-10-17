@@ -33,6 +33,9 @@ test('npm release native Gradle build ve Google Play production yayını kullan�
 
   assert.equal(paket.scripts.release, 'node scripts/release.mjs');
   assert.match(betik, /:app:bundleRelease/);
+  assert.doesNotMatch(betik, /\['clean',\s*':app:bundleRelease'\]/);
+  assert.match(betik, /rmSync\(androidAppBuildYolu/);
+  assert.match(betik, /rmSync\(androidAppCxxYolu/);
   assert.match(betik, /fastlane', \['android', 'release'\]/);
   assert.match(fastfile, /track: "production"/);
   assert.match(fastfile, /in_app_update_priority: 5/);

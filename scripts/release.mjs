@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
@@ -10,6 +10,8 @@ const appYolu = resolve(kok, 'app.json');
 const gradleYolu = resolve(kok, 'android/app/build.gradle');
 const androidKoku = resolve(kok, 'android');
 const gradlewYolu = resolve(androidKoku, 'gradlew');
+const androidAppBuildYolu = resolve(androidKoku, 'app/build');
+const androidAppCxxYolu = resolve(androidKoku, 'app/.cxx');
 const aabYolu = resolve(androidKoku, 'app/build/outputs/bundle/release/app-release.aab');
 const servisAnahtariYolu = resolve(kok, '.release-secrets/google-play-service-account.json');
 const keystoreYolu = resolve(kok, '.release-secrets/android-upload-keystore.jks');
@@ -101,7 +103,14 @@ writeFileSync(
 
 try {
   console.log('3/4 Native Android App Bundle derleniyor…');
-  calistir(gradlewYolu, ['clean', ':app:bundleRelease'], { cwd: androidKoku });
+  // RN yeni mimaride Gradle `clean`, bağımlılıkların Codegen/JNI klasörlerini
+  // uygulamanın CMake temizliğinden önce kaldırabiliyor. Eski autolinking dosyası
+  // daha sonra bu klasörlere erişince `add_subdirectory ... does not exist` ile
+  // release duruyor. Yalnız uygulamanın üretilmiş build/CMake çıktılarını silmek
+  // temiz ve yeniden üretilebilir bir derleme sağlar; kaynaklara dokunmaz.
+  rmSync(androidAppBuildYolu, { recursive: true, force: true });
+  rmSync(androidAppCxxYolu, { recursive: true, force: true });
+  calistir(gradlewYolu, [':app:bundleRelease'], { cwd: androidKoku });
   if (!existsSync(aabYolu) || statSync(aabYolu).size === 0) throw new Error('Release AAB üretilemedi.');
 
   console.log('4/4 AAB Google Play production kanalına yükleniyor…');
