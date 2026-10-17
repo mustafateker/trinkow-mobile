@@ -18,7 +18,7 @@ Bu akış EAS Build veya EAS Submit kullanmaz. AAB doğrudan yerel Android Gradl
 Kurulum:
 
 - Servis hesabı anahtarını doğrular.
-- Ayrı bir production upload keystore oluşturur.
+- Ayrı bir upload keystore oluşturur.
 - Anahtarları yalnız `.release-secrets/` altında `0600` dosya izniyle saklar.
 - Upload sertifikasının SHA-1 ve SHA-256 parmak izlerini ekrana basar.
 
@@ -56,7 +56,7 @@ npm run release -- major
 npm run release -- 1.0.0
 ```
 
-Komut sırasıyla testleri çalıştırır, sürümü artırır, `android/gradlew :app:bundleRelease` ile imzalı AAB üretir ve production kanalına gönderir. Yayın başarısız olursa sürüm dosyaları otomatik geri alınır.
+Komut sırasıyla testleri çalıştırır, sürümü artırır, `android/gradlew :app:bundleRelease` ile imzalı AAB üretir ve Google Play kapalı test (`alpha`) kanalına taslak release olarak yükler. Uygulama Play Console'da taslak durumundayken API yalnızca taslak release kabul eder; yüklemeden sonra Play Console'da release'i incelemeye gönderip yayınlamak gerekir. Yayın başarısız olursa sürüm dosyaları otomatik geri alınır.
 
 Yalnız AAB üretmek için:
 

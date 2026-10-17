@@ -2,7 +2,7 @@
   "expo": {
     "name": "Trinkow",
     "slug": "trinkow",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "orientation": "portrait",
     "scheme": "trinkow",
     "userInterfaceStyle": "light",
@@ -17,7 +17,10 @@
     },
     "android": {
       "package": "com.triworkster.trinkow",
-      "versionCode": 1,
+      "versionCode": 2,
+      "blockedPermissions": [
+        "com.google.android.gms.permission.AD_ID"
+      ],
       "backgroundColor": "#171C42",
       "adaptiveIcon": {
         "backgroundColor": "#071A70",

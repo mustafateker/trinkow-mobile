@@ -80,7 +80,7 @@ const yeniSayilar = yeniSurum.split('.').map(Number);
 const dahaYeni = yeniSayilar.some((deger, i) => deger > eskiSayilar[i] && yeniSayilar.slice(0, i).every((x, j) => x === eskiSayilar[j]));
 if (!dahaYeni) throw new Error(`Yeni sürüm ${paket.version} sürümünden büyük olmalı.`);
 
-console.log(`\nTrinkow ${paket.version} (${kodEslesmesi[1]}) → ${yeniSurum} (${yeniKod}) native production yayını`);
+console.log(`\nTrinkow ${paket.version} (${kodEslesmesi[1]}) → ${yeniSurum} (${yeniKod}) native kapalı test yayını`);
 console.log('1/4 Testler ve tip kontrolü çalışıyor…');
 calistir('npm', ['test']);
 calistir('npm', ['run', 'typecheck']);
@@ -113,7 +113,7 @@ try {
   calistir(gradlewYolu, [':app:bundleRelease'], { cwd: androidKoku });
   if (!existsSync(aabYolu) || statSync(aabYolu).size === 0) throw new Error('Release AAB üretilemedi.');
 
-  console.log('4/4 AAB Google Play production kanalına yükleniyor…');
+  console.log('4/4 AAB Google Play kapalı test kanalına yükleniyor…');
   calistir('fastlane', ['android', 'release'], {
     env: {
       GOOGLE_PLAY_JSON_KEY: servisAnahtariYolu,
@@ -130,5 +130,5 @@ try {
   throw hata;
 }
 
-console.log(`\nTrinkow ${yeniSurum} (${yeniKod}) Google Play production kanalına gönderildi.`);
+console.log(`\nTrinkow ${yeniSurum} (${yeniKod}) Google Play kapalı test kanalına gönderildi.`);
 console.log(`AAB: ${aabYolu}`);

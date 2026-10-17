@@ -26,7 +26,18 @@ test('production build debug anahtarı kullanmaz', () => {
   assert.match(gradle, /android-upload-keystore\.jks/);
 });
 
-test('npm release native Gradle build ve Google Play production yayını kullanır', () => {
+test('Android release reklam kimliği istemez', () => {
+  const app = oku('app.json');
+  const manifest = readFileSync(join(kok, 'android/app/src/main/AndroidManifest.xml'), 'utf8');
+
+  assert.ok(app.expo.android.blockedPermissions.includes('com.google.android.gms.permission.AD_ID'));
+  assert.match(
+    manifest,
+    /android:name="com\.google\.android\.gms\.permission\.AD_ID" tools:node="remove"/,
+  );
+});
+
+test('npm release native Gradle build ve Google Play kapalı test yayını kullanır', () => {
   const paket = oku('package.json');
   const betik = readFileSync(join(kok, 'scripts/release.mjs'), 'utf8');
   const fastfile = readFileSync(join(kok, 'fastlane/Fastfile'), 'utf8');
@@ -37,7 +48,8 @@ test('npm release native Gradle build ve Google Play production yayını kullan�
   assert.match(betik, /rmSync\(androidAppBuildYolu/);
   assert.match(betik, /rmSync\(androidAppCxxYolu/);
   assert.match(betik, /fastlane', \['android', 'release'\]/);
-  assert.match(fastfile, /track: "production"/);
+  assert.match(fastfile, /track: "alpha"/);
+  assert.match(fastfile, /release_status: "draft"/);
   assert.match(fastfile, /in_app_update_priority: 5/);
   assert.equal(existsSync(join(kok, 'eas.json')), false);
 });

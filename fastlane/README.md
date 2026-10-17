@@ -21,7 +21,7 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 [bundle exec] fastlane android release
 ```
 
-Native AAB'yi Google Play production kanalına gönderir
+Native AAB'yi Google Play kapalı test kanalına gönderir
 
 ----
 

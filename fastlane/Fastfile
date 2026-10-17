@@ -1,7 +1,7 @@
 default_platform(:android)
 
 platform :android do
-  desc "Native AAB'yi Google Play production kanalına gönderir"
+  desc "Native AAB'yi Google Play kapalı test kanalına gönderir"
   lane :release do
     aab_path = ENV.fetch("ANDROID_AAB_PATH")
     json_key = ENV.fetch("GOOGLE_PLAY_JSON_KEY")
@@ -13,8 +13,8 @@ platform :android do
       package_name: "com.triworkster.trinkow",
       json_key: json_key,
       aab: aab_path,
-      track: "production",
-      release_status: "completed",
+      track: "alpha",
+      release_status: "draft",
       version_name: ENV.fetch("ANDROID_VERSION_NAME"),
       in_app_update_priority: 5,
       skip_upload_metadata: true,
