@@ -6,7 +6,7 @@ import { InfoStrip } from '@/components/InfoStrip';
 const belgeler: Record<string, { baslik: string; metin: string[] }> = {
   kosullar: { baslik: 'Kullanım şartları', metin: [
     'Trinkow, girdiğin gelir, gider ve alışkanlık bilgilerini düzenleyip hesaplanan bütçe ve tasarruf özetlerini gösterir. Gösterilen tutarlar bir banka hesabının bakiyesini veya yapılmış bir yatırımı temsil etmez.',
-    'Hesabının erişim bilgilerini koru. Girdiğin bilgileri Günlük, Bütçem ve Rutinlerim ekranlarından kontrol edip düzeltebilirsin. Çıkış yapmak hesabını silmez.',
+    'Hesabının erişim bilgilerini koru. Girdiğin bilgileri Günlük, Bütçem ve Rutinler ve Abonelikler ekranından kontrol edip düzeltebilirsin. Çıkış yapmak hesabını silmez.',
     'Hizmet sağlayıcının unvanı, iletişim bilgileri, sorumluluk hükümleri ve yürürlük koşulları tamamlanacaktır. Bu taslak henüz nihai kullanım sözleşmesi değildir.',
   ] },
   gizlilik: { baslik: 'Gizlilik politikası', metin: [
@@ -18,6 +18,10 @@ const belgeler: Record<string, { baslik: string; metin: string[] }> = {
     'Bu sayfa yayın öncesi hazırlanacak aydınlatma metni için ayrılmıştır. Veri sorumlusunun kimliği ve iletişim bilgileri henüz tanımlanmamıştır.',
     'Uygulamanın temel veri grupları: hesap bilgileri, bütçe/harcama kayıtları, alışkanlıklar ve kullanım tercihleridir. Bunlar oturum açma ve talep ettiğin bütçe hesaplarını göstermek için kullanılır.',
     'İşleme koşulları, alıcı grupları, saklama/aktarım bilgileri ve başvuru yöntemi hizmetin gerçek işletme bilgilerine göre tamamlanacaktır. Bu sayfa taslaktır; nihai aydınlatma yerine sunulmaz.',
+  ] },
+  lisanslar: { baslik: 'Açık kaynak lisansları', metin: [
+    'Abonelik sağlayıcılarını tanımaya yardımcı olan bazı marka simgeleri Font Awesome Free paketinden alınmıştır. Font Awesome, Fonticons, Inc. tarafından CC BY 4.0 lisansıyla sunulur: https://fontawesome.com',
+    'Gösterilen şirket ve ürün adları ile logolar ilgili hak sahiplerinin ticari markalarıdır. Trinkow ile sponsorluk veya ortaklık ilişkisi ifade etmez.',
   ] },
 };
 export default function Legal() {

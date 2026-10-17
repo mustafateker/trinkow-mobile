@@ -10,6 +10,9 @@ export type BudgetResponse = {gun:string;butce:Budget|null;eski_aylik_kategori_l
 /** `vazgecilen_adet` — sorgulanan `gun` için fiilen vazgeçilen, satın almayla henüz telafi edilmemiş adet (0 = vazgeçme yok/geçersiz kılınmış). Sunucu salt okunur hesaplar. */
 export type Routine = {id:string;ad:string;kategori:string;gunluk_adet:number;birim_fiyat_kurus:number;aktif:boolean;yururluk_gunu?:string;vazgecilen_adet:number};
 export type Favorite = {id:string;ad:string;kategori:string;tutar_kurus:number;sabitlenmis:boolean;kullanim_sayisi:number};
+export type Subscription = {id:string;ad:string;saglayici?:string|null;tutar_kurus:number;yenilenme_gunu:number;odeme:'nakit'|'kart';aktif:boolean;son_odeme_gunu:string|null};
+export type ScheduledSubscription = Subscription & {odendi:boolean};
+export type SubscriptionSchedule = {gun:string;bugun_yenilenecek:ScheduledSubscription[];yarin_yenilenecek:ScheduledSubscription[]};
 export type Movement = {id:string;gun:string;tutar_kurus:number;not_metni:string};
 export type Savings = {ay?:string;donem_turu?:TasarrufDonemi;referans_gun?:string;baslangic_gun?:string;bitis_gun?:string;takip_baslangic_gunu:string;harcanabilir_kurus:number|null;harcanan_kurus:number;toplam_harcama_kurus:number;kalan_kurus:number|null;hesaplanan_tasarruf_kurus:number|null;kumulatif_tasarruf_kurus:number|null;gercek_birikim_kurus:number;ay_birikim_kurus:number;donem_birikim_kurus?:number;hedef_birikim_kurus:number;rutin_tasarruf_kurus:number;bilinmeyen_gun_sayisi:number;tamamlanan_gun_sayisi:number;kategoriler:{kategori:string;harcanan_kurus:number;rutin_tasarruf_kurus:number}[];rutinler:RutinTasarrufu[];motivasyon:{tur:string;mesaj:string;borc_kurus:number|null;borc_yuzde:number|null}};
 const q = () => `bugun=${bugun()}`;
@@ -24,6 +27,10 @@ export const routineSkip = (id:string,adet:number,gun:string=bugun()) => istek(`
 export const favoritesGet = () => istek<{kalemler:Favorite[]}>(`/butce/sik-kullanilanlar?${q()}`,{tokenGerekli:true});
 export const favoritePut = (f:Pick<Favorite,'id'|'ad'|'kategori'|'tutar_kurus'>) => istek<Favorite>(`/butce/sik-kullanilanlar/${f.id}`,{tokenGerekli:true,yontem:'PUT',govde:{ad:f.ad,kategori:f.kategori,tutar_kurus:f.tutar_kurus}});
 export const favoriteDelete = (id:string) => istek<void>(`/butce/sik-kullanilanlar/${id}`,{tokenGerekli:true,yontem:'DELETE'});
+export const subscriptionsGet = () => istek<{abonelikler:Subscription[]}>(`/butce/abonelikler?${q()}`,{tokenGerekli:true});
+export const subscriptionScheduleGet = () => istek<SubscriptionSchedule>(`/butce/abonelikler/takvim?${q()}`,{tokenGerekli:true});
+export const subscriptionPut = (a:Omit<Subscription,'son_odeme_gunu'>) => istek<Subscription>(`/butce/abonelikler/${a.id}?${q()}`,{tokenGerekli:true,yontem:'PUT',govde:{ad:a.ad,saglayici:a.saglayici??null,tutar_kurus:a.tutar_kurus,yenilenme_gunu:a.yenilenme_gunu,odeme:a.odeme,aktif:a.aktif}});
+export const subscriptionPaymentPut = (id:string,gun:string|null) => istek<Subscription>(`/butce/abonelikler/${id}/odeme?${q()}`,{tokenGerekli:true,yontem:'PUT',govde:{gun}});
 export const savingsGet = (ay:string) => istek<Savings>(`/tasarruf/ay?ay=${ay}&${q()}`,{tokenGerekli:true});
 export const movementsGet = (ay:string) => istek<{hareketler:Movement[];toplam_kurus:number}>(`/tasarruf/birikimler?ay=${ay}`,{tokenGerekli:true});
 export const savingsPeriodGet = (tur:TasarrufDonemi,referans:string) => istek<Savings>(`/tasarruf/donem?tur=${tur}&referans=${referans}&${q()}`,{tokenGerekli:true});

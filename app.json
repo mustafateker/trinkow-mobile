@@ -6,16 +6,22 @@
     "orientation": "portrait",
     "scheme": "trinkow",
     "userInterfaceStyle": "light",
-    "icon": "./assets/images/icon.png",
+    "backgroundColor": "#071A70",
+    "developmentClient": {
+      "silentLaunch": true
+    },
+    "icon": "./assets/images/trinkow-app-icon.png",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.trinkow.app"
     },
     "android": {
-      "package": "com.trinkow.app",
+      "package": "com.triworkster.trinkow",
+      "versionCode": 1,
+      "backgroundColor": "#171C42",
       "adaptiveIcon": {
-        "backgroundColor": "#171C42",
-        "foregroundImage": "./assets/images/android-icon-foreground.png"
+        "backgroundColor": "#071A70",
+        "foregroundImage": "./assets/images/trinkow-android-foreground.png"
       }
     },
     "plugins": [
@@ -24,9 +30,17 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#171C42",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#071A70",
+          "image": "./assets/images/trinkow-brand-mark.png",
+          "imageWidth": 176,
+          "resizeMode": "contain"
+        }
+      ],
+      [
+        "expo-navigation-bar",
+        {
+          "style": "light",
+          "enforceContrast": false
         }
       ]
     ],

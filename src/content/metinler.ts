@@ -69,7 +69,7 @@ export const t = {
   /** `MirrorWell`in sabit sol etiketi — `ob.rutin.ayna` ("Ayda {tutar}") şablonunun değişmeyen sözcüğü, iki sütunlu satır için ayrıştırıldı. */
   'ob.rutin.ayna_baslik': 'Ayda',
   'hata.rutin_fiyat_bos': 'Rutini kaydetmek için birim fiyat gerekiyor.',
-  'ob.rutin.sonra': "Rutinleri sonra Profil → Rutinlerim'den değiştirebilirsin.",
+  'ob.rutin.sonra': "Rutinleri sonra Profil → Rutinler ve Abonelikler'den değiştirebilirsin.",
   'hata.rutin_yazma': 'Rutinler kaydedilemedi.',
   'hata.rutin_yazma.ek': 'Yazdıkların duruyor, yeniden deneyebilirsin.',
   // 4/4 plan özeti
@@ -103,7 +103,7 @@ export const t = {
   'gunluk.harcama_ekle': 'Harcama ekle',
   'gunluk.hareketler': 'Bugünün hareketleri',
   'gunluk.tumunu_gor': 'Tümünü gör',
-  'gunluk.sik_kullanilanlar': 'Sık kullanılanlar',
+  'gunluk.sik_kullanilanlar': 'Sık harcamalarım',
   'gunluk.kategoriler': 'Kategoriler',
   'gunluk.kategoriler.ozet': 'Limit ve hızlı ekleme',
 
@@ -264,8 +264,8 @@ export const t = {
   // §11 · §22.4 D-2c-1 · E-19 — Ayarlar
   'ayar.baslik': 'Ayarlar',
   'ayar.bildirim_saat': 'Bildirim saati',
-  'ayar.gun_siniri': 'Gün sınırı',
-  'ayar.gun_siniri_aciklama': 'Gün bu saatte başlar. Gece geç harcayanlar için.',
+  'ayar.gun_siniri': 'Gün Dönümü',
+  'ayar.gun_siniri_aciklama': 'Günlük limitin bu saatte sıfırlanır.',
   'ayar.gun_siniri.0': '00.00',
   'ayar.gun_siniri.3': '03.00',
   'ayar.gun_siniri.6': '06.00',
@@ -416,8 +416,8 @@ export const t = {
   'tasarruf.rutin.kural': 'Bütçedeki kalana eklenmez.',
 
   // §29 rev3-gunluk-rutin.md — E-10 Günlük rutin hızlı eylem satırı (REV3)
-  'gunlukRutin.baslik': 'Rutinler',
-  'gunlukRutin.tumu': 'Tüm rutinler',
+  'gunlukRutin.baslik': 'Rutinler ve Abonelikler',
+  'gunlukRutin.tumu': 'Tüm rutinleri yönet',
   'gunlukRutin.toast.geriAl': 'Geri al',
   'gunlukRutin.hata.isaret': 'Rutin harcaması kaydedilemedi. Yeniden dene.',
 
@@ -435,7 +435,7 @@ export const t = {
   'profil.kimlik.hata.baslik': 'Hesap bilgisi açılamadı',
   'profil.kimlik.hata.alt': 'Ayarların ve yasal metinler açık kalır.',
   'profil.kimlik.hata.btn': 'Yeniden dene',
-  'profil.kimlik.serit.yok': 'Seri henüz başlamadı',
+  'profil.kimlik.serit.yok': 'Seri bekliyor',
   'profil.kimlik.serit.yokAlt': 'İlk kaydınla ilk gün sayılır.',
   'profil.kimlik.serit.altRekor': 'En uzun serin bu.',
   /** Kapanış QA düzeltmesi — `ayarVerisi` ağ hatasında (data===null) Planın/
@@ -449,10 +449,10 @@ export const t = {
   /** Yalnız veri okunamadığında (ağ hatası) — spesifikasyonda tanımsız üç
    * satır için inferred fallback, PM'e raporlanmıştır. */
   'profil.satir.butceBos': 'Aylık gelirini ve bütçeni belirle',
-  'profil.satir.rutinlerBos': 'Vazgeçtiğin rutinleri buradan yönet',
+  'profil.satir.rutinlerBos': 'Rutinlerini ve aboneliklerini buradan yönet',
   'profil.satir.favorilerBos': 'Sık kullandığın harcamaları kaydet',
   'profil.satir.taksitlerBos': 'Taksitli harcamalarını buradan takip et',
-  'profil.satir.rutinler': 'Rutinler',
+  'profil.satir.rutinler': 'Rutinler ve Abonelikler',
   'profil.satir.favoriler': 'Favoriler',
   'profil.satir.taksitler': 'Taksitler',
   'profil.satir.ozet': 'Aylık özet',

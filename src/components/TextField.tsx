@@ -91,9 +91,9 @@ export function TextField({
         {clearable && value.length > 0 ? (
           <Pressable
             onPress={() => onChangeText('')}
-            hitSlop={a11y.minTarget}
             accessibilityRole="button"
-            accessibilityLabel="Temizle">
+            accessibilityLabel="Temizle"
+            style={stil.ikonButonu}>
             <Icon name="x" size={20} color={color.text2} />
           </Pressable>
         ) : null}
@@ -136,4 +136,10 @@ const stil = StyleSheet.create({
     padding: 0,
   },
   sagHiza: { textAlign: 'right' },
+  ikonButonu: {
+    width: a11y.minTarget,
+    height: a11y.minTarget,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 });

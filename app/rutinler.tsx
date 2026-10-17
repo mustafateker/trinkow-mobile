@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 
@@ -8,7 +9,7 @@ import { Icon } from '@/components/Icon';
 import { IconButton } from '@/components/IconButton';
 import { MoneyInput } from '@/components/MoneyInput';
 import { LoadState, RevScreen, money, useRevLoad } from '@/components/RevScreen';
-import { GrupBasligi, SettingRow } from '@/components/SettingRow';
+import { GrupBasligi, SettingGroup, SettingRow } from '@/components/SettingRow';
 import { TextField } from '@/components/TextField';
 import { Txt } from '@/components/Txt';
 import { kategori as kategoriGetir, type KategoriKodu } from '@/lib/kategoriler';
@@ -77,6 +78,11 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
         <View>
           <Txt role="body">Günlük rutinlerini seç, kendi adet ve fiyatını yaz. Birden fazla rutin ekleyebilirsin.</Txt>
           <View style={{ height: rhythm.blockInCard }} />
+          <SettingGroup>
+            <SettingRow icon="calendar-clock" iconTone="primary" baslik="Aylık aboneliklerim" aciklama="Ücretleri ve yenilenme günlerini takip et" onPress={() => router.push('/abonelikler' as never)} />
+          </SettingGroup>
+          <View style={{ height: rhythm.section }} />
+          <GrupBasligi metin="Günlük rutinler" />
           {HAZIR_RUTINLER.map(([name, kategoriKodu], i) => {
             const secili = active.some((rutin) => rutin.ad === name);
             const kat = kategoriGetir(kategoriKodu);
@@ -182,7 +188,7 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
 
 export default function Rutinler() {
   return (
-    <RevScreen title="Rutinlerim">
+    <RevScreen title="Rutinler ve Abonelikler">
       <RoutinePanel />
     </RevScreen>
   );

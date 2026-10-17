@@ -1,0 +1,40 @@
+const fs = require('node:fs');
+const path = require('node:path');
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+
+const kok = path.resolve(__dirname, '..');
+
+test('ortak buton dokunma alanı komşu kontrollere taşmaz', () => {
+  const kaynak = fs.readFileSync(path.join(kok, 'src/components/ClayPressable.tsx'), 'utf8');
+  assert.doesNotMatch(kaynak, /hitSlop=\{a11y\.minTarget\}/);
+  assert.match(kaynak, /hitSlop=\{hitSlop\}/);
+});
+
+test('Android sekme çubuğu görsel transform yerine gerçek yerleşim kullanır', () => {
+  const kaynak = fs.readFileSync(path.join(kok, 'src/components/TabBar.tsx'), 'utf8');
+  assert.doesNotMatch(kaynak, /translateY/);
+  assert.match(kaynak, /paddingBottom: Platform\.OS === 'android'/);
+});
+
+test('Android gesture navigation zemini alt dock ile aynı renktedir', () => {
+  const config = JSON.parse(fs.readFileSync(path.join(kok, 'app.json'), 'utf8'));
+  assert.equal(config.expo.android.backgroundColor, '#171C42');
+  const navigationBar = config.expo.plugins.find((plugin) => Array.isArray(plugin) && plugin[0] === 'expo-navigation-bar');
+  assert.deepEqual(navigationBar?.[1], { style: 'light', enforceContrast: false });
+});
+
+test('Trinkow uygulama ikonu ve markalı splash varlıkları yapılandırılmıştır', () => {
+  const config = JSON.parse(fs.readFileSync(path.join(kok, 'app.json'), 'utf8'));
+  assert.equal(config.expo.backgroundColor, '#071A70');
+  assert.equal(config.expo.developmentClient.silentLaunch, true);
+  assert.equal(config.expo.icon, './assets/images/trinkow-app-icon.png');
+  assert.equal(config.expo.android.adaptiveIcon.foregroundImage, './assets/images/trinkow-android-foreground.png');
+  assert.equal(config.expo.android.adaptiveIcon.backgroundColor, '#071A70');
+  const splash = config.expo.plugins.find((plugin) => Array.isArray(plugin) && plugin[0] === 'expo-splash-screen');
+  assert.equal(splash?.[1].image, './assets/images/trinkow-brand-mark.png');
+  assert.equal(splash?.[1].backgroundColor, '#071A70');
+  for (const dosya of ['trinkow-app-icon.png', 'trinkow-android-foreground.png', 'trinkow-brand-mark.png']) {
+    assert.equal(fs.existsSync(path.join(kok, 'assets/images', dosya)), true);
+  }
+});

@@ -117,7 +117,7 @@ export default function Butce() {
             <View style={{ height: rhythm.group }} />
             <Button variant="secondary" label="Günlük ve kategori limitleri" disabled={!b} onPress={() => router.push('/limitler')} />
             <View style={{ height: rhythm.group }} />
-            <Button variant="secondary" label="Rutinlerim" onPress={() => router.push('/rutinler')} />
+            <Button variant="secondary" label="Rutinler ve Abonelikler" onPress={() => router.push('/rutinler')} />
           </View>
         </>
       ) : null}

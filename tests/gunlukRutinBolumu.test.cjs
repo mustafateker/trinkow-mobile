@@ -167,7 +167,7 @@ test('bugünkü etiket günü hiç taşımaz (gün-nötr)', () => {
 test('bölüm etiketi geçmiş günde günü taşır', () => {
   assert.equal(
     metinler.a11yGunlukRutinBolumGecmis('16 Eylül', '3 rutin · 2 işaretsiz'),
-    'Rutinler. 16 Eylül. 3 rutin · 2 işaretsiz',
+    'Rutinler ve Abonelikler. 16 Eylül. 3 rutin · 2 işaretsiz',
   );
 });
 

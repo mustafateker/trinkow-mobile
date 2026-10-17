@@ -5,9 +5,9 @@ import { StyleSheet, View } from 'react-native';
 import type { IconName } from '@/components/Icon';
 
 import { AppFooter } from '@/components/AppFooter';
-import { ErrorState } from '@/components/ErrorState';
 import { IconButton } from '@/components/IconButton';
 import { IdentityPanel } from '@/components/IdentityPanel';
+import { InfoStrip } from '@/components/InfoStrip';
 import { RevScreen, useRevLoad } from '@/components/RevScreen';
 import { GrupBasligi, SettingGroup, SettingRow, type MenuIconTone } from '@/components/SettingRow';
 import { Skeleton } from '@/components/Skeleton';
@@ -25,8 +25,7 @@ import {
   t,
 } from '@/content/metinler';
 import { surenSeriler, taksitBuAyToplam } from '@/db/harcama';
-import { seriDurumuHesapla, type SeriDurumu } from '@/db/seri';
-import { ayarGorunumDurumu } from '@/lib/ayarGorunumu';
+import { seriDurumuHesapla } from '@/db/seri';
 import type { Oturum } from '@/lib/oturumDeposu';
 import { oturumOku } from '@/lib/oturumDeposu';
 import { paraYaz } from '@/lib/para';
@@ -45,7 +44,8 @@ type AyarVerisi = {
   favoriSayisi: number;
   taksitSeriSayisi: number;
   taksitBuAyToplamKurus: number;
-  seri: SeriDurumu;
+  seri: { mevcutSeri: number; enUzunSeri: number };
+  eksik: boolean;
 };
 
 /**
@@ -61,7 +61,7 @@ export default function ProfilEkrani() {
   const ayarVerisi = useRevLoad(
     useCallback(async (): Promise<AyarVerisi> => {
       const buAy = bugun().slice(0, 7);
-      const [butceYaniti, rutinYaniti, favoriYaniti, tasarrufAy, taksitSeriler, buAyTaksitToplam, seri] = await Promise.all([
+      const sonuclar = await Promise.allSettled([
         budgetGet(),
         routinesGet(),
         favoritesGet(),
@@ -70,18 +70,26 @@ export default function ProfilEkrani() {
         taksitBuAyToplam(db, buAy),
         seriDurumuHesapla(db),
       ]);
-      const butce = butceYaniti.butce;
+      const [butceYaniti, rutinYaniti, favoriYaniti, tasarrufAy, taksitSeriler, buAyTaksitToplam, seriYaniti] = sonuclar;
+      const butce = butceYaniti.status === 'fulfilled' ? butceYaniti.value.butce : null;
+      const rutinler = rutinYaniti.status === 'fulfilled' ? rutinYaniti.value.rutinler : [];
+      const favoriler = favoriYaniti.status === 'fulfilled' ? favoriYaniti.value.kalemler : [];
+      const tasarruf = tasarrufAy.status === 'fulfilled' ? tasarrufAy.value.rutin_tasarruf_kurus : 0;
+      const taksitler = taksitSeriler.status === 'fulfilled' ? taksitSeriler.value : [];
+      const taksitToplam = buAyTaksitToplam.status === 'fulfilled' ? buAyTaksitToplam.value : 0;
+      const seri = seriYaniti.status === 'fulfilled' ? seriYaniti.value : { mevcutSeri: 0, enUzunSeri: 0 };
       return {
         gelirKurus: butce?.gelir_kurus ?? null,
         sabitGiderSayisi: butce ? Object.values(butce.sabit_giderler).filter((v) => v > 0).length : 0,
         gunlukLimitKurus: butce?.gunluk_limit_kurus ?? null,
         kategoriLimitSayisi: butce ? Object.values(butce.kategori_limitleri).filter((v) => v > 0).length : 0,
-        rutinSayisi: rutinYaniti.rutinler.filter((r) => r.aktif).length,
-        rutinTasarrufBuAyKurus: tasarrufAy.rutin_tasarruf_kurus,
-        favoriSayisi: favoriYaniti.kalemler.length,
-        taksitSeriSayisi: taksitSeriler.length,
-        taksitBuAyToplamKurus: buAyTaksitToplam,
+        rutinSayisi: rutinler.filter((r) => r.aktif).length,
+        rutinTasarrufBuAyKurus: tasarruf,
+        favoriSayisi: favoriler.length,
+        taksitSeriSayisi: taksitler.length,
+        taksitBuAyToplamKurus: taksitToplam,
         seri,
+        eksik: sonuclar.some((sonuc) => sonuc.status === 'rejected'),
       };
     }, [db]),
   );
@@ -116,10 +124,12 @@ export default function ProfilEkrani() {
       <Kimlik panelYukleniyor={panelYukleniyor} oturum={oturum} seri={seri} />
 
       <View style={{ height: rhythm.section }} />
-      {ayarGorunumDurumu(ayarVerisi) === 'hata' ? (
-        <ErrorState baslik={t['profil.ayarlar.hata.baslik']} govde={t['profil.ayarlar.hata.alt']} onRetry={ayarVerisi.reload} />
-      ) : (
+      {ayarVerisi.data?.eksik ? (
         <>
+          <InfoStrip variant="warning" icon="refresh-cw" metin="Bazı plan bilgileri yenilenemedi. Menüleri yine de kullanabilirsin." />
+          <View style={{ height: rhythm.group }} />
+        </>
+      ) : null}
           <GrupBasligi metin="Planın" />
           <SettingGroup>
             <AyarSatiri icon="banknote" iconTone="green" baslik={t['profil.satir.butce']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? (ayarVerisi.data.gelirKurus != null ? profilSatirButceDeger(paraYaz(ayarVerisi.data.gelirKurus), ayarVerisi.data.sabitGiderSayisi) : t['tasarruf.gelirYok.baslik']) : t['profil.satir.butceBos']} onPress={() => router.push('/butce')} />
@@ -129,8 +139,6 @@ export default function ProfilEkrani() {
             <AyarSatiri icon="calendar-clock" iconTone="orange" baslik={t['profil.satir.taksitler']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? profilSatirTaksitlerDeger(ayarVerisi.data.taksitSeriSayisi, paraYaz(ayarVerisi.data.taksitBuAyToplamKurus)) : t['profil.satir.taksitlerBos']} onPress={() => router.push('/taksitler')} />
             <SettingRow icon="trending-up" iconTone="green" baslik={t['profil.satir.seri']} aciklama={profilSatirSeriDeger(seri.mevcutSeri, seri.enUzunSeri)} onPress={() => router.push('/seri')} accessibilityLabel={a11yProfilSatir(t['profil.satir.seri'], profilSatirSeriDeger(seri.mevcutSeri, seri.enUzunSeri))} />
           </SettingGroup>
-        </>
-      )}
 
       <View style={{ height: rhythm.section }} />
       <GrupBasligi metin="Hesabın" />

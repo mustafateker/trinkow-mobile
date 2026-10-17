@@ -47,6 +47,7 @@ export function Chip({ ad, tutar, selected = false, dotColor, dotAlways = false,
       pressedBackground={color.well}
       shadow={selected ? clay.sunken : clay.raised}
       gloss={!selected}
+      hitSlop={{ top: 2, bottom: 2, left: 0, right: 0 }}
       style={stil.cip}>
       {(selected || dotAlways) && dotColor ? (
         <>

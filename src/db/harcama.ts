@@ -52,6 +52,7 @@ export type Harcama = {
   /** Mongo ObjectId (string) — BE-6b öncesi SQLite INTEGER idi, artık DEĞİL. */
   id: string;
   rutinId?: string | null;
+  abonelikId?: string | null;
   adet?: number;
   sabitGiderKodu?: 'kira' | 'fatura' | 'ulasim' | 'kredi' | null;
   istemciId?: string;
@@ -78,7 +79,7 @@ export type Harcama = {
 function cevir(y: HarcamaYaniti): Harcama {
   return {
     id: y.id,
-    rutinId: y.rutin_id, adet: y.adet, sabitGiderKodu: y.sabit_gider_kodu,
+    rutinId: y.rutin_id, abonelikId: y.abonelik_id, adet: y.adet, sabitGiderKodu: y.sabit_gider_kodu,
     tutarKurus: y.tutar_kurus,
     kategori: y.kategori,
     urunAdi: y.urun_adi,

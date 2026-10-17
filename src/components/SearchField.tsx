@@ -69,9 +69,9 @@ export function SearchField({
       {seciliMi ? (
         <Pressable
           onPress={onKaldir}
-          hitSlop={a11y.minTarget}
           accessibilityRole="button"
-          accessibilityLabel={kaldirEtiketi}>
+          accessibilityLabel={kaldirEtiketi}
+          style={stil.ikonButonu}>
           <Icon name="x" size={20} color={color.text2} />
         </Pressable>
       ) : (
@@ -85,9 +85,9 @@ export function SearchField({
           {deger.length > 0 ? (
             <Pressable
               onPress={() => onDegerDegisti('')}
-              hitSlop={a11y.minTarget}
               accessibilityRole="button"
-              accessibilityLabel={temizleEtiketi}>
+              accessibilityLabel={temizleEtiketi}
+              style={stil.ikonButonu}>
               <Icon name="x" size={20} color={color.text2} />
             </Pressable>
           ) : null}
@@ -115,5 +115,11 @@ const stil = StyleSheet.create({
     lineHeight: 24,
     color: color.text,
     padding: 0,
+  },
+  ikonButonu: {
+    width: a11y.minTarget,
+    height: a11y.minTarget,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

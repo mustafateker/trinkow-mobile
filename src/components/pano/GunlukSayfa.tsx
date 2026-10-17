@@ -5,11 +5,14 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { Accordion } from '@/components/Accordion';
 import { Button } from '@/components/Button';
+import { CategoryIconBox } from '@/components/CategoryIconBox';
 import { ClaySurface } from '@/components/ClaySurface';
+import { ClayPressable } from '@/components/ClayPressable';
 import { CelebrationOverlay } from '@/components/streak/CelebrationOverlay';
 import { Chip } from '@/components/Chip';
 import { ErrorState } from '@/components/ErrorState';
 import { ExpenseRow } from '@/components/ExpenseRow';
+import { Icon } from '@/components/Icon';
 import { IconButton } from '@/components/IconButton';
 import { InfoStrip } from '@/components/InfoStrip';
 import { Skeleton } from '@/components/Skeleton';
@@ -36,7 +39,7 @@ import { gunHarcamasizIsaretle } from '@/db/seri';
 import type { SeriDurumu } from '@/db/seri';
 import { usePano } from '@/db/usePano';
 import { paraYaz } from '@/lib/para';
-import { aileRenkleri, kategori as kategoriGetir } from '@/lib/kategoriler';
+import { kategori as kategoriGetir } from '@/lib/kategoriler';
 import { gunAnahtari, gunlukBaslik } from '@/lib/tarih';
 import { veriDegisimineAbone, veriDegisti } from '@/lib/veriBus';
 import { color, layout, radius, rhythm } from '@/theme/tokens';
@@ -309,8 +312,12 @@ export function GunlukSayfa({
         {bugunMu && sikKullanilanlar.length > 0 ? (
           <>
             <View style={{ height: rhythm.section }} />
-            <View style={stil.pad}>
+            <View style={[stil.pad, stil.sikBaslik]}>
               <Txt role="h2">{t['gunluk.sik_kullanilanlar']}</Txt>
+              <View style={stil.sikKaydirIpucu}>
+                <Txt role="label" tone={color.primaryText}>Yana kaydır</Txt>
+                <Icon name="chevron-right" size={20} color={color.primaryText} />
+              </View>
             </View>
             <View style={{ height: rhythm.group }} />
             <ScrollView
@@ -321,15 +328,20 @@ export function GunlukSayfa({
               {sikKullanilanlar.map((k) => {
                 const kat = kategoriGetir(k.kategori);
                 return (
-                  <Chip
+                  <ClayPressable
                     key={`${k.kategori}:${k.urunAdi}`}
-                    ad={k.urunAdi}
-                    tutar={paraYaz(k.tutarKurus)}
-                    dotColor={aileRenkleri(kat.aile).solid}
-                    dotAlways
                     onPress={() => sikKullanilanaGit(k)}
-                    accessibilityLabel={`${k.urunAdi}, ${paraYaz(k.tutarKurus)}, ${kat.ad}. Harcama olarak ekle`}
-                  />
+                    borderRadius={radius.tile}
+                    style={stil.sikKart}
+                    accessibilityLabel={`${k.urunAdi}, ${paraYaz(k.tutarKurus)}, ${kat.ad}. Harcama olarak ekle`}>
+                    <CategoryIconBox kategori={kat} />
+                    <View style={stil.sikKartMetin}>
+                      <Txt role="bodyStrong" numberOfLines={1}>{k.urunAdi}</Txt>
+                      <View style={{ height: rhythm.sameObject }} />
+                      <Txt role="caption" tone={color.text2} numberOfLines={1}>{kat.ad}</Txt>
+                    </View>
+                    <Txt role="amount">{paraYaz(k.tutarKurus)}</Txt>
+                  </ClayPressable>
                 );
               })}
             </ScrollView>
@@ -579,5 +591,9 @@ const stil = StyleSheet.create({
   kartIc: { padding: rhythm.pad, alignItems: 'center' },
   aralik: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', width: '100%' },
   ortali: { alignItems: 'center' },
-  yatayCipler: { flexDirection: 'row', alignItems: 'center', gap: rhythm.group, paddingHorizontal: layout.screenPaddingX },
+  sikBaslik: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  sikKaydirIpucu: { flexDirection: 'row', alignItems: 'center', gap: rhythm.sameObject },
+  yatayCipler: { flexDirection: 'row', alignItems: 'center', gap: rhythm.group, paddingHorizontal: layout.screenPaddingX, paddingBottom: rhythm.group },
+  sikKart: { width: 220, minHeight: 76, padding: rhythm.blockInCard, flexDirection: 'row', alignItems: 'center' },
+  sikKartMetin: { flex: 1, minWidth: 0, marginHorizontal: rhythm.blockInCard },
 });

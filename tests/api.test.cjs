@@ -104,7 +104,7 @@ function revApiYukle(yakala) {
   return yukle(
     'src/lib/revApi.ts',
     {
-      '@/lib/api': { istek: async (yol) => { yakala(yol); return { rutinler: [] }; } },
+      '@/lib/api': { istek: async (yol, secenekler) => { yakala(yol, secenekler); return { rutinler: [] }; } },
       '@/lib/tarih': tarih,
     },
   );
@@ -123,4 +123,37 @@ test('routinesGet: geçmiş gün verilirse "gun=" sorgulanan günü taşır (vaz
   const api = revApiYukle((yol) => { sonYol = yol; });
   await api.routinesGet('2026-09-10');
   assert.match(sonYol, /^\/butce\/rutinler\?bugun=\d{4}-\d{2}-\d{2}&gun=2026-09-10$/);
+});
+
+test('subscriptionPut: seçilen sağlayıcı kodunu backend gövdesine taşır', async () => {
+  let sonIstek = null;
+  const api = revApiYukle((yol, secenekler) => { sonIstek = { yol, secenekler }; });
+  await api.subscriptionPut({
+    id: 'youtube-1',
+    ad: 'YouTube',
+    saglayici: 'youtube',
+    tutar_kurus: 5799,
+    yenilenme_gunu: 17,
+    odeme: 'kart',
+    aktif: true,
+  });
+  assert.match(sonIstek.yol, /^\/butce\/abonelikler\/youtube-1\?bugun=\d{4}-\d{2}-\d{2}$/);
+  assert.equal(sonIstek.secenekler.govde.saglayici, 'youtube');
+});
+
+test('subscriptionScheduleGet: bugünün abonelik takvimini ister', async () => {
+  let sonIstek = null;
+  const api = revApiYukle((yol, secenekler) => { sonIstek = { yol, secenekler }; });
+  await api.subscriptionScheduleGet();
+  assert.match(sonIstek.yol, /^\/butce\/abonelikler\/takvim\?bugun=\d{4}-\d{2}-\d{2}$/);
+  assert.equal(sonIstek.secenekler.tokenGerekli, true);
+});
+
+test('subscriptionPaymentPut: yenilenen günü gider işleme isteğine taşır', async () => {
+  let sonIstek = null;
+  const api = revApiYukle((yol, secenekler) => { sonIstek = { yol, secenekler }; });
+  await api.subscriptionPaymentPut('netflix-1', '2026-10-17');
+  assert.match(sonIstek.yol, /^\/butce\/abonelikler\/netflix-1\/odeme\?bugun=\d{4}-\d{2}-\d{2}$/);
+  assert.equal(sonIstek.secenekler.yontem, 'PUT');
+  assert.equal(sonIstek.secenekler.govde.gun, '2026-10-17');
 });

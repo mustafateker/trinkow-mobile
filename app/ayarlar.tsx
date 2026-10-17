@@ -12,7 +12,6 @@ import { Chip } from '@/components/Chip';
 import { MoneyInput } from '@/components/MoneyInput';
 import { DayBox } from '@/components/DayBox';
 import { Dialog } from '@/components/Dialog';
-import { ErrorState } from '@/components/ErrorState';
 import { InfoStrip } from '@/components/InfoStrip';
 import { OptionCard } from '@/components/OptionCard';
 import { PushHeader } from '@/components/PushHeader';
@@ -40,7 +39,7 @@ import {
   type GunSiniriSaat,
 } from '@/db/ayarTercihleri';
 import { ilkKayitGunu, tumKayitSayisi, tumSayfalariGetir, tumVeriyiSil, type OdemeTipi } from '@/db/harcama';
-import { budgetGet, favoritesGet, movementsGet, routinesGet } from '@/lib/revApi';
+import { budgetGet, favoritesGet, movementsGet, routinesGet, subscriptionsGet } from '@/lib/revApi';
 import {
   gelirKaydet,
   katman2DolanKartSayisi,
@@ -129,7 +128,7 @@ export default function AyarlarEkrani() {
     setYukleniyor(true);
     setHata(false);
     try {
-      const [sinir, odemeD, profil, detay, adet, ilkGun, oturumKaydi] = await Promise.all([
+      const sonuclar = await Promise.allSettled([
         gunSiniriOku(db),
         varsayilanOdemeOku(db),
         profilOku(db),
@@ -138,16 +137,20 @@ export default function AyarlarEkrani() {
         ilkKayitGunu(db),
         oturumOku(),
       ]);
-      setOturum(oturumKaydi);
-      setGunSiniri(sinir);
-      setOdeme(odemeD);
-      setNiyet(profil.niyet ?? 'takip');
-      setGelirKurus(profil.gelirKurus);
-      setMaasGunu(profil.maasGunu);
-      setMaasDuzensiz(profil.maasDuzensiz);
-      setKatman2Kalan(8 - katman2DolanKartSayisi(detay));
-      setKayitAdedi(adet);
-      setIlkKayitAyYil(ilkGun ? ayBasligi(ayAnahtari(tarihtenGun(ilkGun))) : null);
+      const [sinir, odemeD, profil, detay, adet, ilkGun, oturumKaydi] = sonuclar;
+      if (sinir.status === 'fulfilled') setGunSiniri(sinir.value);
+      if (odemeD.status === 'fulfilled') setOdeme(odemeD.value);
+      if (profil.status === 'fulfilled') {
+        setNiyet(profil.value.niyet ?? 'takip');
+        setGelirKurus(profil.value.gelirKurus);
+        setMaasGunu(profil.value.maasGunu);
+        setMaasDuzensiz(profil.value.maasDuzensiz);
+      }
+      if (detay.status === 'fulfilled') setKatman2Kalan(8 - katman2DolanKartSayisi(detay.value));
+      if (adet.status === 'fulfilled') setKayitAdedi(adet.value);
+      if (ilkGun.status === 'fulfilled') setIlkKayitAyYil(ilkGun.value ? ayBasligi(ayAnahtari(tarihtenGun(ilkGun.value))) : null);
+      if (oturumKaydi.status === 'fulfilled') setOturum(oturumKaydi.value);
+      setHata(sonuclar.some((sonuc) => sonuc.status === 'rejected'));
     } catch {
       setHata(true);
     } finally {
@@ -228,12 +231,12 @@ export default function AyarlarEkrani() {
 
   async function verileriDisaAktar() {
     try {
-      const [butce, rutinler, favoriler, birikimler, harcamalar] = await Promise.all([
-        budgetGet(), routinesGet(), favoritesGet(), movementsGet(''), tumSayfalariGetir({}),
+      const [butce, rutinler, abonelikler, favoriler, birikimler, harcamalar] = await Promise.all([
+        budgetGet(), routinesGet(), subscriptionsGet(), favoritesGet(), movementsGet(''), tumSayfalariGetir({}),
       ]);
       await Share.share({
         title: 'Trinkow veri dışa aktarımı',
-        message: JSON.stringify({ surum: 1, aktarim_tarihi: new Date().toISOString(), butce, rutinler, favoriler, birikimler, harcamalar }, null, 2),
+        message: JSON.stringify({ surum: 1, aktarim_tarihi: new Date().toISOString(), butce, rutinler, abonelikler, favoriler, birikimler, harcamalar }, null, 2),
       });
     } catch { toastGoster({ tur: 'warning', metin: 'Veriler dışa aktarılamadı. Bağlantını kontrol edip yeniden dene.' }); }
   }
@@ -264,22 +267,6 @@ export default function AyarlarEkrani() {
   const maasGunuDegeri = maasDuzensiz ? t['ob.maas.duzensiz'] : maasGunu !== null ? obOzetMaasGunu(gunIyelikEki(maasGunu)) : t['tan.girilmedi'];
   const katman2Deger = katman2Kalan === 8 ? ayarPlanBekliyor(8) : ayarPlanKalan(katman2Kalan);
 
-  if (hata) {
-    return (
-      <View style={stil.ekran}>
-        <View style={{ height: insets.top, backgroundColor: color.navDark }} />
-        <PushHeader baslik={t['ayar.baslik']} onGeri={() => router.back()} />
-        <View style={[stil.panel, stil.pad]}>
-          <ErrorState onRetry={() => void oku()} />
-          <View style={{ height: rhythm.blockInCard }} />
-          <Button label="Kullanım şartları ve gizlilik" variant="secondary" onPress={() => router.push('/legal')} />
-          <View style={{ height: rhythm.group }} />
-          <Button label="Çıkış yap" variant="ghost" onPress={() => void oturumuKapatVeGirisEkraninaDon()} />
-        </View>
-      </View>
-    );
-  }
-
   if (yukleniyor) {
     return (
       <View style={stil.ekran}>
@@ -303,7 +290,15 @@ export default function AyarlarEkrani() {
 
       <ScrollView style={stil.kaydir} contentContainerStyle={stil.scrollIcerik} showsVerticalScrollIndicator={false}>
         <View style={[stil.panel, stil.pad, { paddingBottom: layout.scrollPadBottom + insets.bottom }]}>
-        <Txt role="h2">Günlük kullanım</Txt>
+        {hata ? (
+          <>
+            <InfoStrip variant="warning" icon="refresh-cw" metin="Bazı bilgiler yenilenemedi. Görünen ayarları kullanabilir veya tekrar deneyebilirsin." />
+            <View style={{ height: rhythm.group }} />
+            <Button label="Tekrar dene" variant="ghost" icon="refresh-cw" auto onPress={() => void oku()} />
+            <View style={{ height: rhythm.section }} />
+          </>
+        ) : null}
+        <Txt role="h2">Varsayılan</Txt>
         <View style={{ height: rhythm.blockInCard }} />
         <View style={stil.bolum}>
           <Txt role="bodyStrong">{t['ayar.gun_siniri']}</Txt>
@@ -414,7 +409,7 @@ export default function AyarlarEkrani() {
         <SettingGroup>
           <SettingRow icon="banknote" iconTone="green" baslik="Gelir ve bütçem" aciklama="Gelirini ve sabit giderlerini düzenle" onPress={() => router.push('/butce')} />
           <SettingRow icon="limitler" iconTone="blue" baslik="Limitler" aciklama="Günlük ve kategori sınırlarını düzenle" onPress={() => router.push('/limitler')} />
-          <SettingRow icon="repeat" iconTone="orange" baslik="Rutinlerim" aciklama="Düzenli harcamalarını yönet" onPress={() => router.push('/rutinler')} />
+          <SettingRow icon="repeat" iconTone="orange" baslik="Rutinler ve Abonelikler" aciklama="Düzenli harcamalarını ve yenilenmeleri yönet" onPress={() => router.push('/rutinler')} />
           <SettingRow icon="notebook" iconTone="pink" baslik="Favorilerim" aciklama="Hızlı ekleme kalemlerini düzenle" onPress={() => router.push('/favoriler')} />
         </SettingGroup>
 

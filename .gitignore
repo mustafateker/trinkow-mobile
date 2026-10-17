@@ -30,6 +30,11 @@ yarn-error.*
 .DS_Store
 *.pem
 
+# Google Play / release credentials (never commit private keys)
+google-play-service-account*.json
+service-account*.json
+.release-secrets/
+
 # local env files
 .env
 .env*.local
@@ -39,9 +44,9 @@ yarn-error.*
 
 example
 
-# generated native folders
+# iOS native folder is currently generated. Android is intentionally tracked:
+# production releases are built locally with Gradle.
 /ios
-/android
 
 # Simülatör önizlemeleri (PM incelemesi için, repoya girmez)
 .onizleme/

@@ -233,7 +233,7 @@ Harcama ekleme, rutin oluşturma ve filtreler yeni sayfa yerine mümkün olduğu
 
 **Yeni düzen:**
 
-1. Koyu header: küçük Trinkow kelime işareti, `Hoş geldin` başlığı, tek cümle “Günün parasını, yargılamadan gör.”
+1. Koyu header: küçük Trinkow kelime işareti, `Hoş geldin` başlığı, tek cümle “, yargılamadan gör.”
 2. Açık içerik paneli: e-posta ve şifre alanları.
 3. `Beni hatırla` bir satırda küçük switch; `Şifremi unuttum` text link.
 4. Tam genişlik `Giriş yap` CTA.

@@ -1,0 +1,40 @@
+const assert = require('node:assert/strict');
+const { existsSync, readFileSync } = require('node:fs');
+const { join } = require('node:path');
+const test = require('node:test');
+
+const kok = join(__dirname, '..');
+const oku = (ad) => JSON.parse(readFileSync(join(kok, ad), 'utf8'));
+
+test('Android native release kimliği ve sürüm kaynakları tutarlı', () => {
+  const app = oku('app.json');
+  const paket = oku('package.json');
+  const gradle = readFileSync(join(kok, 'android/app/build.gradle'), 'utf8');
+
+  assert.equal(app.expo.android.package, 'com.triworkster.trinkow');
+  assert.equal(app.expo.version, paket.version);
+  assert.match(gradle, /applicationId 'com\.triworkster\.trinkow'/);
+  assert.match(gradle, new RegExp(`versionName "${paket.version.replaceAll('.', '\\.')}"`));
+});
+
+test('production build debug anahtarı kullanmaz', () => {
+  const gradle = readFileSync(join(kok, 'android/app/build.gradle'), 'utf8');
+  const buildTypes = gradle.slice(gradle.indexOf('buildTypes {'), gradle.indexOf('packagingOptions {'));
+
+  assert.match(buildTypes, /signingConfig signingConfigs\.release/);
+  assert.doesNotMatch(buildTypes.match(/release \{([\s\S]*)/)?.[1] ?? '', /signingConfigs\.debug/);
+  assert.match(gradle, /android-upload-keystore\.jks/);
+});
+
+test('npm release native Gradle build ve Google Play production yayını kullanır', () => {
+  const paket = oku('package.json');
+  const betik = readFileSync(join(kok, 'scripts/release.mjs'), 'utf8');
+  const fastfile = readFileSync(join(kok, 'fastlane/Fastfile'), 'utf8');
+
+  assert.equal(paket.scripts.release, 'node scripts/release.mjs');
+  assert.match(betik, /:app:bundleRelease/);
+  assert.match(betik, /fastlane', \['android', 'release'\]/);
+  assert.match(fastfile, /track: "production"/);
+  assert.match(fastfile, /in_app_update_priority: 5/);
+  assert.equal(existsSync(join(kok, 'eas.json')), false);
+});

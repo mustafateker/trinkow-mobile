@@ -59,7 +59,6 @@ export function ToastHost() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={toast.eylemEtiketi}
-                hitSlop={a11y.minTarget}
                 style={stil.eylem}
                 onPress={() => {
                   void Promise.resolve().then(() => toast.onEylem?.()).catch(() => {

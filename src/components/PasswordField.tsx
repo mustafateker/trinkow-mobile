@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Icon } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
 import { t } from '@/content/metinler';
-import { a11y, clay, color, fontFamily, radius, rhythm, size } from '@/theme/tokens';
+import { clay, color, fontFamily, radius, rhythm, size } from '@/theme/tokens';
 
 /**
  * Bileşen envanteri (delta-v4 T-2) `PasswordField` — `TextField`'ın sağ
@@ -73,7 +73,6 @@ export function PasswordField({
         />
         <Pressable
           onPress={() => setGorunur((g) => !g)}
-          hitSlop={a11y.minTarget}
           accessibilityRole="button"
           accessibilityLabel={gorunur ? t['alan.sifre.gizli'] : t['alan.sifre.gorunur']}
           style={stil.gozBtn}>

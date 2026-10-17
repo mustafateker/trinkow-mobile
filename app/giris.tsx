@@ -35,7 +35,7 @@ export default function GirisEkrani() {
       setHata(e instanceof ApiHatasi && e.durum === 401 ? 'E-posta ya da şifre yanlış.' : 'Oturum açılamadı. Bağlantını kontrol edip yeniden dene.');
     } finally { setMesgul(false); }
   }
-  return <AuthShell title="Hoş geldin" subtitle="Günün parasını, yargılamadan gör." onBack={router.canGoBack() ? () => router.back() : undefined}>
+  return <AuthShell title="Hoş geldin" subtitle="Harcama ve Bütçe Takibi ile Evdeki Hesabı Çarşıya Uydur" onBack={router.canGoBack() ? () => router.back() : undefined}>
         {hata ? <InfoStrip variant="warning" icon="info" metin={hata} /> : null}
         {hata ? <View style={{ height: rhythm.blockInCard }} /> : null}
         <TextField label={demo ? 'Test adı' : 'E-posta'} value={eposta} onChangeText={setEposta} keyboardType="email-address" autoCapitalize="none" autoComplete="email" textContentType="emailAddress" />

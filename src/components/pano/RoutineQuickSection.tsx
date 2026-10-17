@@ -9,6 +9,7 @@ import { Icon, type IconName } from '@/components/Icon';
 import { InfoStrip } from '@/components/InfoStrip';
 import { Skeleton } from '@/components/Skeleton';
 import { Spinner } from '@/components/Spinner';
+import { SubscriptionBrandLogo } from '@/components/SubscriptionBrandLogo';
 import { Txt } from '@/components/Txt';
 import {
   a11yBolumYukleniyor,
@@ -29,10 +30,19 @@ import {
   type RutinSatirDurumu,
 } from '@/lib/gunlukRutin';
 import { paraYaz } from '@/lib/para';
+import { abonelikMarkasiBul } from '@/lib/abonelikMarkalari';
 import { kisaTarih } from '@/lib/tarih';
 import { toastGoster } from '@/lib/toastBus';
 import { veriDegisimineAbone, veriDegisti } from '@/lib/veriBus';
-import { routinesGet, yeniId, type Routine } from '@/lib/revApi';
+import {
+  routinesGet,
+  subscriptionPaymentPut,
+  subscriptionScheduleGet,
+  yeniId,
+  type Routine,
+  type ScheduledSubscription,
+  type SubscriptionSchedule,
+} from '@/lib/revApi';
 import { a11y, clay, color, layout, radius, rhythm, size } from '@/theme/tokens';
 
 /** Bu bölümün cihazda kalıcı açık/kapalı ayarı (§10.2 — `Accordion`'un DEĞİL, ekran sahibinin hafızası). */
@@ -69,23 +79,31 @@ export function RoutineQuickSection({
   const db = useSQLiteContext();
 
   const [rutinler, setRutinler] = useState<Routine[] | null>(null);
+  const [abonelikTakvimi, setAbonelikTakvimi] = useState<SubscriptionSchedule | null>(null);
   const [okumaHatasi, setOkumaHatasi] = useState(false);
+  const [abonelikOkumaHatasi, setAbonelikOkumaHatasi] = useState(false);
   const [yukleniyor, setYukleniyor] = useState(true);
   const [yazmaHatasi, setYazmaHatasi] = useState(false);
 
   const oku = useCallback(async () => {
-    try {
-      // Bakılan gün ne ise (bugün ya da geçmiş takipli gün) `vazgecilen_adet`
-      // O GÜNE ait gelsin diye `gun` her zaman açıkça geçilir (§6).
-      const yanit = await routinesGet(gunAnahtariDeger);
-      setRutinler(yanit.rutinler.filter((r) => r.aktif));
+    const [rutinSonucu, abonelikSonucu] = await Promise.allSettled([
+      routinesGet(gunAnahtariDeger),
+      bugunMu ? subscriptionScheduleGet() : Promise.resolve<SubscriptionSchedule>({ gun: gunAnahtariDeger, bugun_yenilenecek: [], yarin_yenilenecek: [] }),
+    ]);
+    if (rutinSonucu.status === 'fulfilled') {
+      setRutinler(rutinSonucu.value.rutinler.filter((rutin) => rutin.aktif));
       setOkumaHatasi(false);
-    } catch {
+    } else {
       setOkumaHatasi(true);
-    } finally {
-      setYukleniyor(false);
     }
-  }, [gunAnahtariDeger]);
+    if (abonelikSonucu.status === 'fulfilled') {
+      setAbonelikTakvimi(abonelikSonucu.value);
+      setAbonelikOkumaHatasi(false);
+    } else {
+      setAbonelikOkumaHatasi(true);
+    }
+    setYukleniyor(false);
+  }, [bugunMu, gunAnahtariDeger]);
 
   useEffect(() => {
     void oku();
@@ -130,6 +148,7 @@ export function RoutineQuickSection({
   }, [rutinler, sabitSira]);
 
   const [yaziliyorSet, setYaziliyorSet] = useState<Set<string>>(new Set());
+  const [abonelikYaziliyorSet, setAbonelikYaziliyorSet] = useState<Set<string>>(new Set());
 
   function harcamaKaydi(rutinId: string): Harcama | undefined {
     return harcamalar.find((h) => h.rutinId === rutinId);
@@ -198,15 +217,55 @@ export function RoutineQuickSection({
     }
   }
 
-  // §5/1 — rutin hiç yoksa bölüm HİÇ ÇİZİLMEZ (yükleniyorken de değil: bu
-  // durum yalnız gerçek veri "hiç rutin yok" dediğinde geçerlidir).
-  if (!yukleniyor && !okumaHatasi && (rutinler?.length ?? 0) === 0) return null;
+  async function abonelikYenilendi(abonelik: ScheduledSubscription) {
+    if (abonelik.odendi || abonelikYaziliyorSet.has(abonelik.id)) return;
+    setYazmaHatasi(false);
+    setAbonelikYaziliyorSet((onceki) => new Set(onceki).add(abonelik.id));
+    try {
+      await subscriptionPaymentPut(abonelik.id, gunAnahtariDeger);
+      await oku();
+      veriDegisti();
+      toastGoster({
+        tur: 'undoInfo',
+        metin: `${abonelik.ad} ${paraYaz(abonelik.tutar_kurus)} gider olarak işlendi.`,
+        eylemEtiketi: t['gunlukRutin.toast.geriAl'],
+        onEylem: async () => {
+          await subscriptionPaymentPut(abonelik.id, null);
+          await oku();
+          veriDegisti();
+        },
+      });
+    } catch {
+      setYazmaHatasi(true);
+    } finally {
+      setAbonelikYaziliyorSet((onceki) => {
+        const yeni = new Set(onceki);
+        yeni.delete(abonelik.id);
+        return yeni;
+      });
+    }
+  }
 
   const gun = kisaTarih(tarih);
-  const toplam = rutinler?.length ?? 0;
-  const hataMi = okumaHatasi || yazmaHatasi;
-  const kaydedilen = rutinler?.filter((r) => !!harcamaKaydi(r.id)).length ?? 0;
-  const ozet = hataMi ? `${toplam} rutin · yüklenemedi` : `${toplam} rutin · ${kaydedilen} kaydedildi`;
+  const bugunAbonelikler = abonelikTakvimi?.bugun_yenilenecek ?? [];
+  const yarinAbonelikler = abonelikTakvimi?.yarin_yenilenecek ?? [];
+  const rutinSayisi = rutinler?.length ?? 0;
+  const toplam = rutinSayisi + bugunAbonelikler.length;
+  const hataMi = okumaHatasi || abonelikOkumaHatasi || yazmaHatasi;
+  const kaydedilenRutin = rutinler?.filter((r) => !!harcamaKaydi(r.id)).length ?? 0;
+  const kaydedilen = kaydedilenRutin + bugunAbonelikler.filter((abonelik) => abonelik.odendi).length;
+  const ozet = hataMi
+    ? `${toplam} kayıt · yüklenemedi`
+    : bugunAbonelikler.length > 0
+      ? `${rutinSayisi} rutin · ${bugunAbonelikler.length} abonelik`
+      : `${rutinSayisi} rutin · ${kaydedilen} kaydedildi`;
+
+  const icerikVar = toplam > 0;
+  const uyariVar = yarinAbonelikler.length > 0;
+
+  // Geçmiş günlerde eski davranış korunur. Bugün ise rutin olmasa bile
+  // abonelik uyarısı veya yenileme satırı varsa bölüm görünür.
+  if (!yukleniyor && !okumaHatasi && !abonelikOkumaHatasi && !icerikVar && !uyariVar) return null;
 
   const baslikA11y = yukleniyor
     ? a11yBolumYukleniyor(t['gunlukRutin.baslik'])
@@ -224,59 +283,143 @@ export function RoutineQuickSection({
     <>
       <View style={{ height: gapUstu }} />
       <View style={stil.pad}>
-        <Accordion
-          title={t['gunlukRutin.baslik']}
-          summary={ozet}
-          loadingSummary={yukleniyor}
-          trailingOverride={!bugunMu && !yukleniyor ? gun : undefined}
-          expanded={acik}
-          onToggle={acikDegistir}
-          accessibilityLabel={baslikA11y}>
-          {yukleniyor ? (
-            <RoutineSectionSkeleton />
-          ) : okumaHatasi ? (
-            <View accessibilityLiveRegion="polite">
-              <InfoStrip variant="warning" icon="wifi-off" metin={t['gunlukRutin.hata.isaret']} textTone={color.text} />
-            </View>
-          ) : (
-            <View>
-              <Txt role="caption" tone={color.text2}>
-                Kaydetmediklerin gün tamamlandığında otomatik tasarruf sayılır.
-              </Txt>
-              <View style={{ height: rhythm.blockInCard }} />
-              {gorunenler.map((rutin, i) => (
-                <View key={rutin.id}>
-                  {i > 0 ? <View style={{ height: rhythm.blockInCard }} /> : null}
-                  <RoutineQuickRow
-                    rutin={rutin}
-                    alinanAdet={alinanAdet(rutin.id)}
-                    durum={durum(rutin)}
-                    bugunMu={bugunMu}
-                    gun={gun}
-                    onAldim={() => void aldimYaz(rutin)}
-                  />
-                </View>
-              ))}
-              {dahaFazlaVar ? (
-                <>
-                  <View style={{ height: rhythm.blockInCard }} />
-                  <Button variant="ghost" label={t['gunlukRutin.tumu']} auto onPress={() => router.push('/rutinler')} />
-                </>
-              ) : null}
-              {yazmaHatasi ? (
-                <>
-                  <View style={{ height: rhythm.blockInCard }} />
+        {uyariVar ? (
+          <View accessibilityLiveRegion="polite">
+            <InfoStrip variant="warning" icon="calendar-clock" metin={yarinAbonelikUyarisi(yarinAbonelikler)} />
+            <View style={{ height: rhythm.group }} />
+            <Button variant="ghost" label="Abonelikleri yönet" icon="chevron-right" auto onPress={() => router.push('/abonelikler')} />
+          </View>
+        ) : null}
+        {uyariVar && (yukleniyor || hataMi || icerikVar) ? <View style={{ height: rhythm.blockInCard }} /> : null}
+        {yukleniyor || hataMi || icerikVar ? (
+          <Accordion
+            title={t['gunlukRutin.baslik']}
+            summary={ozet}
+            loadingSummary={yukleniyor}
+            trailingOverride={!bugunMu && !yukleniyor ? gun : undefined}
+            expanded={acik}
+            onToggle={acikDegistir}
+            accessibilityLabel={baslikA11y}>
+            {yukleniyor ? (
+              <RoutineSectionSkeleton />
+            ) : (
+              <View>
+                {okumaHatasi ? (
                   <View accessibilityLiveRegion="polite">
-                    <InfoStrip variant="warning" icon="wifi-off" metin={t['gunlukRutin.hata.isaret']} textTone={color.text} />
+                    <InfoStrip variant="warning" icon="wifi-off" metin="Rutinler yüklenemedi. Yeniden dene." textTone={color.text} />
                   </View>
-                </>
-              ) : null}
-            </View>
-          )}
-        </Accordion>
+                ) : null}
+                {abonelikOkumaHatasi ? (
+                  <View style={okumaHatasi ? stil.blokArasi : undefined} accessibilityLiveRegion="polite">
+                    <InfoStrip variant="warning" icon="wifi-off" metin="Abonelikler yüklenemedi. Yeniden dene." textTone={color.text} />
+                  </View>
+                ) : null}
+                {bugunAbonelikler.length > 0 ? (
+                  <View style={okumaHatasi || abonelikOkumaHatasi ? stil.blokArasi : undefined}>
+                    <InfoStrip
+                      variant="info"
+                      icon="calendar-clock"
+                      metin="Aboneliğini yeniledin mi? Yenilendiyse + düğmesine dokun; giderlerine ekleyelim."
+                    />
+                    <View style={{ height: rhythm.blockInCard }} />
+                    <Txt role="caption" tone={color.text2}>Bugün yenilenen abonelikler</Txt>
+                    <View style={{ height: rhythm.group }} />
+                    {bugunAbonelikler.map((abonelik, i) => (
+                      <View key={abonelik.id}>
+                        {i > 0 ? <View style={{ height: rhythm.blockInCard }} /> : null}
+                        <SubscriptionQuickRow
+                          abonelik={abonelik}
+                          loading={abonelikYaziliyorSet.has(abonelik.id)}
+                          onYenilendi={() => void abonelikYenilendi(abonelik)}
+                        />
+                      </View>
+                    ))}
+                  </View>
+                ) : null}
+                {!okumaHatasi && gorunenler.length > 0 ? (
+                  <View style={bugunAbonelikler.length > 0 ? stil.bolumArasi : undefined}>
+                    <Txt role="caption" tone={color.text2}>Günlük rutinler</Txt>
+                    <View style={{ height: rhythm.sameObject }} />
+                    <Txt role="caption" tone={color.text2}>
+                      Kaydetmediklerin gün tamamlandığında otomatik tasarruf sayılır.
+                    </Txt>
+                    <View style={{ height: rhythm.blockInCard }} />
+                    {gorunenler.map((rutin, i) => (
+                      <View key={rutin.id}>
+                        {i > 0 ? <View style={{ height: rhythm.blockInCard }} /> : null}
+                        <RoutineQuickRow
+                          rutin={rutin}
+                          alinanAdet={alinanAdet(rutin.id)}
+                          durum={durum(rutin)}
+                          bugunMu={bugunMu}
+                          gun={gun}
+                          onAldim={() => void aldimYaz(rutin)}
+                        />
+                      </View>
+                    ))}
+                  </View>
+                ) : null}
+                {dahaFazlaVar ? (
+                  <>
+                    <View style={{ height: rhythm.blockInCard }} />
+                    <Button variant="ghost" label={t['gunlukRutin.tumu']} auto onPress={() => router.push('/rutinler')} />
+                  </>
+                ) : null}
+                {yazmaHatasi ? (
+                  <View style={stil.blokArasi} accessibilityLiveRegion="polite">
+                    <InfoStrip variant="warning" icon="wifi-off" metin="Gider kaydedilemedi. Yeniden dene." textTone={color.text} />
+                  </View>
+                ) : null}
+              </View>
+            )}
+          </Accordion>
+        ) : null}
       </View>
       {gapAlti > 0 ? <View style={{ height: gapAlti }} /> : null}
     </>
+  );
+}
+
+function yarinAbonelikUyarisi(abonelikler: ScheduledSubscription[]): string {
+  if (abonelikler.length === 1) {
+    const abonelik = abonelikler[0];
+    return `Yarın ${abonelik.ad} aboneliğin ${paraYaz(abonelik.tutar_kurus)} tutarla otomatik yenilenecek. Kullanmıyorsan aboneliğini iptal edebilirsin.`;
+  }
+  const toplam = abonelikler.reduce((sonuc, abonelik) => sonuc + abonelik.tutar_kurus, 0);
+  return `Yarın ${abonelikler.length} aboneliğin toplam ${paraYaz(toplam)} tutarla otomatik yenilenecek. Kullanmadıklarını iptal edebilirsin.`;
+}
+
+function SubscriptionQuickRow({
+  abonelik,
+  loading,
+  onYenilendi,
+}: {
+  abonelik: ScheduledSubscription;
+  loading: boolean;
+  onYenilendi: () => void;
+}) {
+  const marka = abonelikMarkasiBul(abonelik.saglayici, abonelik.ad);
+  const tutar = paraYaz(abonelik.tutar_kurus);
+  const durumMetni = abonelik.odendi ? 'Giderlere işlendi' : 'Bugün yenileniyor · İşlenmedi';
+  return (
+    <View style={stil.satir}>
+      <SubscriptionBrandLogo marka={marka} size={a11y.minTarget} />
+      <View style={{ width: rhythm.blockInCard }} />
+      <View style={stil.metin}>
+        <Txt role="bodyStrong" numberOfLines={1} ellipsizeMode="tail">{abonelik.ad}</Txt>
+        <Txt role="caption" tone={abonelik.odendi ? color.successInk : color.warningInk}>{durumMetni}</Txt>
+      </View>
+      <Txt role="amount" numberOfLines={1}>{tutar}</Txt>
+      <View style={{ width: rhythm.blockInCard }} />
+      <RoutineActionButton
+        icon={abonelik.odendi ? 'check' : 'plus'}
+        selected={abonelik.odendi}
+        disabled={abonelik.odendi}
+        loading={loading}
+        accessibilityLabel={abonelik.odendi ? `${abonelik.ad} giderlere işlendi` : `${abonelik.ad} yenilendiyse ${tutar} gider olarak ekle`}
+        onPress={onYenilendi}
+      />
+    </View>
   );
 }
 
@@ -418,6 +561,8 @@ const stil = StyleSheet.create({
   pad: { paddingHorizontal: layout.screenPaddingX },
   satir: { minHeight: 46, flexDirection: 'row', alignItems: 'center' },
   metin: { flex: 1, minWidth: 0 },
+  blokArasi: { marginTop: rhythm.blockInCard },
+  bolumArasi: { marginTop: rhythm.section },
   eylem: {
     width: a11y.minTarget,
     height: a11y.minTarget,

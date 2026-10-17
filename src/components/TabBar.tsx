@@ -131,8 +131,10 @@ const stil = StyleSheet.create({
     justifyContent: 'space-between',
     height: size.tabBarHeight,
     paddingHorizontal: rhythm.group,
+    // Transform görseli taşırken bazı Android sürümlerinde dokunma ölçümü eski
+    // konumda kalabiliyor. Aynı 4 pt görsel kaldırmayı gerçek yerleşimle yap.
+    paddingBottom: Platform.OS === 'android' ? rhythm.group : 0,
     backgroundColor: color.navDark,
-    transform: [{ translateY: Platform.OS === 'android' ? -4 : 0 }],
   },
   sekme: {
     flex: 1,

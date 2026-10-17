@@ -1,13 +1,14 @@
 import type { ReactNode } from 'react';
 import {
   Pressable,
+  type PressableProps,
   type AccessibilityActionEvent,
   type AccessibilityActionInfo,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
 
-import { a11y, clay, color, radius } from '@/theme/tokens';
+import { clay, color, radius } from '@/theme/tokens';
 
 /**
  * §6 — her etkileşimli eleman için `pressed` zorunlu (hover yoktur).
@@ -34,6 +35,8 @@ type Props = {
   /** §5.3 üst parlama — basılı ve pasif durumda uygulanmaz */
   gloss?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** Yalnız görsel hedef 44 pt'den küçükse gereken farkın yarısı kadar verilir. */
+  hitSlop?: PressableProps['hitSlop'];
   /** Basılı durumu çocuklarına geçirmesi gerekenler için fonksiyon verebilir. */
   children?: ReactNode | ((pressed: boolean) => ReactNode);
   /**
@@ -58,6 +61,7 @@ export function ClayPressable({
   shadow = clay.raised,
   pressedShadow = clay.pressed,
   style,
+  hitSlop,
   children,
   accessibilityActions,
   onAccessibilityAction,
@@ -72,8 +76,7 @@ export function ClayPressable({
       accessibilityState={{ disabled, selected }}
       accessibilityActions={accessibilityActions}
       onAccessibilityAction={onAccessibilityAction}
-      // §6 — görsel eleman 44'ten küçükse dokunma hedefi hitSlop ile tamamlanır
-      hitSlop={a11y.minTarget}
+      hitSlop={hitSlop}
       style={({ pressed }) => [
         {
           borderRadius,

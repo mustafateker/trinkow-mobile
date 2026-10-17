@@ -324,6 +324,7 @@ export type OdemeTipiGovde = 'nakit' | 'kart';
 
 export type HarcamaYaniti = {
   rutin_id?: string | null;
+  abonelik_id?: string | null;
   adet?: number;
   sabit_gider_kodu?: 'kira' | 'fatura' | 'ulasim' | 'kredi' | null;
   id: string;

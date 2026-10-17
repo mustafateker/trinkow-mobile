@@ -30,6 +30,15 @@ export const color = {
   /** Koyu zemin üstündeki ikon buton zemini (dinlenme/basılı). */
   navGlassBg: 'rgba(255,255,255,0.12)',
   navGlassBgPressed: 'rgba(255,255,255,0.20)',
+  /** Uygulama ikonundan türetilen markalı açılış yüzeyi. */
+  launchBg: '#071A70',
+  launchText: '#C9EFFF',
+  launchAccent: '#53F2F5',
+  launchGlass: 'rgba(255,255,255,0.07)',
+  launchLine: 'rgba(116,239,255,0.24)',
+  launchTrack: 'rgba(255,255,255,0.18)',
+  launchCyanGlow: 'rgba(0,220,255,0.18)',
+  launchPurpleGlow: 'rgba(100,49,255,0.24)',
 
   // §1.2 metin
   text: '#272F66',

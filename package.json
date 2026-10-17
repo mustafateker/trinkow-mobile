@@ -9,19 +9,31 @@
     "start": "expo start -c",
     "ios": "expo run:ios",
     "android": "expo run:android",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "release:setup": "node scripts/release-setup.mjs",
+    "release": "node scripts/release.mjs"
+  },
+  "expo": {
+    "doctor": {
+      "appConfigFieldsNotSyncedCheck": {
+        "enabled": false
+      }
+    }
   },
   "dependencies": {
     "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
-    "expo": "~57.0.24",
-    "expo-constants": "~57.0.19",
+    "@fortawesome/free-brands-svg-icons": "^7.3.1",
+    "expo": "~57.0.30",
+    "expo-constants": "~57.0.22",
     "expo-font": "~57.0.4",
     "expo-haptics": "~57.0.3",
-    "expo-linking": "~57.0.10",
-    "expo-router": "~57.0.22",
+    "expo-in-app-updates": "^0.12.0",
+    "expo-linking": "~57.0.13",
+    "expo-navigation-bar": "~57.0.3",
+    "expo-router": "~57.0.28",
     "expo-secure-store": "~57.0.4",
-    "expo-splash-screen": "~57.0.9",
-    "expo-sqlite": "~57.0.3",
+    "expo-splash-screen": "~57.0.10",
+    "expo-sqlite": "~57.0.4",
     "expo-status-bar": "~57.0.1",
     "expo-system-ui": "~57.0.4",
     "react": "19.2.3",

@@ -8,8 +8,10 @@ import { useFonts } from 'expo-font';
 import { router, Stack, useRootNavigationState } from 'expo-router';
 import { SQLiteProvider, useSQLiteContext } from 'expo-sqlite';
 import { StatusBar } from 'expo-status-bar';
+import { NavigationBar } from 'expo-navigation-bar';
+import * as SystemUI from 'expo-system-ui';
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
@@ -19,14 +21,22 @@ import { onboardingTamamlandiMi } from '@/db/profil';
 import { gunSiniriOku, kurulumGunuBaslat } from '@/db/ayarTercihleri';
 import { katalogTazele } from '@/db/katalog';
 import { ProfilingHost } from '@/components/ProfilingHost';
+import { LaunchScreen } from '@/components/LaunchScreen';
+import { InAppUpdateHost } from '@/components/InAppUpdateHost';
 import { ToastHost } from '@/components/ToastHost';
 import { ApiHatasi, benKimim } from '@/lib/api';
 import { oturumDegisimineAbone, oturumOku, oturumSil } from '@/lib/oturumDeposu';
 import { gunSiniriSaatiniAyarla } from '@/lib/tarih';
-import { Spinner } from '@/components/Spinner';
 import { t } from '@/content/metinler';
 import { toastGoster } from '@/lib/toastBus';
 import { color } from '@/theme/tokens';
+
+// Android gesture navigation is transparent in edge-to-edge mode. The native
+// root behind it must therefore match our dock instead of falling back to
+// white while React is mounting or when an OEM reports a zero bottom inset.
+if (Platform.OS === 'android') {
+  void SystemUI.setBackgroundColorAsync(color.navDark);
+}
 
 function IlkYonlendirme({ onboarding }: { onboarding: boolean }) {
   const gezinme = useRootNavigationState();
@@ -54,11 +64,18 @@ function OturumGezgini() {
   useEffect(() => {
     let iptal = false;
     async function baslat() {
+      const enErkenGecis = Date.now() + 1200;
+      async function acilisSuresiniTamamla() {
+        const kalan = enErkenGecis - Date.now();
+        if (kalan > 0) await new Promise((tamamla) => setTimeout(tamamla, kalan));
+      }
       try {
         const kayit = await oturumOku();
         if (iptal) return;
         if (!kayit) {
           gunSiniriSaatiniAyarla(0);
+          await acilisSuresiniTamamla();
+          if (iptal) return;
           setDurum('kapali');
           return;
         }
@@ -67,6 +84,8 @@ function OturumGezgini() {
         if (iptal) return;
         gunSiniriSaatiniAyarla(saat);
         await kurulumGunuBaslat(db);
+        if (iptal) return;
+        await acilisSuresiniTamamla();
         if (iptal) return;
         setIlkEkran(tamam ? '(tabs)' : 'onboarding');
         setDurum('acik');
@@ -80,6 +99,8 @@ function OturumGezgini() {
           // doğrudan giriş ekranına düşülür (token silinmez, bir sonraki
           // başarılı doğrulamada oturum kaldığı yerden açılabilir) ve
           // kullanıcı toast ile bilgilendirilir.
+          await acilisSuresiniTamamla();
+          if (iptal) return;
           setDurum('kapali');
           toastGoster({ tur: 'warning', metin: t['giris.oturum_dogrulanamadi'] });
         }
@@ -90,9 +111,7 @@ function OturumGezgini() {
   }, [db, tetik]);
 
   if (durum === 'yukleniyor') {
-    return <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16 }}>
-      <Spinner />
-    </View>;
+    return <LaunchScreen onReady={() => SplashScreen.hideAsync().catch(() => {})} />;
   }
 
   return <>
@@ -114,6 +133,7 @@ function OturumGezgini() {
         <Stack.Screen name="hesap-sil" />
         <Stack.Screen name="birikimler" />
         <Stack.Screen name="rutinler" />
+        <Stack.Screen name="abonelikler" />
         <Stack.Screen name="favoriler" />
         <Stack.Screen name="butce" />
         <Stack.Screen name="kategori/[kod]" />
@@ -140,10 +160,6 @@ export default function RootLayout() {
     PlusJakartaSans_800ExtraBold,
   });
 
-  useEffect(() => {
-    if (fontHazir || fontHatasi) SplashScreen.hideAsync().catch(() => {});
-  }, [fontHazir, fontHatasi]);
-
   if (!fontHazir && !fontHatasi) return null;
 
   return (
@@ -152,10 +168,12 @@ export default function RootLayout() {
         {/* Tasarım kiti §6.A — her ekran koyu bir üst bar/header taşır, bu yüzden
             durum çubuğu ikonları hep açık renk. useColorScheme kullanılmaz. */}
         <StatusBar style="light" />
+        <NavigationBar style="light" />
         <View style={{ flex: 1, backgroundColor: color.bg }}>
           <SQLiteProvider databaseName={DB_ADI} onInit={semayiKur}>
             <OturumGezgini />
             <ToastHost />
+            <InAppUpdateHost />
           </SQLiteProvider>
         </View>
       </SafeAreaProvider>
