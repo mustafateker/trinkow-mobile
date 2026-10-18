@@ -19,7 +19,11 @@ function ortam({ signIn, createAccount, presentExplicitSignIn }) {
       isErrorWithCode: (hata) => typeof hata?.code === 'string',
       isNoSavedCredentialFoundResponse: (yanit) => yanit.type === 'noSavedCredentialFound',
       isSuccessResponse: (yanit) => yanit.type === 'success' && yanit.data,
-      statusCodes: { SIGN_IN_CANCELLED: 'SIGN_IN_CANCELLED', PLAY_SERVICES_NOT_AVAILABLE: 'PLAY_SERVICES_NOT_AVAILABLE' },
+      statusCodes: {
+        SIGN_IN_CANCELLED: 'SIGN_IN_CANCELLED',
+        PLAY_SERVICES_NOT_AVAILABLE: 'PLAY_SERVICES_NOT_AVAILABLE',
+        DEVELOPER_ERROR: 'DEVELOPER_ERROR',
+      },
     },
     'react-native': {
       Platform: { OS: 'android' },
@@ -61,6 +65,21 @@ test('Backend geçerli Google Web OAuth istemci kimliği döndürmezse açık ya
   });
 
   await assert.rejects(api.googleIleDevamEt(''), (hata) => hata.kod === 'yapilandirma');
+});
+
+test('Android OAuth package veya SHA-1 uyuşmazlığı ağ hatası olarak gösterilmez', async () => {
+  const { api } = ortam({
+    signIn: async () => {
+      throw Object.assign(new Error('OAuth client mismatch'), { code: 'DEVELOPER_ERROR' });
+    },
+    createAccount: async () => ({ type: 'cancelled', data: null }),
+    presentExplicitSignIn: async () => ({ type: 'cancelled', data: null }),
+  });
+
+  await assert.rejects(
+    api.googleIleDevamEt('web.apps.googleusercontent.com'),
+    (hata) => hata.kod === 'oauth-yapilandirma',
+  );
 });
 
 test('native modül bulunmasa bile route yüklenir ve dokunuşta rebuild hatası verir', async () => {

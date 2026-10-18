@@ -5,7 +5,12 @@ import { t } from '@/content/metinler';
 import { toastGoster } from '@/lib/toastBus';
 
 export type SosyalSaglayici = 'apple' | 'google';
-export type SosyalGirisHataKodu = 'yapilandirma' | 'native-modul' | 'play-services' | 'genel';
+export type SosyalGirisHataKodu =
+  | 'yapilandirma'
+  | 'oauth-yapilandirma'
+  | 'native-modul'
+  | 'play-services'
+  | 'genel';
 type GoogleSignInModulu = typeof import('react-native-nitro-google-signin');
 
 export class SosyalGirisHatasi extends Error {
@@ -88,6 +93,12 @@ export async function googleIleDevamEt(webClientId: string): Promise<string | nu
       if (hata.code === 'SIGN_IN_CANCELLED') return null;
       if (hata.code === 'PLAY_SERVICES_NOT_AVAILABLE') {
         throw new SosyalGirisHatasi('play-services');
+      }
+      if (hata.code === 'DEVELOPER_ERROR') {
+        // Yanlış Web client ID ya da Android OAuth istemcisindeki package/SHA-1
+        // uyuşmazlığı ağ hatası değildir; kullanıcıya yeniden denetmek yerine
+        // yapılandırmanın düzeltilmesi gerektiğini bildir.
+        throw new SosyalGirisHatasi('oauth-yapilandirma');
       }
     }
     throw new SosyalGirisHatasi('genel');

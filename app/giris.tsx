@@ -11,7 +11,7 @@ import { SettingRow } from '@/components/SettingRow';
 import { SocialAuthButton } from '@/components/SocialAuthButton';
 import { TextField } from '@/components/TextField';
 import { Txt } from '@/components/Txt';
-import { ApiHatasi, GELISTIRME_GIRISI, benKimim, girisYap, googleIleGirisYap, googleYapilandirmasiniGetir } from '@/lib/api';
+import { ApiAgHatasi, ApiHatasi, GELISTIRME_GIRISI, benKimim, girisYap, googleIleGirisYap, googleYapilandirmasiniGetir } from '@/lib/api';
 import { oturumYaz } from '@/lib/oturumDeposu';
 import { SosyalGirisHatasi, appleIleDevamEt, googleIleDevamEt, sosyalSaglayicilar } from '@/lib/sosyalGiris';
 import { rhythm } from '@/theme/tokens';
@@ -53,10 +53,18 @@ export default function GirisEkrani() {
         setHata('Google ile giriş için uygulamayı yeniden yükleyip native geliştirme sürümünü aç.');
       } else if (e instanceof SosyalGirisHatasi && e.kod === 'play-services') {
         setHata('Google Play Hizmetleri kullanılamıyor veya güncel değil.');
+      } else if (e instanceof SosyalGirisHatasi && e.kod === 'oauth-yapilandirma') {
+        setHata('Google ile giriş yapılandırması bu uygulama imzasıyla eşleşmiyor.');
       } else if (e instanceof ApiHatasi && e.hataKodu === 'GOOGLE_GIRISI_YAPILANDIRILMADI') {
         setHata('Google ile giriş şu anda kullanılamıyor.');
-      } else {
+      } else if (e instanceof ApiHatasi && e.hataKodu === 'GECERSIZ_GOOGLE_KIMLIGI') {
+        setHata('Google oturumu doğrulanamadı. Yeniden deneyebilirsin.');
+      } else if (e instanceof ApiHatasi && e.hataKodu === 'GOOGLE_DOGRULAMA_KULLANILAMIYOR') {
+        setHata('Google oturumu şu anda doğrulanamıyor. Biraz sonra yeniden dene.');
+      } else if (e instanceof ApiAgHatasi) {
         setHata('Google ile oturum açılamadı. Bağlantını kontrol edip yeniden dene.');
+      } else {
+        setHata('Google ile oturum açılamadı. Yeniden dene.');
       }
     } finally { setSosyalMesgul(false); }
   }
