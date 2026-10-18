@@ -36,12 +36,14 @@ export function SubscriptionSheet({
   busy,
   onClose,
   onSave,
+  onDeleteRequest,
 }: {
   visible: boolean;
   abonelik: Subscription | null;
   busy: boolean;
   onClose: () => void;
   onSave: (abonelik: Omit<Subscription, 'son_odeme_gunu'>) => Promise<void>;
+  onDeleteRequest?: () => void;
 }) {
   const [id, setId] = useState(yeniId);
   const [ad, setAd] = useState('');
@@ -122,6 +124,18 @@ export function SubscriptionSheet({
             disabled={!gecerli}
             onPress={() => void onSave({ id, ad: ad.trim(), saglayici, tutar_kurus: tutarGirisindenKurus(tutar), yenilenme_gunu: yenilenmeGunu, odeme, aktif })}
           />
+          {abonelik && onDeleteRequest ? (
+            <>
+              <View style={{ height: rhythm.group }} />
+              <Button
+                variant="danger"
+                icon="trash"
+                label="Aboneliği sil"
+                disabled={busy}
+                onPress={onDeleteRequest}
+              />
+            </>
+          ) : null}
         </View>
       }>
       <Txt role="h2">{abonelik ? 'Aboneliği düzenle' : 'Abonelik ekle'}</Txt>

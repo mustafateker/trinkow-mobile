@@ -181,3 +181,12 @@ test('subscriptionPaymentPut: yenilenen günü gider işleme isteğine taşır',
   assert.equal(sonIstek.secenekler.yontem, 'PUT');
   assert.equal(sonIstek.secenekler.govde.gun, '2026-10-17');
 });
+
+test('subscriptionDelete: aboneliği DELETE isteğiyle kaldırır', async () => {
+  let sonIstek = null;
+  const api = revApiYukle((yol, secenekler) => { sonIstek = { yol, secenekler }; });
+  await api.subscriptionDelete('netflix-1');
+  assert.equal(sonIstek.yol, '/butce/abonelikler/netflix-1');
+  assert.equal(sonIstek.secenekler.yontem, 'DELETE');
+  assert.equal(sonIstek.secenekler.tokenGerekli, true);
+});

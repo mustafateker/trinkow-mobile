@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { ClayPressable } from '@/components/ClayPressable';
+import { Dialog } from '@/components/Dialog';
 import { EmptyState } from '@/components/EmptyState';
 import { Icon } from '@/components/Icon';
 import { InfoStrip } from '@/components/InfoStrip';
@@ -14,13 +15,15 @@ import { Txt } from '@/components/Txt';
 import { abonelikDurumEtiketi, abonelikTarihBilgisi, abonelikTarihEtiketi } from '@/lib/abonelik';
 import { abonelikMarkasiBul } from '@/lib/abonelikMarkalari';
 import { paraYaz } from '@/lib/para';
-import { bugun, subscriptionPut, subscriptionsGet, type Subscription } from '@/lib/revApi';
+import { bugun, subscriptionDelete, subscriptionPut, subscriptionsGet, type Subscription } from '@/lib/revApi';
+import { veriDegisti } from '@/lib/veriBus';
 import { color, radius, rhythm, size } from '@/theme/tokens';
 
 export default function AboneliklerEkrani() {
   const load = useRevLoad(subscriptionsGet);
   const [sheetAcik, setSheetAcik] = useState(false);
   const [secili, setSecili] = useState<Subscription | null>(null);
+  const [silinecek, setSilinecek] = useState<Subscription | null>(null);
   const [busy, setBusy] = useState(false);
   const [mesaj, setMesaj] = useState('');
 
@@ -50,6 +53,7 @@ export default function AboneliklerEkrani() {
     try {
       await islem();
       await load.reload();
+      veriDegisti();
       setSheetAcik(false);
       setMesaj(basari);
     } catch {
@@ -58,6 +62,23 @@ export default function AboneliklerEkrani() {
       setBusy(false);
     }
   }, [busy, load]);
+
+  async function sil() {
+    if (!silinecek || busy) return;
+    setBusy(true);
+    setMesaj('');
+    try {
+      await subscriptionDelete(silinecek.id);
+      await load.reload();
+      veriDegisti();
+      setSilinecek(null);
+      setMesaj('Abonelik silindi. Geçmiş gider kayıtların korundu.');
+    } catch {
+      setMesaj('İşlem tamamlanamadı. Bağlantını kontrol edip yeniden dene.');
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
     <>
@@ -116,6 +137,20 @@ export default function AboneliklerEkrani() {
         busy={busy}
         onClose={() => !busy && setSheetAcik(false)}
         onSave={async (abonelik) => calistir(() => subscriptionPut(abonelik), secili ? 'Abonelik güncellendi.' : 'Abonelik eklendi.')}
+        onDeleteRequest={secili ? () => {
+          setSheetAcik(false);
+          setSilinecek(secili);
+        } : undefined}
+      />
+      <Dialog
+        visible={silinecek !== null}
+        baslik="Abonelik silinsin mi?"
+        govde={`${silinecek?.ad ?? 'Bu abonelik'} takip listesinden kaldırılacak. Geçmiş gider kayıtların silinmeyecek.`}
+        silEtiketi="Aboneliği sil"
+        vazgecEtiketi="Vazgeç"
+        siliniyor={busy}
+        onSil={() => void sil()}
+        onVazgec={() => !busy && setSilinecek(null)}
       />
     </>
   );

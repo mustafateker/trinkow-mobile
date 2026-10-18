@@ -57,6 +57,7 @@ export function GunlukSayfa({
   onKutlamaGosterildi,
   onBugunBosDegisti,
   onGunDegistir,
+  onIcYatayKaydirmaDegisti,
 }: {
   gunFarki: number;
   /** Bu sayfa şu an ekranda mı (FlatList'in görünür sayfası) */
@@ -68,6 +69,8 @@ export function GunlukSayfa({
   onBugunBosDegisti?: (bos: boolean) => void;
   /** Ok butonları — `FlatList`'i `app/index.tsx`'te kaydırır (route param DEĞİL). */
   onGunDegistir: (delta: number) => void;
+  /** İçteki yatay sık harcama listesi sürüklenirken dış gün pager'ını kilitler. */
+  onIcYatayKaydirmaDegisti?: (kaydiriliyor: boolean) => void;
 }) {
   const db = useVeriBaglami();
   const veri = usePano(gunFarki);
@@ -322,8 +325,12 @@ export function GunlukSayfa({
             <View style={{ height: rhythm.group }} />
             <ScrollView
               horizontal
+              nestedScrollEnabled
               showsHorizontalScrollIndicator={false}
               keyboardShouldPersistTaps="handled"
+              onTouchStart={() => onIcYatayKaydirmaDegisti?.(true)}
+              onTouchEnd={() => onIcYatayKaydirmaDegisti?.(false)}
+              onTouchCancel={() => onIcYatayKaydirmaDegisti?.(false)}
               contentContainerStyle={stil.yatayCipler}>
               {sikKullanilanlar.map((k) => {
                 const kat = kategoriGetir(k.kategori);

@@ -46,15 +46,17 @@ export default function GunlukEkrani() {
     return dizi;
   }, [sinir.hazir, sinir.enEskiGunFarki]);
 
-  const [aktifIndex, setAktifIndex] = useState(0);
+  const [aktifGunFarki, setAktifGunFarki] = useState<number | null>(null);
+  const [icYatayKaydiriliyor, setIcYatayKaydiriliyor] = useState(false);
   const kaydirmaKilidi = useRef(false);
+  const aktifIndex = aktifGunFarki === null ? -1 : sayfalar.indexOf(aktifGunFarki);
 
   // Sınır hazır olunca (ya da `?gun=` parametresi geldiğinde) doğru sayfaya atla.
   useEffect(() => {
     if (!sinir.hazir) return;
     const hedefIndex = sayfalar.indexOf(hedefGunFarki);
     const index = hedefIndex >= 0 ? hedefIndex : sayfalar.length - 1;
-    setAktifIndex(index);
+    setAktifGunFarki(sayfalar[index] ?? 0);
     kaydirmaKilidi.current = true;
     requestAnimationFrame(() => {
       listRef.current?.scrollToIndex({ index, animated: false });
@@ -65,18 +67,18 @@ export default function GunlukEkrani() {
   }, [sinir.hazir, hedefGunFarki]);
 
   function gunDegistir(delta: number) {
-    const aktifGun = sayfalar[aktifIndex] ?? 0;
+    const aktifGun = aktifGunFarki ?? 0;
     const yeniIndex = sayfalar.indexOf(aktifGun + delta);
     if (yeniIndex < 0) return;
     if (yeniIndex === aktifIndex) return;
-    setAktifIndex(yeniIndex);
+    setAktifGunFarki(sayfalar[yeniIndex]);
     listRef.current?.scrollToIndex({ index: yeniIndex, animated: true });
   }
 
   const gorunenDegisti = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
     if (kaydirmaKilidi.current) return;
     const ilk = viewableItems[0];
-    if (ilk && typeof ilk.index === 'number') setAktifIndex(ilk.index);
+    if (ilk && typeof ilk.item === 'number') setAktifGunFarki(ilk.item);
   }).current;
 
   function kaydirmaBitti(event: NativeSyntheticEvent<NativeScrollEvent>) {
@@ -85,7 +87,7 @@ export default function GunlukEkrani() {
       Math.max(Math.round(event.nativeEvent.contentOffset.x / genislik), 0),
       sayfalar.length - 1,
     );
-    setAktifIndex(index);
+    setAktifGunFarki(sayfalar[index] ?? 0);
   }
 
   async function kutlamaGosterildi() {
@@ -99,43 +101,50 @@ export default function GunlukEkrani() {
     <View style={stil.ekran}>
       <View style={[{ height: insets.top }, stil.ustGuvenliAlan]} />
 
-      <FlatList
-        ref={listRef}
-        data={sayfalar}
-        keyExtractor={(f) => String(f)}
-        horizontal
-        pagingEnabled
-        snapToInterval={genislik}
-        snapToAlignment="start"
-        decelerationRate="fast"
-        disableIntervalMomentum
-        directionalLockEnabled
-        nestedScrollEnabled
-        bounces={false}
-        overScrollMode="never"
-        showsHorizontalScrollIndicator={false}
-        initialScrollIndex={aktifIndex}
-        getItemLayout={(_, i) => ({ length: genislik, offset: genislik * i, index: i })}
-        onScrollToIndexFailed={({ index }) => {
-          requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: index * genislik, animated: false }));
-        }}
-        onViewableItemsChanged={gorunenDegisti}
-        onMomentumScrollEnd={kaydirmaBitti}
-        viewabilityConfig={{ itemVisiblePercentThreshold: 60 }}
-        renderItem={({ item, index }) => (
-          <View style={{ width: genislik }}>
-            <GunlukSayfa
-              gunFarki={item}
-              aktifMi={index === aktifIndex}
-              seriDurum={seriOzet.durum}
-              seriYukleniyor={seriOzet.yukleniyor}
-              onKutlamaGosterildi={() => void kutlamaGosterildi()}
-              onGunDegistir={gunDegistir}
-            />
-          </View>
-        )}
-        style={stil.pager}
-      />
+      {sinir.hazir && aktifIndex >= 0 ? (
+        <FlatList
+          ref={listRef}
+          data={sayfalar}
+          keyExtractor={(f) => String(f)}
+          horizontal
+          pagingEnabled
+          snapToInterval={genislik}
+          snapToAlignment="start"
+          decelerationRate="fast"
+          disableIntervalMomentum
+          directionalLockEnabled
+          nestedScrollEnabled
+          scrollEnabled={!icYatayKaydiriliyor}
+          bounces={false}
+          overScrollMode="never"
+          showsHorizontalScrollIndicator={false}
+          initialScrollIndex={aktifIndex}
+          initialNumToRender={1}
+          maxToRenderPerBatch={1}
+          windowSize={3}
+          getItemLayout={(_, i) => ({ length: genislik, offset: genislik * i, index: i })}
+          onScrollToIndexFailed={({ index }) => {
+            requestAnimationFrame(() => listRef.current?.scrollToOffset({ offset: index * genislik, animated: false }));
+          }}
+          onViewableItemsChanged={gorunenDegisti}
+          onMomentumScrollEnd={kaydirmaBitti}
+          viewabilityConfig={{ itemVisiblePercentThreshold: 60 }}
+          renderItem={({ item }) => (
+            <View style={{ width: genislik }}>
+              <GunlukSayfa
+                gunFarki={item}
+                aktifMi={item === aktifGunFarki}
+                seriDurum={seriOzet.durum}
+                seriYukleniyor={seriOzet.yukleniyor}
+                onKutlamaGosterildi={() => void kutlamaGosterildi()}
+                onGunDegistir={gunDegistir}
+                onIcYatayKaydirmaDegisti={setIcYatayKaydiriliyor}
+              />
+            </View>
+          )}
+          style={stil.pager}
+        />
+      ) : <View style={stil.pager} />}
 
       <TabDock active="gunluk" />
     </View>

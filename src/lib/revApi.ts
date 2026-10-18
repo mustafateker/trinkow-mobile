@@ -30,6 +30,7 @@ export const favoriteDelete = (id:string) => istek<void>(`/butce/sik-kullanilanl
 export const subscriptionsGet = () => istek<{abonelikler:Subscription[]}>(`/butce/abonelikler?${q()}`,{tokenGerekli:true});
 export const subscriptionScheduleGet = () => istek<SubscriptionSchedule>(`/butce/abonelikler/takvim?${q()}`,{tokenGerekli:true});
 export const subscriptionPut = (a:Omit<Subscription,'son_odeme_gunu'>) => istek<Subscription>(`/butce/abonelikler/${a.id}?${q()}`,{tokenGerekli:true,yontem:'PUT',govde:{ad:a.ad,saglayici:a.saglayici??null,tutar_kurus:a.tutar_kurus,yenilenme_gunu:a.yenilenme_gunu,odeme:a.odeme,aktif:a.aktif}});
+export const subscriptionDelete = (id:string) => istek<void>(`/butce/abonelikler/${id}`,{tokenGerekli:true,yontem:'DELETE'});
 export const subscriptionPaymentPut = (id:string,gun:string|null) => istek<Subscription>(`/butce/abonelikler/${id}/odeme?${q()}`,{tokenGerekli:true,yontem:'PUT',govde:{gun}});
 export const savingsGet = (ay:string) => istek<Savings>(`/tasarruf/ay?ay=${ay}&${q()}`,{tokenGerekli:true});
 export const movementsGet = (ay:string) => istek<{hareketler:Movement[];toplam_kurus:number}>(`/tasarruf/birikimler?ay=${ay}`,{tokenGerekli:true});
