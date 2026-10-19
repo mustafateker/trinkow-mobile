@@ -7,7 +7,6 @@ import { PlusJakartaSans_800ExtraBold } from '@expo-google-fonts/plus-jakarta-sa
 import { useFonts } from 'expo-font';
 import { router, Stack, useRootNavigationState } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { NavigationBar } from 'expo-navigation-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useEffect, useState } from 'react';
 import { Platform, View } from 'react-native';
@@ -167,7 +166,6 @@ export default function RootLayout() {
         {/* Tasarım kiti §6.A — her ekran koyu bir üst bar/header taşır, bu yüzden
             durum çubuğu ikonları hep açık renk. useColorScheme kullanılmaz. */}
         <StatusBar style="light" />
-        <NavigationBar style="light" />
         <View style={{ flex: 1, backgroundColor: color.bg }}>
           <OturumGezgini />
           <ToastHost />

@@ -26,6 +26,16 @@ test('production build debug anahtarı kullanmaz', () => {
   assert.match(gradle, /android-upload-keystore\.jks/);
 });
 
+test('Android release R8 ile kodu ve kaynakları optimize eder', () => {
+  const gradle = readFileSync(join(kok, 'android/app/build.gradle'), 'utf8');
+  const properties = readFileSync(join(kok, 'android/gradle.properties'), 'utf8');
+
+  assert.match(properties, /android\.enableMinifyInReleaseBuilds=true/);
+  assert.match(properties, /android\.enableShrinkResourcesInReleaseBuilds=true/);
+  assert.match(properties, /android\.r8\.optimizedResourceShrinking=true/);
+  assert.match(gradle, /proguard-android-optimize\.txt/);
+});
+
 test('Android release reklam kimliği istemez', () => {
   const app = oku('app.json');
   const manifest = readFileSync(join(kok, 'android/app/src/main/AndroidManifest.xml'), 'utf8');

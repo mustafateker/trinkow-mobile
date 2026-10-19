@@ -7,8 +7,6 @@
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
-# react-native-reanimated
--keep class com.swmansion.reanimated.** { *; }
--keep class com.facebook.react.turbomodule.** { *; }
-
-# Add any project specific keep options here:
+# Library-specific rules are supplied by each dependency's consumer ProGuard
+# configuration. Keep this file limited to rules required by Trinkow itself so
+# broad app-level rules do not unnecessarily prevent R8 obfuscation.

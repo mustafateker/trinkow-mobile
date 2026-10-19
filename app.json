@@ -2,8 +2,8 @@
   "expo": {
     "name": "Trinkow",
     "slug": "trinkow",
-    "version": "0.1.1",
-    "orientation": "portrait",
+    "version": "0.1.2",
+    "orientation": "default",
     "scheme": "trinkow",
     "userInterfaceStyle": "light",
     "backgroundColor": "#071A70",
@@ -17,7 +17,7 @@
     },
     "android": {
       "package": "com.triworkster.trinkow",
-      "versionCode": 2,
+      "versionCode": 3,
       "blockedPermissions": [
         "com.google.android.gms.permission.AD_ID"
       ],
@@ -36,13 +36,6 @@
           "image": "./assets/images/trinkow-brand-mark.png",
           "imageWidth": 176,
           "resizeMode": "contain"
-        }
-      ],
-      [
-        "expo-navigation-bar",
-        {
-          "style": "light",
-          "enforceContrast": false
         }
       ]
     ],

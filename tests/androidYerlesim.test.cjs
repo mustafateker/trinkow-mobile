@@ -35,9 +35,25 @@ test('Sık harcamalar yatay kayarken dış gün sayfalaması kilitlenir', () => 
 
 test('Android gesture navigation zemini alt dock ile aynı renktedir', () => {
   const config = JSON.parse(fs.readFileSync(path.join(kok, 'app.json'), 'utf8'));
+  const rootLayout = fs.readFileSync(path.join(kok, 'app/_layout.tsx'), 'utf8');
+  const styles = fs.readFileSync(path.join(kok, 'android/app/src/main/res/values/styles.xml'), 'utf8');
   assert.equal(config.expo.android.backgroundColor, '#171C42');
-  const navigationBar = config.expo.plugins.find((plugin) => Array.isArray(plugin) && plugin[0] === 'expo-navigation-bar');
-  assert.deepEqual(navigationBar?.[1], { style: 'light', enforceContrast: false });
+  assert.match(rootLayout, /SystemUI\.setBackgroundColorAsync\(color\.navDark\)/);
+  assert.match(styles, /android:windowLightNavigationBar">false/);
+  assert.doesNotMatch(config.expo.plugins.join(','), /expo-navigation-bar/);
+});
+
+test('Android 15 edge-to-edge deprecated pencere renk parametrelerini kullanmaz', () => {
+  const styles = fs.readFileSync(path.join(kok, 'android/app/src/main/res/values/styles.xml'), 'utf8');
+  assert.doesNotMatch(styles, /statusBarColor|navigationBarColor|enforceNavigationBarContrast/);
+});
+
+test('Android büyük ekranlarda yeniden boyutlandırılabilir ve yön kilidi yoktur', () => {
+  const config = JSON.parse(fs.readFileSync(path.join(kok, 'app.json'), 'utf8'));
+  const manifest = fs.readFileSync(path.join(kok, 'android/app/src/main/AndroidManifest.xml'), 'utf8');
+  assert.equal(config.expo.orientation, 'default');
+  assert.match(manifest, /android:resizeableActivity="true"/);
+  assert.doesNotMatch(manifest, /android:screenOrientation=/);
 });
 
 test('Trinkow uygulama ikonu ve markalı splash varlıkları yapılandırılmıştır', () => {
