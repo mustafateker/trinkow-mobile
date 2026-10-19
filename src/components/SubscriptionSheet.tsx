@@ -12,6 +12,7 @@ import { SettingRow } from '@/components/SettingRow';
 import { SubscriptionBrandLogo } from '@/components/SubscriptionBrandLogo';
 import { TextField } from '@/components/TextField';
 import { Txt } from '@/components/Txt';
+import { abonelikAdiylaEkle, abonelikServisSayisi, t } from '@/content/metinler';
 import {
   ABONELIK_MARKALARI,
   abonelikMarkalariniAra,
@@ -22,11 +23,6 @@ import {
 import { kurustanTutarGirisi, tutarGirisindenKurus } from '@/lib/para';
 import { yeniId, type Subscription } from '@/lib/revApi';
 import { color, radius, rhythm } from '@/theme/tokens';
-
-const ODEME = [
-  { value: 'kart' as const, label: 'Kart', icon: 'credit-card' as const },
-  { value: 'nakit' as const, label: 'Nakit', icon: 'banknote' as const },
-];
 
 const DIGER_MARKA = ABONELIK_MARKALARI.find((marka) => marka.id === 'diger')!;
 
@@ -53,6 +49,10 @@ export function SubscriptionSheet({
   const [gun, setGun] = useState('');
   const [odeme, setOdeme] = useState<'kart' | 'nakit'>('kart');
   const [aktif, setAktif] = useState(true);
+  const odemeSecenekleri = [
+    { value: 'kart' as const, label: t['ekle.odeme.kart'], icon: 'credit-card' as const },
+    { value: 'nakit' as const, label: t['ekle.odeme.nakit'], icon: 'banknote' as const },
+  ];
 
   useEffect(() => {
     if (!visible) return;
@@ -93,7 +93,7 @@ export function SubscriptionSheet({
           return (
             <ClayPressable
               key={marka.id}
-              accessibilityLabel={`${marka.ad}${secili ? ', seçili' : ''}`}
+              accessibilityLabel={`${marka.ad}${secili ? `, ${t['ui.subscriptions.selected']}` : ''}`}
               selected={secili}
               onPress={() => markaSec(marka)}
               borderRadius={radius.tile}
@@ -119,7 +119,7 @@ export function SubscriptionSheet({
         <View style={stil.footer}>
           <Button
             variant="primary"
-            label={abonelik ? 'Değişiklikleri kaydet' : 'Aboneliği kaydet'}
+            label={abonelik ? t['ui.subscriptions.save_changes'] : t['ui.subscriptions.save']}
             loading={busy}
             disabled={!gecerli}
             onPress={() => void onSave({ id, ad: ad.trim(), saglayici, tutar_kurus: tutarGirisindenKurus(tutar), yenilenme_gunu: yenilenmeGunu, odeme, aktif })}
@@ -130,7 +130,7 @@ export function SubscriptionSheet({
               <Button
                 variant="danger"
                 icon="trash"
-                label="Aboneliği sil"
+                label={t['ui.subscription.delete']}
                 disabled={busy}
                 onPress={onDeleteRequest}
               />
@@ -138,11 +138,11 @@ export function SubscriptionSheet({
           ) : null}
         </View>
       }>
-      <Txt role="h2">{abonelik ? 'Aboneliği düzenle' : 'Abonelik ekle'}</Txt>
+      <Txt role="h2">{abonelik ? t['ui.subscriptions.edit'] : t['ui.subscriptions.add']}</Txt>
       <View style={{ height: rhythm.blockInCard }} />
-      <Txt role="bodyStrong">Aboneliğini bul</Txt>
+      <Txt role="bodyStrong">{t['ui.subscription.find']}</Txt>
       <View style={{ height: rhythm.sameObject }} />
-      <Txt role="caption">Dünya genelindeki popüler servislerde ara. Logosu kaydında ve ödeme listende görünür.</Txt>
+      <Txt role="caption">{t['ui.subscription.search_help']}</Txt>
       <View style={{ height: rhythm.blockInCard }} />
       <SearchField
         deger={arama}
@@ -150,24 +150,24 @@ export function SubscriptionSheet({
         secili={null}
         onKaldir={() => setArama('')}
         placeholder="Netflix, Spotify, ChatGPT…"
-        accessibilityLabel="Abonelik ara"
-        temizleEtiketi="Aramayı temizle"
-        kaldirEtiketi="Seçimi kaldır"
+        accessibilityLabel={t['ui.subscription.search']}
+        temizleEtiketi={t['a11y.ekle.aramaTemizle']}
+        kaldirEtiketi={t['ui.subscription.remove_selection']}
       />
       <View style={{ height: rhythm.blockInCard }} />
       {arama.trim() ? (
         <>
           <View style={stil.bolumBasligi}>
-            <Txt role="bodyStrong">Arama sonuçları</Txt>
-            <Txt role="caption" tone={color.text2}>{aramaSonuclari.length} servis</Txt>
+            <Txt role="bodyStrong">{t['ui.subscription.results']}</Txt>
+            <Txt role="caption" tone={color.text2}>{abonelikServisSayisi(aramaSonuclari.length)}</Txt>
           </View>
           <View style={{ height: rhythm.group }} />
           {aramaSonuclari.length > 0 ? markaKartlari(aramaSonuclari) : (
-            <Txt role="caption" tone={color.text2}>Bu adla eşleşen hazır bir servis bulamadık.</Txt>
+            <Txt role="caption" tone={color.text2}>{t['ui.subscription.not_found']}</Txt>
           )}
           <View style={{ height: rhythm.group }} />
           <ClayPressable
-            accessibilityLabel={`${arama.trim()} adıyla abonelik ekle`}
+            accessibilityLabel={abonelikAdiylaEkle(arama.trim())}
             onPress={ozelAbonelikSec}
             borderRadius={radius.tile}
             shadow="none"
@@ -176,22 +176,22 @@ export function SubscriptionSheet({
             style={stil.ozelSecim}>
             <SubscriptionBrandLogo marka={DIGER_MARKA} size={40} />
             <View style={stil.ozelMetin}>
-              <Txt role="bodyStrong" numberOfLines={1}>“{arama.trim()}” adıyla ekle</Txt>
-              <Txt role="caption" tone={color.text2}>Katalogda yoksa kendi aboneliğini oluştur</Txt>
+              <Txt role="bodyStrong" numberOfLines={1}>{abonelikAdiylaEkle(arama.trim())}</Txt>
+              <Txt role="caption" tone={color.text2}>{t['ui.subscription.custom_hint']}</Txt>
             </View>
           </ClayPressable>
         </>
       ) : (
         <>
           <View style={stil.bolumBasligi}>
-            <Txt role="bodyStrong">Dünya genelinde popüler</Txt>
-            <Txt role="caption" tone={color.text2}>Hızlı seçim</Txt>
+            <Txt role="bodyStrong">{t['ui.subscription.popular']}</Txt>
+            <Txt role="caption" tone={color.text2}>{t['ui.subscription.quick_pick']}</Txt>
           </View>
           <View style={{ height: rhythm.group }} />
           {markaKartlari(populerMarkalar)}
           <View style={{ height: rhythm.group }} />
           <ClayPressable
-            accessibilityLabel="Listede olmayan başka bir abonelik ekle"
+            accessibilityLabel={t['ui.subscription.other_accessibility']}
             onPress={() => markaSec(DIGER_MARKA)}
             borderRadius={radius.tile}
             shadow="none"
@@ -200,35 +200,35 @@ export function SubscriptionSheet({
             style={[stil.digerSecim, saglayici === 'diger' ? stil.markaKartSecili : null]}>
             <SubscriptionBrandLogo marka={DIGER_MARKA} size={40} />
             <View style={stil.ozelMetin}>
-              <Txt role="bodyStrong">Diğer</Txt>
-              <Txt role="caption" tone={color.text2}>Listede olmayan bir abonelik ekle</Txt>
+              <Txt role="bodyStrong">{t['ui.subscription.other']}</Txt>
+              <Txt role="caption" tone={color.text2}>{t['ui.subscription.other_hint']}</Txt>
             </View>
           </ClayPressable>
         </>
       )}
       <View style={{ height: rhythm.blockInCard }} />
-      <TextField label="Abonelik adı" value={ad} onChangeText={setAd} />
+      <TextField label={t['ui.subscription.name']} value={ad} onChangeText={setAd} />
       <View style={{ height: rhythm.blockInCard }} />
-      <MoneyInput label="Aylık ücret · ₺" value={tutar} onChangeText={setTutar} />
+      <MoneyInput label={t['ui.subscription.monthly_price']} value={tutar} onChangeText={setTutar} />
       <View style={{ height: rhythm.blockInCard }} />
-      <TextField label="Her ay yenilenme günü · 1–31" value={gun} onChangeText={(deger) => setGun(deger.replace(/\D/g, '').slice(0, 2))} keyboardType="number-pad" />
+      <TextField label={t['ui.subscription.renewal_day']} value={gun} onChangeText={(deger) => setGun(deger.replace(/\D/g, '').slice(0, 2))} keyboardType="number-pad" />
       <View style={{ height: rhythm.blockInCard }} />
-      <SegmentedControl secenekler={ODEME} deger={odeme} onChange={setOdeme} />
+      <SegmentedControl secenekler={odemeSecenekleri} deger={odeme} onChange={setOdeme} />
       {abonelik ? (
         <>
           <View style={{ height: rhythm.blockInCard }} />
           <SettingRow
             icon="repeat"
             iconTone="primary"
-            baslik="Takibi açık tut"
-            aciklama={aktif ? 'Yenilenme listesinde gösterilir' : 'Duraklatıldı; toplamdan çıkarılır'}
+            baslik={t['ui.subscription.keep_tracking']}
+            aciklama={aktif ? t['ui.subscriptions.show_in_renewal_list'] : t['ui.subscriptions.paused_total']}
             anahtarDegeri={aktif}
             onAnahtarDegistir={() => setAktif((deger) => !deger)}
           />
         </>
       ) : null}
       <View style={{ height: rhythm.blockInCard }} />
-      <InfoStrip variant="info" icon="info" metin="Banka hesabınla otomatik eşleşmez. Ödeme gerçekleşince bu ay ödendi olarak işaretleyebilirsin." />
+      <InfoStrip variant="info" icon="info" metin={t['ui.subscription.payment_notice']} />
       <View style={{ height: rhythm.pad }} />
     </BottomSheet>
   );

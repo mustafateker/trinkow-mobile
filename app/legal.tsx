@@ -5,6 +5,7 @@ import { Button } from '@/components/Button';
 import { InfoStrip } from '@/components/InfoStrip';
 import { SettingsPage } from '@/components/SettingsPage';
 import { Txt } from '@/components/Txt';
+import { useYerellestirme } from '@/lib/useYerellestirme';
 import { rhythm } from '@/theme/tokens';
 
 type Bolum = {
@@ -22,6 +23,7 @@ type Belge = {
 const VERI_SORUMLUSU = 'Triworkster';
 const ILETISIM = 'trinkow@gmail.com';
 const YURURLUK_TARIHI = '17 Ekim 2026';
+const YURURLUK_TARIHI_EN = 'October 17, 2026';
 
 const gizlilikBolumleri: Bolum[] = [
   {
@@ -175,12 +177,166 @@ const belgeler: Record<string, Belge> = {
   },
 };
 
+const gizlilikBolumleriEn: Bolum[] = [
+  {
+    baslik: '1. Data controller and scope',
+    paragraflar: [
+      `This Privacy Policy explains how personal data is processed in the Trinkow mobile app provided by ${VERI_SORUMLUSU}, the data controller. For privacy and personal data requests, contact ${ILETISIM}.`,
+      'Trinkow is a personal financial planning tool that uses information you enter to track budgets, expenses, debt, savings, subscriptions, and routines. It does not connect to bank accounts, process payments, or provide investment services.',
+    ],
+  },
+  {
+    baslik: '2. Data we process',
+    paragraflar: [
+      'Account and authentication data: email address, hashed password, Google account identifier (sub) and verified email when you sign in with Google, and session records.',
+      'Financial and planning data you enter: income and payday, budget, fixed expenses, debt, savings goals and activity, expense amount, category, item name, note, date/time, payment type, installments, subscriptions, routines, favorites, category limits, and no-spend-day records.',
+      'Preference and habit data: app preferences, onboarding answers, notification preference and time, and optional routines you enter, such as coffee, smoking, alcohol, or eating out.',
+      'Security and technical data: session tokens, password reset and abuse-prevention records, and server access logs that may include IP address, request time, and basic device/network information.',
+      'Trinkow does not collect bank or credit card numbers, bank login credentials, precise location, contacts, camera, microphone, photos, or advertising identifiers.',
+    ],
+  },
+  {
+    baslik: '3. Collection and storage',
+    paragraflar: [
+      'Data is collected electronically from information you enter in the app, account actions, and identity information Google provides when you choose Google sign-in.',
+      'Financial and profile data is stored in the MongoDB database used by Trinkow backend services; the app does not use a local SQLite database for this data. If you select “Remember me,” session tokens and your account email are stored in the secure device storage backed by iOS Keychain or Android Keystore. Otherwise, session information remains in app memory.',
+    ],
+  },
+  {
+    baslik: '4. Purposes and legal bases',
+    paragraflar: [
+      'Data is processed to create accounts and sign users in, provide budget and savings calculations, make records available across your devices, provide support, reset passwords, maintain security and service continuity, and meet legal obligations.',
+      'Under the Turkish Personal Data Protection Law (KVKK), processing is based on establishing or performing a service contract, fulfilling legal obligations, and legitimate interests provided that your fundamental rights are not harmed. If a feature requires explicit consent, it will be requested separately and may be withdrawn.',
+    ],
+  },
+  {
+    baslik: '5. Sharing and service providers',
+    paragraflar: [
+      'Personal data is not sold or shared for ad targeting or third-party marketing.',
+      'As needed to operate the service, data may be shared with server/hosting providers, MongoDB Atlas, an email delivery provider for password reset messages, and Google if you choose Google sign-in. Data may also be shared with competent public authorities when legally required.',
+    ],
+  },
+  {
+    baslik: '6. International transfers',
+    paragraflar: [
+      'Servers used by cloud, email, and Google authentication providers may be located outside Türkiye. Data may therefore be transferred to service providers abroad to the limited extent necessary to provide the service. The aim is to apply appropriate safeguards required by applicable law.',
+    ],
+  },
+  {
+    baslik: '7. Retention',
+    paragraflar: [
+      'Account, profile, and financial records are retained while your account is active or until you delete them. Refresh-session records expire by default after 30 days, password reset links after 30 minutes, and limited rate records created to prevent abuse after approximately one hour.',
+      'When an account is deleted, the account, profile, financial records, and active sessions are deleted from the active database. Records subject to a legal retention obligation may be kept for the required period; copies remaining in routine backups may be retained with access restricted until the backup cycle is complete.',
+    ],
+  },
+  {
+    baslik: '8. Security',
+    paragraflar: [
+      'Technical and organizational measures such as HTTPS, password hashing, time-limited access tokens, rotating refresh tokens, secure device storage, and access restrictions are used to protect data. However, no internet transmission or storage method can guarantee absolute security.',
+    ],
+  },
+  {
+    baslik: '9. Preferences, export, and deletion',
+    paragraflar: [
+      'In Settings, you can export a copy of your data, delete all financial data while keeping your account, or choose “Delete my account” to delete your account and its associated data. If you cannot access the app, you can send a request from your registered account email to trinkow@gmail.com.',
+      'You can turn off notifications in the app or your device settings. You can manage Google account permissions in your Google account settings.',
+    ],
+  },
+  {
+    baslik: '10. Your rights under the KVKK',
+    paragraflar: [
+      `Under Article 11 of the KVKK, you may ask whether your personal data is processed; request information if it is; learn the purpose of processing and whether data is used accordingly; learn the third parties to whom it is transferred in Türkiye or abroad; request correction of incomplete or inaccurate data; request deletion or destruction where legal conditions are met; request that corrections and deletions be notified to recipients; object to a result against you arising solely from automated analysis; and claim compensation for damage caused by unlawful processing. You can submit a request to ${ILETISIM}.`,
+    ],
+  },
+  {
+    baslik: '11. Children’s privacy',
+    paragraflar: [
+      'Trinkow is not designed for children. Where legally required because of a person’s age, the supervision and approval of a parent or guardian are required.',
+    ],
+  },
+  {
+    baslik: '12. Changes',
+    paragraflar: [
+      'This policy may be updated to reflect changes to the service or applicable law. Significant changes will be announced in the app or through another appropriate channel; the effective date will be updated on this page.',
+    ],
+  },
+];
+
+const belgelerEn: Record<string, Belge> = {
+  kosullar: {
+    baslik: 'Terms of Use',
+    bilgi: 'Draft • Requires commercial and legal review before release.',
+    taslak: true,
+    bolumler: [
+      {
+        baslik: 'Scope of the service',
+        paragraflar: [
+          'Trinkow organizes the income, expense, and habit information you enter and presents calculated budget and savings summaries. Displayed amounts do not represent a bank account balance or an investment made.',
+          'Keep your account credentials secure. You can review and correct information you enter in the Daily, Budget, Routines, and Subscriptions screens. Signing out does not delete your account.',
+          'Liability provisions and other commercial terms will be completed before release. This document is not yet a final service agreement.',
+        ],
+      },
+    ],
+  },
+  gizlilik: {
+    baslik: 'Privacy Policy',
+    bilgi: `Effective date: ${YURURLUK_TARIHI_EN} • Version 1.0`,
+    bolumler: gizlilikBolumleriEn,
+  },
+  aydinlatma: {
+    baslik: 'KVKK Privacy Notice',
+    bilgi: `Effective date: ${YURURLUK_TARIHI_EN} • Data controller: ${VERI_SORUMLUSU}`,
+    bolumler: [
+      {
+        baslik: 'Data controller',
+        paragraflar: [
+          `Personal data in connection with Trinkow is processed by ${VERI_SORUMLUSU} as the data controller. Contact and request address: ${ILETISIM}.`,
+        ],
+      },
+      {
+        baslik: 'Data and purposes',
+        paragraflar: [
+          'Account and authentication information; profile, budget, expense, debt, savings, subscription, routine, and preference records; and security and basic server access logs are processed. The purposes are to provide your account and requested financial planning features, maintain security, provide support, and meet legal obligations.',
+        ],
+      },
+      {
+        baslik: 'Collection, legal basis, and transfers',
+        paragraflar: [
+          'Data is collected automatically or partly automatically through your app entries, account actions, and choice to sign in with Google. Processing is based on establishing or performing a contract, legal obligations, legitimate interests, and, where required, explicit consent.',
+          'To the extent necessary to operate the service, data may be transferred to hosting, MongoDB Atlas, email delivery, and Google authentication providers; it may also be transferred to competent public authorities where legally required. The infrastructure of these providers may involve transfers abroad.',
+        ],
+      },
+      {
+        baslik: 'Your rights and how to apply',
+        paragraflar: [
+          `To exercise your rights under Article 11 of the KVKK, including access, correction, deletion/destruction, notification to recipients, objection to automated decisions, and compensation, contact ${ILETISIM}. You may be asked to write from your registered email address to verify your identity and locate your account. See the Privacy Policy for details.`,
+        ],
+      },
+    ],
+  },
+  lisanslar: {
+    baslik: 'Open-source licenses',
+    bilgi: 'Third-party notices',
+    bolumler: [
+      {
+        baslik: 'Trademarks and icons',
+        paragraflar: [
+          'Some brand icons that help identify subscription providers are from the Font Awesome Free package. Font Awesome is provided by Fonticons, Inc. under the CC BY 4.0 license: https://fontawesome.com',
+          'Company and product names and logos shown are trademarks of their respective owners. Their display does not imply sponsorship or affiliation with Trinkow.',
+        ],
+      },
+    ],
+  },
+};
+
 export default function Legal() {
+  const { dil } = useYerellestirme();
   const { belge } = useLocalSearchParams<{ belge?: string }>();
-  const secili = belge ? belgeler[belge] : null;
+  const belgelerAktif = dil === 'en' ? belgelerEn : belgeler;
+  const secili = belge ? belgelerAktif[belge] : null;
 
   return (
-    <SettingsPage baslik={secili?.baslik ?? 'Yasal belgeler'}>
+    <SettingsPage baslik={secili?.baslik ?? (dil === 'en' ? 'Legal documents' : 'Yasal belgeler')}>
       {secili ? (
         <>
           <InfoStrip
@@ -198,7 +354,7 @@ export default function Legal() {
           ))}
         </>
       ) : (
-        Object.entries(belgeler).map(([anahtar, belgeDetayi]) => (
+        Object.entries(belgelerAktif).map(([anahtar, belgeDetayi]) => (
           <Button
             key={anahtar}
             label={belgeDetayi.baslik}

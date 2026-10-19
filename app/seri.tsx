@@ -11,7 +11,7 @@ import { MilestoneRail } from '@/components/streak/MilestoneRail';
 import { Legend } from '@/components/streak/Legend';
 import { StreakDayGrid } from '@/components/streak/StreakDayGrid';
 import { Txt } from '@/components/Txt';
-import { seriAktifGovde, seriDurakKalan, seriDurakSonraki, SERI_PENCERE_BASLIK, t } from '@/content/metinler';
+import { seriAktifGovde, seriDurakKalan, seriDurakSonraki, seriPencereBaslik, t } from '@/content/metinler';
 import { useSeriEkrani } from '@/db/useSeriEkrani';
 import { clay, color, layout, radius, rhythm } from '@/theme/tokens';
 
@@ -92,7 +92,7 @@ export default function SeriEkrani() {
 
             <View style={{ height: rhythm.section }} />
             <View style={[stil.pad, stil.baslikSatiri]}>
-              <Txt role="h2">{SERI_PENCERE_BASLIK}</Txt>
+              <Txt role="h2">{seriPencereBaslik()}</Txt>
               <Txt role="label" tone={color.text2}>
                 {veri.pencereEtiketi}
               </Txt>

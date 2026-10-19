@@ -8,9 +8,10 @@ import { InfoStrip } from '@/components/InfoStrip';
 import { LoadState, RevScreen, money, useRevLoad } from '@/components/RevScreen';
 import { GrupBasligi, SettingRow } from '@/components/SettingRow';
 import { Txt } from '@/components/Txt';
-import { a11yProfilSatir } from '@/content/metinler';
+import { a11yProfilSatir, ozetRutinTasarrufu, t } from '@/content/metinler';
 import { kategori as kategoriGetir } from '@/lib/kategoriler';
 import { bugun, savingsGet } from '@/lib/revApi';
+import { ayYilEtiketi } from '@/lib/tarih';
 import { rhythm } from '@/theme/tokens';
 
 export default function Ozet() {
@@ -18,34 +19,34 @@ export default function Ozet() {
   const d = load.data;
 
   return (
-    <RevScreen title="Özet">
+    <RevScreen title={t['ui.summary.title']}>
       <LoadState {...load} />
       {d && !load.loading && !load.error ? (
         <>
-          <Txt role="caption">{d.ay} · Bu ayın analizi</Txt>
+          <Txt role="caption">{ayYilEtiketi(d.ay ?? bugun().slice(0, 7))} {t['ui.summary.month_analysis']}</Txt>
 
           <View>
-            <GrupBasligi metin="Gelir ve harcama" />
-            <SettingRow baslik="Harcanabilir" deger={<Txt role="amount">{money(d.harcanabilir_kurus)}</Txt>} />
+            <GrupBasligi metin={t['ui.summary.income_and_spending']} />
+            <SettingRow baslik={t['ui.summary.spendable']} deger={<Txt role="amount">{money(d.harcanabilir_kurus)}</Txt>} />
             <View style={{ height: rhythm.group }} />
-            <SettingRow baslik="Harcadığın" deger={<Txt role="amount">{money(d.harcanan_kurus)}</Txt>} />
+            <SettingRow baslik={t['ui.summary.spent']} deger={<Txt role="amount">{money(d.harcanan_kurus)}</Txt>} />
             <View style={{ height: rhythm.group }} />
-            <SettingRow baslik="Kalan" deger={<Txt role="amount">{money(d.kalan_kurus)}</Txt>} />
+            <SettingRow baslik={t['ui.summary.remaining']} deger={<Txt role="amount">{money(d.kalan_kurus)}</Txt>} />
           </View>
 
           <View>
-            <GrupBasligi metin="Tasarrufların" />
-            <SettingRow baslik="Tamamlanan günlerden" deger={<Txt role="amount">{money(d.hesaplanan_tasarruf_kurus)}</Txt>} />
+            <GrupBasligi metin={t['ui.summary.savings_title']} />
+            <SettingRow baslik={t['ui.summary.completed_days']} deger={<Txt role="amount">{money(d.hesaplanan_tasarruf_kurus)}</Txt>} />
             <View style={{ height: rhythm.group }} />
-            <SettingRow baslik="Rutinlerinden vazgeçişler" deger={<Txt role="amount">{money(d.rutin_tasarruf_kurus)}</Txt>} />
+            <SettingRow baslik={t['ui.summary.routine_skips']} deger={<Txt role="amount">{money(d.rutin_tasarruf_kurus)}</Txt>} />
             <View style={{ height: rhythm.group }} />
-            <SettingRow baslik="Gerçek birikim bakiyen" deger={<Txt role="amount">{money(d.gercek_birikim_kurus)}</Txt>} />
+            <SettingRow baslik={t['ui.summary.savings_balance']} deger={<Txt role="amount">{money(d.gercek_birikim_kurus)}</Txt>} />
             <View style={{ height: rhythm.blockInCard }} />
-            <Txt role="caption">Bu üç değer ayrı ölçümlerdir; birbirine eklenmez. Eksik gelir bilgisi olan dönemler bilinmiyor olarak gösterilir.</Txt>
+            <Txt role="caption">{t['ui.summary.metrics_notice']}</Txt>
           </View>
 
           <View>
-            <GrupBasligi metin="Kategori analizi" />
+            <GrupBasligi metin={t['ui.summary.category_analysis']} />
             {d.kategoriler.length ? (
               d.kategoriler.map((k, i) => {
                 const kat = kategoriGetir(k.kategori);
@@ -55,7 +56,7 @@ export default function Ozet() {
                     <SettingRow
                       leading={<CategoryIconBox kategori={kat} />}
                       baslik={kat.ad}
-                      aciklama={`Rutin tasarrufu ${money(k.rutin_tasarruf_kurus)}`}
+                      aciklama={ozetRutinTasarrufu(money(k.rutin_tasarruf_kurus))}
                       deger={<Txt role="amount">{money(k.harcanan_kurus)}</Txt>}
                       accessibilityLabel={a11yProfilSatir(kat.ad, money(k.harcanan_kurus))}
                     />
@@ -63,18 +64,18 @@ export default function Ozet() {
                 );
               })
             ) : (
-              <Txt role="body">İlk harcamanı eklediğinde kategorilerin burada görünür.</Txt>
+              <Txt role="body">{t['ui.summary.empty_categories']}</Txt>
             )}
           </View>
 
           <InfoStrip variant="info" metin={d.motivasyon.mesaj} />
 
           <View>
-            <Button variant="primary" label="Aylık tasarruflarını incele" onPress={() => router.push('/tasarruflar')} />
+            <Button variant="primary" label={t['ui.summary.savings']} onPress={() => router.push('/tasarruflar')} />
             <View style={{ height: rhythm.group }} />
-            <Button variant="secondary" label="Bütçemi düzenle" onPress={() => router.push('/butce')} />
+            <Button variant="secondary" label={t['ui.summary.edit_budget']} onPress={() => router.push('/butce')} />
             <View style={{ height: rhythm.group }} />
-            <Button variant="secondary" label="Sık kullanılanlar" onPress={() => router.push('/favoriler')} />
+            <Button variant="secondary" label={t['ui.summary.favorites']} onPress={() => router.push('/favoriler')} />
           </View>
         </>
       ) : null}

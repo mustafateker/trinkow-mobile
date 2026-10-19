@@ -1,4 +1,5 @@
 import { Tabs } from 'expo-router';
+import { t } from '@/content/metinler';
 
 /**
  * Dört ana ekranın kalıcı navigator'ı. Ekranlar ilk ziyaretlerinden sonra
@@ -17,10 +18,10 @@ export default function AnaSekmelerLayout() {
         freezeOnBlur: false,
         lazy: true,
       }}>
-      <Tabs.Screen name="index" options={{ title: 'Bugün' }} />
-      <Tabs.Screen name="tasarruflar" options={{ title: 'Tasarruf' }} />
-      <Tabs.Screen name="analizler" options={{ title: 'Analizler' }} />
-      <Tabs.Screen name="profil" options={{ title: 'Profil' }} />
+      <Tabs.Screen name="index" options={{ title: t['ui.common.today'] }} />
+      <Tabs.Screen name="tasarruflar" options={{ title: t['tasarruf.baslik'] }} />
+      <Tabs.Screen name="analizler" options={{ title: t['ui.analysis.title'] }} />
+      <Tabs.Screen name="profil" options={{ title: t['ui.tabs.profile'] }} />
     </Tabs>
   );
 }

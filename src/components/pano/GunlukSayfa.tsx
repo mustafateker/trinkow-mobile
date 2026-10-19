@@ -318,7 +318,7 @@ export function GunlukSayfa({
             <View style={[stil.pad, stil.sikBaslik]}>
               <Txt role="h2">{t['gunluk.sik_kullanilanlar']}</Txt>
               <View style={stil.sikKaydirIpucu}>
-                <Txt role="label" tone={color.primaryText}>Yana kaydır</Txt>
+                <Txt role="label" tone={color.primaryText}>{t['ui.common.swipe']}</Txt>
                 <Icon name="chevron-right" size={20} color={color.primaryText} />
               </View>
             </View>

@@ -18,7 +18,7 @@ import { HEDEF_ETIKET_ALAN, OZET_ACIKLAMA } from '@/content/hedefEtiketleri';
 import { onboardingKaydet, type Niyet } from '@/db/profil';
 import { useReduceMotion } from '@/lib/hareket';
 import type { KategoriKodu } from '@/lib/kategoriler';
-import { paraYaz, sayiyaCevir, tutarGirisindenKurus, SIMGE } from '@/lib/para';
+import { paraSimgesi, paraYaz, sayiyaCevir, tutarGirisindenKurus } from '@/lib/para';
 import { budgetPut, emptyBudget, routinePut, routinesGet, yeniId, type Routine } from '@/lib/revApi';
 import { veriDegisti } from '@/lib/veriBus';
 import { clay, color, motion, radius, rhythm, TABULAR } from '@/theme/tokens';
@@ -325,13 +325,13 @@ export default function Onboarding() {
               <SectionHeader sag={paraYaz(giderToplamKurus)}>{t['ob.butce.gider_bolum']}</SectionHeader>
               <View style={{ height: rhythm.group }} />
               <Kart>
-                <MoneyRow label={t['alan.kira']} birim="₺" value={giderler.kira} onChangeText={(v) => setGiderler((g) => ({ ...g, kira: v }))} />
+                <MoneyRow label={t['alan.kira']} birim="para" value={giderler.kira} onChangeText={(v) => setGiderler((g) => ({ ...g, kira: v }))} />
                 <View style={{ height: rhythm.group }} />
-                <MoneyRow label={t['alan.fatura']} birim="₺" value={giderler.fatura} onChangeText={(v) => setGiderler((g) => ({ ...g, fatura: v }))} />
+                <MoneyRow label={t['alan.fatura']} birim="para" value={giderler.fatura} onChangeText={(v) => setGiderler((g) => ({ ...g, fatura: v }))} />
                 <View style={{ height: rhythm.group }} />
-                <MoneyRow label={t['alan.ulasim']} birim="₺" value={giderler.ulasim} onChangeText={(v) => setGiderler((g) => ({ ...g, ulasim: v }))} />
+                <MoneyRow label={t['alan.ulasim']} birim="para" value={giderler.ulasim} onChangeText={(v) => setGiderler((g) => ({ ...g, ulasim: v }))} />
                 <View style={{ height: rhythm.group }} />
-                <MoneyRow label={t['alan.kredi']} birim="₺" value={giderler.kredi} onChangeText={(v) => setGiderler((g) => ({ ...g, kredi: v }))} />
+                <MoneyRow label={t['alan.kredi']} birim="para" value={giderler.kredi} onChangeText={(v) => setGiderler((g) => ({ ...g, kredi: v }))} />
               </Kart>
               <View style={{ height: rhythm.section }} />
               <SectionHeader>{t['ob.butce.hedef_bolum']}</SectionHeader>
@@ -428,7 +428,7 @@ export default function Onboarding() {
                   <View style={stil.heroSatir}>
                     <Txt role={limitUzun ? 'display' : 'hero'}>{limitGosterim}</Txt>
                     <View style={{ width: rhythm.group }} />
-                    <Txt role={limitUzun ? 'amount' : 'display'}>{SIMGE}</Txt>
+                    <Txt role={limitUzun ? 'amount' : 'display'}>{paraSimgesi()}</Txt>
                   </View>
                 )}
               </View>

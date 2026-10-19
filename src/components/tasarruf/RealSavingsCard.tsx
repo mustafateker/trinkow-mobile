@@ -46,7 +46,7 @@ export function RealSavingsCard({
         {paraYaz(gercekBirikimKurus)}
       </Txt>
       <View style={stil.aralik}>
-        <Txt role="caption" tone={color.text2}>Bu dönem net hareket</Txt>
+        <Txt role="caption" tone={color.text2}>{t['ui.savings.net_activity']}</Txt>
         <Txt role="amount" tone={donemBirikimKurus < 0 ? color.warningInk : color.text}>
           {donemBirikimKurus > 0 ? '+' : ''}{paraYaz(donemBirikimKurus)}
         </Txt>

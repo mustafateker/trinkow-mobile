@@ -12,7 +12,7 @@ import { TextField } from '@/components/TextField';
 import { Txt } from '@/components/Txt';
 import { t } from '@/content/metinler';
 import { bugun, type Movement } from '@/lib/revApi';
-import { kurustanTutarGirisi, SIMGE, tutarGirisindenKurus } from '@/lib/para';
+import { kurustanTutarGirisi, paraSimgesi, tutarGirisindenKurus } from '@/lib/para';
 import { clay, color, radius, rhythm } from '@/theme/tokens';
 
 export type BirikimGirdisi = { id: string; gun: string; tutar_kurus: number; not_metni: string };
@@ -152,7 +152,7 @@ export function SavingsSheet({
           style={stil.tutarGirdi}
         />
         <Txt role="amount" tone={color.text2}>
-          {SIMGE}
+          {paraSimgesi()}
         </Txt>
       </View>
       {tutarHatasi ? (

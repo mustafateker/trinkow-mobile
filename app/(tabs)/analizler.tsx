@@ -21,6 +21,7 @@ import { paraYaz } from '@/lib/para';
 import { budgetGet } from '@/lib/revApi';
 import { gunAnahtari } from '@/lib/tarih';
 import { color, layout, radius, rhythm } from '@/theme/tokens';
+import { analizGiderPay, analizGelirPay, analizHalkaA11y, t } from '@/content/metinler';
 
 type KategoriOzeti = { kod: string; tutar: number; renk: string; pay: number; gelirYuku: number };
 type AnalizVerisi = {
@@ -31,11 +32,12 @@ type AnalizVerisi = {
   noktalar: GrafikNoktasi[];
 };
 
-const DONEMLER: { key: AnalizDonemi; label: string }[] = [
-  { key: 'hafta', label: 'Hafta' },
-  { key: 'ay', label: 'Ay' },
-  { key: 'yil', label: 'Yıl' },
-];
+const DONEMLER: AnalizDonemi[] = ['hafta', 'ay', 'yil'];
+const DONEM_METNI: Record<AnalizDonemi, keyof typeof t> = {
+  hafta: 'ui.analysis.period_week',
+  ay: 'ui.analysis.period_month',
+  yil: 'ui.analysis.period_year',
+};
 
 export default function AnalizlerEkrani() {
   const db = useVeriBaglami();
@@ -68,25 +70,25 @@ export default function AnalizlerEkrani() {
 
   const header = <View style={stil.header}>
     <View style={stil.esnek}>
-      <Txt role="caption" tone={color.navMuted}>Gider görünümü</Txt>
-      <Txt role="h2" tone="#FFFFFF">Analizler</Txt>
+      <Txt role="caption" tone={color.navMuted}>{t['ui.analysis.expense_view']}</Txt>
+      <Txt role="h2" tone="#FFFFFF">{t['ui.analysis.title']}</Txt>
     </View>
     <View style={stil.donemSecici} accessibilityRole="tablist">
       {DONEMLER.map((secenek) => (
         <Pressable
-          key={secenek.key}
-          onPress={() => setDonem(secenek.key)}
+          key={secenek}
+          onPress={() => setDonem(secenek)}
           accessibilityRole="tab"
-          accessibilityState={{ selected: donem === secenek.key }}
-          style={[stil.donem, donem === secenek.key && stil.donemAktif]}>
-          <Txt role="micro" tone={donem === secenek.key ? color.text : color.navMuted}>{secenek.label}</Txt>
+          accessibilityState={{ selected: donem === secenek }}
+          style={[stil.donem, donem === secenek && stil.donemAktif]}>
+          <Txt role="micro" tone={donem === secenek ? color.text : color.navMuted}>{t[DONEM_METNI[secenek]]}</Txt>
         </Pressable>
       ))}
     </View>
   </View>;
 
-  return <RevScreen title="Analizler" tab="analizler" header={header} contentGap={0}>
-    {veri.loading && !veri.data ? <AnalizIskeleti /> : veri.error ? <ErrorState baslik="Analizler yüklenemedi" govde={veri.error} onRetry={veri.reload} /> : veri.data ? <AnalizIcerigi veri={veri.data} /> : null}
+  return <RevScreen title={t['ui.analysis.title']} tab="analizler" header={header} contentGap={0}>
+    {veri.loading && !veri.data ? <AnalizIskeleti /> : veri.error ? <ErrorState baslik={t['ui.analysis.load_error']} govde={veri.error} onRetry={veri.reload} /> : veri.data ? <AnalizIcerigi veri={veri.data} /> : null}
   </RevScreen>;
 }
 
@@ -94,14 +96,14 @@ function AnalizIcerigi({ veri }: { veri: AnalizVerisi }) {
   return <>
     <View style={stil.ustSatir}>
       <View>
-        <Txt role="caption">Seçili dönem</Txt>
+        <Txt role="caption">{t['ui.analysis.selected_period']}</Txt>
         <Txt role="bodyStrong">{veri.baslik}</Txt>
       </View>
     </View>
     <View style={{ height: rhythm.section }} />
     <GiderGrafigi noktalar={veri.noktalar} gider={veri.gider} donem={veri.donem} />
     <View style={{ height: rhythm.section }} />
-    <View style={stil.bolumBasligi}><View><Txt role="h2">Kategori dağılımı</Txt><Txt role="caption">Gider içindeki yüzdesel pay</Txt></View></View>
+    <View style={stil.bolumBasligi}><View><Txt role="h2">{t['ui.analysis.category_distribution']}</Txt><Txt role="caption">{t['ui.analysis.expense_share']}</Txt></View></View>
     <View style={{ height: rhythm.pad }} />
     <View style={stil.halkaBolumu}>
       <Halka kategoriler={veri.kategoriler} toplam={veri.gider} />
@@ -116,10 +118,10 @@ function AnalizIcerigi({ veri }: { veri: AnalizVerisi }) {
       </View>
     </View>
     <View style={{ height: rhythm.section }} />
-    <View style={stil.bolumBasligi}><View><Txt role="h2">Kategori yükü</Txt><Txt role="caption">Gelirinin ne kadarını kullandı?</Txt></View></View>
+    <View style={stil.bolumBasligi}><View><Txt role="h2">{t['ui.analysis.category_load']}</Txt><Txt role="caption">{t['ui.analysis.income_share']}</Txt></View></View>
     <View style={{ height: rhythm.group }} />
     {veri.kategoriler.length === 0 ? (
-      <View style={stil.bos}><Txt role="bodyStrong">Bu dönemde harcama yok.</Txt><Txt role="caption">Harcama eklediğinde kategori oranları burada görünür.</Txt></View>
+      <View style={stil.bos}><Txt role="bodyStrong">{t['ui.analysis.no_expenses']}</Txt><Txt role="caption">{t['ui.analysis.no_expenses_detail']}</Txt></View>
     ) : veri.kategoriler.map((kategoriOzeti, index) => (
       <Fragment key={kategoriOzeti.kod}>
         {index > 0 ? <View style={stil.ayrac} /> : null}
@@ -133,9 +135,10 @@ function GiderGrafigi({ noktalar, gider, donem }: { noktalar: GrafikNoktasi[]; g
   const gecerliNoktalar = noktalar.filter((nokta) => !nokta.gelecek);
   const enYuksek = gecerliNoktalar.reduce<GrafikNoktasi | null>((sonuc, nokta) => !sonuc || nokta.gider > sonuc.gider ? nokta : sonuc, null);
   const ortalama = Math.round(gider / Math.max(1, gecerliNoktalar.length));
-  const birim = donem === 'yil' ? 'Aylık' : 'Günlük';
-  const aciklama = donem === 'hafta' ? 'Son 7 günün günlük harcamaları' : donem === 'ay' ? 'Son 30 günün günlük harcamaları' : 'Ocak–Aralık aylık harcama toplamları';
-  const erisilebilirOzet = `${aciklama}. Toplam ${paraYaz(gider)}. ${birim} ortalama ${paraYaz(ortalama)}.`;
+  const birim = donem === 'yil' ? t['ui.analysis.frequency_month'] : t['ui.analysis.frequency_day'];
+  const aciklama = t[donem === 'hafta' ? 'ui.analysis.graph_week' : donem === 'ay' ? 'ui.analysis.graph_month' : 'ui.analysis.graph_year'];
+  const erisilebilirOzet = `${aciklama}. ${t['ui.analysis.total']} ${paraYaz(gider)}. ${birim} ${t['ui.analysis.average']} ${paraYaz(ortalama)}.`;
+  const enYuksekEtiketi = donem === 'yil' ? t['ui.analysis.highest_month'] : t['ui.analysis.highest_day'];
 
   return <View style={stil.grafikKart} accessible accessibilityLabel={erisilebilirOzet}>
     <Txt role="caption">{aciklama}</Txt>
@@ -146,12 +149,12 @@ function GiderGrafigi({ noktalar, gider, donem }: { noktalar: GrafikNoktasi[]; g
     <View style={{ height: rhythm.pad }} />
     <View style={stil.istatistikSatiri}>
       <View style={stil.istatistik}>
-        <Txt role="micro" tone={color.text2}>En yüksek {donem === 'yil' ? 'ay' : 'gün'}</Txt>
-        <Txt role="label" numberOfLines={1}>{enYuksek && enYuksek.gider > 0 ? `${enYuksek.eksenEtiketi} · ${paraYaz(enYuksek.gider)}` : 'Harcama yok'}</Txt>
+        <Txt role="micro" tone={color.text2}>{enYuksekEtiketi}</Txt>
+        <Txt role="label" numberOfLines={1}>{enYuksek && enYuksek.gider > 0 ? `${enYuksek.eksenEtiketi} · ${paraYaz(enYuksek.gider)}` : t['ui.analysis.no_spending']}</Txt>
       </View>
       <View style={stil.istatistikAyrac} />
       <View style={stil.istatistik}>
-        <Txt role="micro" tone={color.text2}>{birim} ortalama</Txt>
+        <Txt role="micro" tone={color.text2}>{birim} {t['ui.analysis.average']}</Txt>
         <Txt role="label" numberOfLines={1}>{paraYaz(ortalama)}</Txt>
       </View>
     </View>
@@ -230,7 +233,7 @@ function Halka({ kategoriler, toplam }: { kategoriler: KategoriOzeti[]; toplam: 
   const yariCap = 51;
   const cevre = 2 * Math.PI * yariCap;
   let offset = 0;
-  return <View style={stil.halkaKap} accessibilityLabel={`Kategori dağılımı, toplam ${paraYaz(toplam)}`}>
+  return <View style={stil.halkaKap} accessibilityLabel={analizHalkaA11y(paraYaz(toplam))}>
     <Svg width={cap} height={cap} viewBox="0 0 132 132" accessibilityElementsHidden>
       <G rotation="-90" origin="66, 66">
         <Circle cx="66" cy="66" r={yariCap} stroke={color.groove} strokeWidth="14" fill="none" />
@@ -242,7 +245,7 @@ function Halka({ kategoriler, toplam }: { kategoriler: KategoriOzeti[]; toplam: 
         })}
       </G>
     </Svg>
-    <View style={stil.halkaMerkez}><Txt role="micro">Toplam</Txt><Txt role="amount">{paraYaz(toplam)}</Txt></View>
+    <View style={stil.halkaMerkez}><Txt role="micro">{t['ui.analysis.total']}</Txt><Txt role="amount">{paraYaz(toplam)}</Txt></View>
   </View>;
 }
 
@@ -252,7 +255,7 @@ function KategoriYuku({ item }: { item: KategoriOzeti }) {
     <CategoryIconBox kategori={kat} />
     <View style={stil.kategoriOrta}>
       <View style={stil.ozetSatiri}><Txt role="bodyStrong" style={stil.esnek}>{kat.ad}</Txt><Txt role="amount">{paraYaz(item.tutar)}</Txt></View>
-      <View style={stil.yukEtiketleri}><Txt role="caption">Giderin %{Math.round(item.pay * 100)}'i</Txt><Txt role="label" tone={color.text2}>Gelire yük %{Math.round(item.gelirYuku * 100)}</Txt></View>
+      <View style={stil.yukEtiketleri}><Txt role="caption">{analizGiderPay(Math.round(item.pay * 100))}</Txt><Txt role="label" tone={color.text2}>{analizGelirPay(Math.round(item.gelirYuku * 100))}</Txt></View>
     </View>
   </View>;
 }

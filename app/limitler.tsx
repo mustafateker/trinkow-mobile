@@ -16,6 +16,7 @@ import { kurustanTutarGirisi, tutarGirisindenKurus } from '@/lib/para';
 import { budgetBody, budgetGet, budgetPut } from '@/lib/revApi';
 import { rhythm } from '@/theme/tokens';
 import { veriDegisti } from '@/lib/veriBus';
+import { kategoriLimitKaldirA11y, t } from '@/content/metinler';
 
 export default function Limitler() {
   const load = useRevLoad(budgetGet);
@@ -51,52 +52,52 @@ export default function Limitler() {
       });
       load.setData(result);
       veriDegisti();
-      setMessage('Limitler bugünden itibaren kaydedildi.');
+      setMessage(t['ui.limits.saved']);
     } catch {
-      setMessage('Kaydedilemedi. Kategori toplamı günlük limiti aşmamalı.');
+      setMessage(t['ui.limits.save_failed']);
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <RevScreen title="Limitler">
+    <RevScreen title={t['ui.settings.limits_title']}>
       <LoadState {...load} />
 
       {load.data && !b ? (
         <EmptyState
           icon="banknote"
-          baslik="Önce bütçeni oluştur"
-          govde="Günlük limit için gelir veya manuel tutar bilgisi gerekli."
-          butonEtiketi="Bütçeme git"
+          baslik={t['ui.limits.budget_required_title']}
+          govde={t['ui.limits.budget_required_body']}
+          butonEtiketi={t['ui.limits.go_to_budget']}
           onButonPress={() => router.replace('/butce')}
         />
       ) : null}
 
       {b ? (
         <>
-          <Txt role="body">Düzenleme bugün ve sonraki günlere uygulanır. Önceki günler değişmez.</Txt>
+          <Txt role="body">{t['ui.limits.changes_notice']}</Txt>
 
           <View>
             <SegmentedControl
               secenekler={[
-                { value: 'otomatik', label: 'Gelire göre otomatik' },
-                { value: 'manuel', label: 'Ben belirleyeceğim' },
+                { value: 'otomatik', label: t['ui.limits.automatic'] },
+                { value: 'manuel', label: t['ui.limits.manual'] },
               ]}
               deger={mode}
               onChange={setMode}
             />
             <View style={{ height: rhythm.blockInCard }} />
             {mode === 'manuel' ? (
-              <MoneyInput label="Günlük limit · ₺" value={amount} onChangeText={setAmount} />
+              <MoneyInput label={t['ui.limits.daily_limit']} value={amount} onChangeText={setAmount} />
             ) : (
-              <Txt role="body">Gelirine göre günlük pay: {money(b.gunluk_gelir_payi_kurus)}</Txt>
+              <Txt role="body">{t['ui.limits.income_share']}{money(b.gunluk_gelir_payi_kurus)}</Txt>
             )}
           </View>
 
           <View>
-            <GrupBasligi metin="Kategori payları" />
-            <Txt role="caption">Bu paylar günlük limitin içindedir. Dağıtılmayan tutarı diğer harcamalarda kullanabilirsin.</Txt>
+            <GrupBasligi metin={t['ui.limits.category_allocations']} />
+            <Txt role="caption">{t['ui.limits.distribution_notice']}</Txt>
             <View style={{ height: rhythm.blockInCard }} />
 
             {Object.entries(cats).map(([k, v], i) => (
@@ -104,12 +105,12 @@ export default function Limitler() {
                 {i > 0 ? <View style={{ height: rhythm.blockInCard }} /> : null}
                 <View style={{ flexDirection: 'row', alignItems: 'flex-end' }}>
                   <View style={{ flex: 1 }}>
-                    <MoneyInput label={`${kategoriGetir(k).ad} · günlük ₺`} value={v} onChangeText={(n) => setCats((old) => ({ ...old, [k]: n }))} />
+                    <MoneyInput label={`${kategoriGetir(k).ad} · ${t['ui.limits.daily_limit']}`} value={v} onChangeText={(n) => setCats((old) => ({ ...old, [k]: n }))} />
                   </View>
                   <View style={{ width: rhythm.group }} />
                   <IconButton
                     icon="trash"
-                    accessibilityLabel={`${kategoriGetir(k).ad} payını kaldır`}
+                    accessibilityLabel={kategoriLimitKaldirA11y(kategoriGetir(k).ad)}
                     onPress={() =>
                       setCats((old) => {
                         const next = { ...old };
@@ -127,7 +128,7 @@ export default function Limitler() {
             <View style={{ height: rhythm.blockInCard }} />
             <Button
               variant="secondary"
-              label="Kategori payı ekle"
+              label={t['ui.limits.add_category']}
               disabled={!cat}
               onPress={() => {
                 if (cat) setCats((old) => ({ ...old, [cat]: old[cat] || '' }));
@@ -136,13 +137,13 @@ export default function Limitler() {
             />
 
             <View style={{ height: rhythm.section }} />
-            <SettingRow baslik="Kategori toplamı" deger={<Txt role="amount">{money(total)}</Txt>} />
+            <SettingRow baslik={t['ui.limits.total']} deger={<Txt role="amount">{money(total)}</Txt>} />
             <View style={{ height: rhythm.group }} />
-            <SettingRow baslik="Dağıtılmamış" deger={<Txt role="amount">{money(limit == null ? null : limit - total)}</Txt>} />
+            <SettingRow baslik={t['ui.limits.undistributed']} deger={<Txt role="amount">{money(limit == null ? null : limit - total)}</Txt>} />
           </View>
 
           {load.data?.eski_aylik_kategori_limitleri.length ? (
-            <Txt role="caption">Önceki aylık kategori limitlerin arşivlendi; günlük tutara çevrilmedi.</Txt>
+            <Txt role="caption">{t['ui.limits.archive_notice']}</Txt>
           ) : null}
 
           {message ? (
@@ -151,7 +152,7 @@ export default function Limitler() {
             </Txt>
           ) : null}
 
-          <Button variant="primary" label="Limitleri kaydet" loading={busy} disabled={limit == null || limit <= 0 || total > limit} onPress={() => void save()} />
+          <Button variant="primary" label={t['ui.limits.save']} loading={busy} disabled={limit == null || limit <= 0 || total > limit} onPress={() => void save()} />
         </>
       ) : null}
     </RevScreen>

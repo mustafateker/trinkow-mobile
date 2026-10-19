@@ -2,6 +2,7 @@ import { Image, StyleSheet, View } from 'react-native';
 
 import { Txt } from '@/components/Txt';
 import { color, radius, rhythm, space } from '@/theme/tokens';
+import { t } from '@/content/metinler';
 
 const TRINKOW_LOGO = require('../../assets/images/trinkow-brand-mark.png');
 
@@ -17,7 +18,7 @@ export function LaunchScreen({ onReady }: { onReady: () => void }) {
       onLayout={onReady}
       accessible
       accessibilityRole="progressbar"
-      accessibilityLabel="Trinkow açılıyor">
+      accessibilityLabel={t['ui.common.launching']}>
       <View pointerEvents="none" style={[stil.isik, stil.isikSag]} />
       <View pointerEvents="none" style={[stil.isik, stil.isikSol]} />
       <View pointerEvents="none" style={stil.halka} />
@@ -32,8 +33,7 @@ export function LaunchScreen({ onReady }: { onReady: () => void }) {
         </Txt>
         <View style={{ height: rhythm.group }} />
         <Txt role="body" tone={color.launchText} style={stil.slogan}>
-          Evdeki Hesabı Çarşıya Uydurur
-        </Txt>
+          {t['ui.common.slogan']}</Txt>
       </View>
 
       <View style={stil.yukleme} accessibilityElementsHidden>

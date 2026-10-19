@@ -41,7 +41,7 @@ export function RoutineSavingsCard({
   return (
     <View style={stil.kart}>
       <View style={stil.ustSatir}>
-        <Txt role="h2" style={stil.ustMetin}>Rutin tasarrufları</Txt>
+        <Txt role="h2" style={stil.ustMetin}>{t['ui.savings.routine_savings']}</Txt>
         <Txt role="amount" numberOfLines={1}>{paraYaz(toplamKurus)}</Txt>
       </View>
 

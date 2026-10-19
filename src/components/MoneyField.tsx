@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { MoneyInput } from '@/components/MoneyInput';
 import { Txt } from '@/components/Txt';
-import { SIMGE } from '@/lib/para';
+import { paraSimgesi } from '@/lib/para';
 import { clay, color, radius, rhythm, size } from '@/theme/tokens';
 
 /**
@@ -55,7 +55,7 @@ export function MoneyField({
         />
         <View style={{ width: rhythm.group }} />
         <Txt role="label" tone={color.text2}>
-          {SIMGE}
+          {paraSimgesi()}
         </Txt>
       </View>
       {error ? (

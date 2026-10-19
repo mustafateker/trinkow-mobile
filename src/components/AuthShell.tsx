@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconButton } from '@/components/IconButton';
 import { Txt } from '@/components/Txt';
 import { color, layout, radius, rhythm } from '@/theme/tokens';
+import { t } from '@/content/metinler';
 
 /** Kimlik ekranlarının ortak koyu başlık + açık form paneli. */
 export function AuthShell({
@@ -24,7 +25,7 @@ export function AuthShell({
       <View style={{ height: insets.top }} />
       <View style={stil.header}>
         <View style={stil.ustSatir}>
-          {onBack ? <IconButton icon="chevron-left" accessibilityLabel="Geri" tone="#FFFFFF" background={color.navGlassBg} pressedBackground={color.navGlassBgPressed} onPress={onBack} /> : <View style={stil.denge} />}
+          {onBack ? <IconButton icon="chevron-left" accessibilityLabel={t['ui.common.back']} tone="#FFFFFF" background={color.navGlassBg} pressedBackground={color.navGlassBgPressed} onPress={onBack} /> : <View style={stil.denge} />}
           <Txt role="label" tone={color.navMuted}>TRINKOW</Txt>
           <View style={stil.denge} />
         </View>

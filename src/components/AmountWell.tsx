@@ -4,7 +4,7 @@ import { MoneyInput } from '@/components/MoneyInput';
 import { ClaySurface } from '@/components/ClaySurface';
 import { Icon } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
-import { SIMGE } from '@/lib/para';
+import { paraSimgesi } from '@/lib/para';
 import { clay, color, radius, rhythm } from '@/theme/tokens';
 
 /**
@@ -71,7 +71,7 @@ export function AmountWell({
           </Txt>}
           <View style={{ width: rhythm.group }} />
           <Txt role={simgeRolu} tone={color.text2}>
-            {SIMGE}
+            {paraSimgesi()}
           </Txt>
         </View>
       </ClaySurface>

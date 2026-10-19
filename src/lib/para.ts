@@ -5,24 +5,28 @@
  * sessiz kuruş hatası üretir; bu yüzden `number` değerleri kuruştur ve
  * biçimlendirme yalnız gösterim anında yapılır.
  *
- * Biçim: `1.250,50 ₺` — binlik nokta, kuruş virgül, simge sonda, tek boşluk.
- * Liste ve kahraman sayıda kuruş gösterilmez.
+ * Para birimi ve ayraçlar kullanıcının yerelleştirme tercihinden gelir.
+ * Saklanan integer seçili para biriminin alt birimidir (kuruş/cent).
  */
 
-export const SIMGE = '₺';
+import { localeKodu, paraBirimi } from '@/lib/yerellestirme';
+
+const PARA_SIMGE: Record<ReturnType<typeof paraBirimi>, string> = {
+  TRY: '₺',
+  USD: '$',
+  EUR: '€',
+};
+
+export function paraSimgesi(): string {
+  return PARA_SIMGE[paraBirimi()];
+}
 
 /** "Çok büyük" eşiği — 100.000 ₺ üzeri girişte kontrol istenir (E-11 · E-12 ortak). */
 export const TUTAR_BUYUK_ESIK_KURUS = 100_000_00;
 
 /** 1.250 → "1.250" (binlik ayracı nokta) */
 function binlik(tamKisim: number): string {
-  const s = String(tamKisim);
-  let out = '';
-  for (let i = 0; i < s.length; i += 1) {
-    if (i > 0 && (s.length - i) % 3 === 0) out += '.';
-    out += s[i];
-  }
-  return out;
+  return new Intl.NumberFormat(localeKodu(), { maximumFractionDigits: 0 }).format(tamKisim);
 }
 
 /**
@@ -30,17 +34,35 @@ function binlik(tamKisim: number): string {
  * `kurus` seçeneği açıkken kuruş iki hane yazılır.
  */
 export function sayiyaCevir(kurusDeger: number, kurus = false): string {
-  const mutlak = Math.abs(Math.round(kurusDeger));
-  const lira = Math.floor(mutlak / 100);
-  const isaret = kurusDeger < 0 ? '-' : '';
-  if (!kurus) return isaret + binlik(lira);
-  const kalan = mutlak % 100;
-  return `${isaret}${binlik(lira)},${String(kalan).padStart(2, '0')}`;
+  const deger = Math.round(kurusDeger) / 100;
+  return new Intl.NumberFormat(localeKodu(), {
+    minimumFractionDigits: kurus ? 2 : 0,
+    maximumFractionDigits: kurus ? 2 : 0,
+  }).format(deger);
 }
 
 /** Kuruş integer → `1.250 ₺` (liste/kahraman: kuruşsuz) */
 export function paraYaz(kurusDeger: number, kurus = false): string {
-  return `${sayiyaCevir(kurusDeger, kurus)} ${SIMGE}`;
+  const locale = localeKodu();
+  const formatter = new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: paraBirimi(),
+    currencyDisplay: 'narrowSymbol',
+    minimumFractionDigits: kurus ? 2 : 0,
+    maximumFractionDigits: kurus ? 2 : 0,
+  });
+  const tutar = Math.round(kurusDeger) / 100;
+  if (locale === 'tr-TR') {
+    const parcalar = formatter.formatToParts(tutar);
+    const isaret = parcalar.find((parca) => parca.type === 'minusSign' || parca.type === 'plusSign')?.value ?? '';
+    const sayi = parcalar
+      .filter((parca) => ['integer', 'group', 'decimal', 'fraction'].includes(parca.type))
+      .map((parca) => parca.value)
+      .join('');
+    const simge = parcalar.find((parca) => parca.type === 'currency')?.value ?? PARA_SIMGE[paraBirimi()];
+    return `${isaret}${sayi} ${simge}`;
+  }
+  return formatter.format(tutar);
 }
 
 /** Liraları kuruşa çevirir — yalnız sabit/örnek veri yazarken kullanılır. */
@@ -61,7 +83,8 @@ export function tutarGosterimi(buffer: string): string {
   if (!buffer) return '0';
   const [tam, kurus] = buffer.split(',');
   const tamGosterim = binlik(Number(tam || '0'));
-  return kurus === undefined ? tamGosterim : `${tamGosterim},${kurus}`;
+  const ondalik = localeKodu() === 'en-US' ? '.' : ',';
+  return kurus === undefined ? tamGosterim : `${tamGosterim}${ondalik}${kurus}`;
 }
 
 /** Ham buffer → kuruş integer (kayıt anında). */
@@ -74,8 +97,10 @@ export function tutarGirisindenKurus(buffer: string): number {
 
 /** Kuruş integer → keypad buffer (E-12 düzenleme — mevcut tutarla başlatmak için). */
 export function kurustanTutarGirisi(kurusDeger: number): string {
-  const tamStr = sayiyaCevir(kurusDeger, true);
-  return tamStr.replace(/\./g, '');
+  const mutlak = Math.abs(Math.round(kurusDeger));
+  const tam = Math.floor(mutlak / 100);
+  const ondalik = String(mutlak % 100).padStart(2, '0');
+  return `${kurusDeger < 0 ? '-' : ''}${tam},${ondalik}`;
 }
 
 /** Accept decimal comma/dot and pasted Turkish/English grouped amounts. */

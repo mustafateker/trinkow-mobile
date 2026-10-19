@@ -311,6 +311,8 @@ export type TercihlerYaniti = {
   bildirim_saati: string;
   gun_siniri: 0 | 3 | 6;
   varsayilan_odeme: 'nakit' | 'kart';
+  dil: 'tr' | 'en';
+  para_birimi: 'TRY' | 'USD' | 'EUR';
   kurulum_gunu: string | null;
 };
 
@@ -319,6 +321,8 @@ export type TercihlerGuncellemeGovdesi = Partial<{
   bildirim_saati: string;
   gun_siniri: 0 | 3 | 6;
   varsayilan_odeme: 'nakit' | 'kart';
+  dil: 'tr' | 'en';
+  para_birimi: 'TRY' | 'USD' | 'EUR';
   kurulum_gunu: string;
 }>;
 

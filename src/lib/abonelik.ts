@@ -1,3 +1,6 @@
+import { abonelikGecikmeGun, abonelikKalanGun, t } from '@/content/metinler';
+import { localeKodu } from '@/lib/yerellestirme';
+
 export type AbonelikTarihBilgisi = {
   siradakiGun: string;
   gunFarki: number;
@@ -41,12 +44,12 @@ export function abonelikTarihBilgisi(
 }
 
 export function abonelikDurumEtiketi(bilgi: AbonelikTarihBilgisi): string {
-  if (bilgi.durum === 'odendi') return 'Bu ay ödendi';
-  if (bilgi.durum === 'bugun') return 'Bugün yenileniyor';
-  if (bilgi.durum === 'gecikti') return `${Math.abs(bilgi.gunFarki)} gün gecikti`;
-  return `${bilgi.gunFarki} gün kaldı`;
+  if (bilgi.durum === 'odendi') return t['ui.subscriptions.paid_status'];
+  if (bilgi.durum === 'bugun') return t['ui.subscriptions.renewing_status'];
+  if (bilgi.durum === 'gecikti') return abonelikGecikmeGun(Math.abs(bilgi.gunFarki));
+  return abonelikKalanGun(bilgi.gunFarki);
 }
 
 export function abonelikTarihEtiketi(gun: string): string {
-  return new Intl.DateTimeFormat('tr-TR', { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(tarihi(gun));
+  return new Intl.DateTimeFormat(localeKodu(), { day: 'numeric', month: 'long', timeZone: 'UTC' }).format(tarihi(gun));
 }

@@ -18,6 +18,7 @@ import { paraYaz } from '@/lib/para';
 import { bugun, subscriptionDelete, subscriptionPut, subscriptionsGet, type Subscription } from '@/lib/revApi';
 import { veriDegisti } from '@/lib/veriBus';
 import { color, radius, rhythm, size } from '@/theme/tokens';
+import { abonelikSilGovde, abonelikSatiriA11y, t } from '@/content/metinler';
 
 export default function AboneliklerEkrani() {
   const load = useRevLoad(subscriptionsGet);
@@ -26,6 +27,7 @@ export default function AboneliklerEkrani() {
   const [silinecek, setSilinecek] = useState<Subscription | null>(null);
   const [busy, setBusy] = useState(false);
   const [mesaj, setMesaj] = useState('');
+  const [mesajUyari, setMesajUyari] = useState(false);
 
   const aktif = useMemo(() => (load.data?.abonelikler ?? [])
     .filter((abonelik) => abonelik.aktif)
@@ -37,12 +39,14 @@ export default function AboneliklerEkrani() {
   function yeniAc() {
     setSecili(null);
     setMesaj('');
+    setMesajUyari(false);
     setSheetAcik(true);
   }
 
   function duzenle(abonelik: Subscription) {
     setSecili(abonelik);
     setMesaj('');
+    setMesajUyari(false);
     setSheetAcik(true);
   }
 
@@ -50,6 +54,7 @@ export default function AboneliklerEkrani() {
     if (busy) return;
     setBusy(true);
     setMesaj('');
+    setMesajUyari(false);
     try {
       await islem();
       await load.reload();
@@ -57,7 +62,8 @@ export default function AboneliklerEkrani() {
       setSheetAcik(false);
       setMesaj(basari);
     } catch {
-      setMesaj('İşlem tamamlanamadı. Bağlantını kontrol edip yeniden dene.');
+      setMesaj(t['ui.common.failed']);
+      setMesajUyari(true);
     } finally {
       setBusy(false);
     }
@@ -67,14 +73,16 @@ export default function AboneliklerEkrani() {
     if (!silinecek || busy) return;
     setBusy(true);
     setMesaj('');
+    setMesajUyari(false);
     try {
       await subscriptionDelete(silinecek.id);
       await load.reload();
       veriDegisti();
       setSilinecek(null);
-      setMesaj('Abonelik silindi. Geçmiş gider kayıtların korundu.');
+      setMesaj(t['ui.subscriptions.deleted']);
     } catch {
-      setMesaj('İşlem tamamlanamadı. Bağlantını kontrol edip yeniden dene.');
+      setMesaj(t['ui.common.failed']);
+      setMesajUyari(true);
     } finally {
       setBusy(false);
     }
@@ -82,51 +90,51 @@ export default function AboneliklerEkrani() {
 
   return (
     <>
-      <RevScreen title="Aboneliklerim">
+      <RevScreen title={t['ui.subscriptions.title']}>
         <LoadState {...load} />
         {load.data ? (
           <>
             <View style={stil.ozet}>
               <View style={stil.ozetKolon}>
-                <Txt role="caption" tone={color.text2}>Aylık toplam</Txt>
+                <Txt role="caption" tone={color.text2}>{t['ui.subscriptions.monthly_total']}</Txt>
                 <View style={{ height: rhythm.sameObject }} />
                 <Txt role="display">{paraYaz(aylikToplam)}</Txt>
               </View>
               <View style={stil.ozetAyrac} />
               <View style={stil.ozetKolon}>
-                <Txt role="caption" tone={color.text2}>Sıradaki ödeme</Txt>
+                <Txt role="caption" tone={color.text2}>{t['ui.subscriptions.next_payment']}</Txt>
                 <View style={{ height: rhythm.sameObject }} />
-                <Txt role="bodyStrong" numberOfLines={1}>{siradaki ? abonelikTarihEtiketi(siradaki.siradakiGun) : 'Planlanmadı'}</Txt>
+                <Txt role="bodyStrong" numberOfLines={1}>{siradaki ? abonelikTarihEtiketi(siradaki.siradakiGun) : t['ui.common.not_planned']}</Txt>
               </View>
             </View>
 
-            <Button variant="primary" icon="plus" label="Abonelik ekle" onPress={yeniAc} />
+            <Button variant="primary" icon="plus" label={t['ui.subscriptions.add']} onPress={yeniAc} />
 
-            {mesaj ? <InfoStrip variant={mesaj.startsWith('İşlem') ? 'warning' : 'info'} icon={mesaj.startsWith('İşlem') ? 'alert-circle' : 'check'} metin={mesaj} /> : null}
+            {mesaj ? <InfoStrip variant={mesajUyari ? 'warning' : 'info'} icon={mesajUyari ? 'alert-circle' : 'check'} metin={mesaj} /> : null}
 
             {aktif.length > 0 ? (
               <View>
-                <GrupBasligi metin="Yaklaşan ödemeler" />
+                <GrupBasligi metin={t['ui.subscriptions.upcoming']} />
                 <View style={stil.liste}>
                   {aktif.map((abonelik, index) => <AbonelikSatiri key={abonelik.id} abonelik={abonelik} ayrac={index > 0} onPress={() => duzenle(abonelik)} />)}
                 </View>
               </View>
             ) : duraklatilan.length > 0 ? (
-              <InfoStrip variant="info" icon="calendar-clock" metin="Aktif aboneliğin yok. Duraklatılan bir aboneliğe dokunup takibi yeniden açabilirsin." />
+              <InfoStrip variant="info" icon="calendar-clock" metin={t['ui.subscriptions.resume_prompt']} />
             ) : (
-              <EmptyState icon="calendar-clock" baslik="Aylık ödemelerini tek yerde gör" govde="YouTube, yapay zeka veya diğer aboneliklerini ekle; yenilenme gününü kaçırma." />
+              <EmptyState icon="calendar-clock" baslik={t['ui.subscriptions.empty_prompt_title']} govde={t['ui.subscriptions.empty_prompt_body']} />
             )}
 
             {duraklatilan.length > 0 ? (
               <View>
-                <GrupBasligi metin="Duraklatılanlar" />
+                <GrupBasligi metin={t['ui.subscriptions.paused']} />
                 <View style={stil.liste}>
                   {duraklatilan.map((abonelik, index) => <AbonelikSatiri key={abonelik.id} abonelik={abonelik} ayrac={index > 0} onPress={() => duzenle(abonelik)} />)}
                 </View>
               </View>
             ) : null}
 
-            <Txt role="caption" tone={color.text2}>Yenilenme gününde Bugün ekranındaki + düğmesine dokunduğunda ücret giderlerine işlenir. Banka işlemleri otomatik doğrulanmaz.</Txt>
+            <Txt role="caption" tone={color.text2}>{t['ui.subscriptions.notice']}</Txt>
           </>
         ) : null}
       </RevScreen>
@@ -136,7 +144,7 @@ export default function AboneliklerEkrani() {
         abonelik={secili}
         busy={busy}
         onClose={() => !busy && setSheetAcik(false)}
-        onSave={async (abonelik) => calistir(() => subscriptionPut(abonelik), secili ? 'Abonelik güncellendi.' : 'Abonelik eklendi.')}
+        onSave={async (abonelik) => calistir(() => subscriptionPut(abonelik), secili ? t['ui.subscriptions.updated'] : t['ui.subscriptions.added'])}
         onDeleteRequest={secili ? () => {
           setSheetAcik(false);
           setSilinecek(secili);
@@ -144,10 +152,10 @@ export default function AboneliklerEkrani() {
       />
       <Dialog
         visible={silinecek !== null}
-        baslik="Abonelik silinsin mi?"
-        govde={`${silinecek?.ad ?? 'Bu abonelik'} takip listesinden kaldırılacak. Geçmiş gider kayıtların silinmeyecek.`}
-        silEtiketi="Aboneliği sil"
-        vazgecEtiketi="Vazgeç"
+        baslik={t['ui.subscriptions.delete_title']}
+        govde={abonelikSilGovde(silinecek?.ad ?? 'Bu abonelik')}
+        silEtiketi={t['ui.subscription.delete']}
+        vazgecEtiketi={t['ui.common.cancel']}
         siliniyor={busy}
         onSil={() => void sil()}
         onVazgec={() => !busy && setSilinecek(null)}
@@ -161,12 +169,12 @@ function AbonelikSatiri({ abonelik, ayrac, onPress }: { abonelik: Subscription; 
   const marka = abonelikMarkasiBul(abonelik.saglayici, abonelik.ad);
   const ton = !abonelik.aktif ? color.text2 : bilgi.durum === 'gecikti' ? color.warningInk : bilgi.durum === 'odendi' ? color.successInk : color.primaryText;
   const zemin = !abonelik.aktif ? color.groove : bilgi.durum === 'gecikti' ? color.warningSoft : bilgi.durum === 'odendi' ? color.successSoft : color.primarySoft;
-  const durum = abonelik.aktif ? abonelikDurumEtiketi(bilgi) : 'Takip duraklatıldı';
+  const durum = abonelik.aktif ? abonelikDurumEtiketi(bilgi) : t['ui.subscriptions.paused_status'];
   return (
     <>
       {ayrac ? <View style={stil.ayrac} /> : null}
       <ClayPressable
-        accessibilityLabel={`${abonelik.ad}, ${paraYaz(abonelik.tutar_kurus)}, ${durum}. Düzenle.`}
+        accessibilityLabel={abonelikSatiriA11y(abonelik.ad, paraYaz(abonelik.tutar_kurus), durum)}
         onPress={onPress}
         shadow="none"
         borderRadius={radius.tile}
@@ -178,7 +186,7 @@ function AbonelikSatiri({ abonelik, ayrac, onPress }: { abonelik: Subscription; 
             <Txt role="amount">{paraYaz(abonelik.tutar_kurus)}</Txt>
           </View>
           <View style={{ height: rhythm.sameObject }} />
-          <Txt role="caption" tone={color.text2}>{abonelik.odeme === 'kart' ? 'Kart' : 'Nakit'} · Her ayın {abonelik.yenilenme_gunu}. günü</Txt>
+          <Txt role="caption" tone={color.text2}>{abonelik.odeme === 'kart' ? t['ui.subscriptions.pay_by_card'] : t['ui.subscriptions.pay_by_cash']} {t['ui.subscriptions.every_month_prefix']}{abonelik.yenilenme_gunu}{t['ui.subscriptions.renewal_day_suffix']}</Txt>
           <View style={{ height: rhythm.group }} />
           <View style={[stil.durum, { backgroundColor: zemin }]}><Txt role="micro" tone={ton}>{durum}</Txt></View>
         </View>

@@ -1,27 +1,49 @@
 /** Tarih biçimleri — prototipteki "10 Eylül Perşembe" ve "08.20" düzeni. */
 
-const AYLAR = [
+import { localeKodu } from '@/lib/yerellestirme';
+
+const AYLAR_TR = [
   'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
   'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık',
 ];
 
-export const GUNLER = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
-
-/** "Pt · Sa · Ça …" — E-24 ay ızgarası hafta başlığı (Pazartesi başlangıçlı). */
-export const HAFTA_GUN_MIKRO = ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pa'];
-
-const AYLAR_KISA = [
+const AYLAR_KISA_TR = [
   'Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara',
 ];
 
+const GUNLER_TR = ['Pazar', 'Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi'];
+const HAFTA_GUN_MIKRO_TR = ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pa'];
+
+function ayAdi(tarih: Date, genislik: 'long' | 'short'): string {
+  if (localeKodu() === 'tr-TR') {
+    return (genislik === 'long' ? AYLAR_TR : AYLAR_KISA_TR)[tarih.getMonth()];
+  }
+  return new Intl.DateTimeFormat(localeKodu(), { month: genislik }).format(tarih);
+}
+
+function gunAdi(tarih: Date): string {
+  if (localeKodu() === 'tr-TR') return GUNLER_TR[tarih.getDay()];
+  return new Intl.DateTimeFormat(localeKodu(), { weekday: 'long' }).format(tarih);
+}
+
+/** Weekday labels for the month grid, starting Monday. */
+export function haftaGunMikro(): string[] {
+  if (localeKodu() === 'tr-TR') return HAFTA_GUN_MIKRO_TR;
+  return Array.from({ length: 7 }, (_, i) => {
+    const tarih = new Date(2024, 0, 1 + i);
+    return new Intl.DateTimeFormat(localeKodu(), { weekday: 'short' }).format(tarih);
+  });
+}
+
 /** "Eyl" — `DayBox` ay kısaltması (E-15). */
 export function ayKisaAdi(d: Date): string {
-  return AYLAR_KISA[d.getMonth()];
+  return ayAdi(d, 'short');
 }
 
 /** "10 Eylül Perşembe" */
 export function uzunTarih(d: Date): string {
-  return `${d.getDate()} ${AYLAR[d.getMonth()]} ${GUNLER[d.getDay()]}`;
+  if (localeKodu() === 'tr-TR') return `${d.getDate()} ${ayAdi(d, 'long')} ${gunAdi(d)}`;
+  return new Intl.DateTimeFormat(localeKodu(), { weekday: 'long', month: 'long', day: 'numeric' }).format(d);
 }
 
 /**
@@ -59,6 +81,9 @@ export function ayAnahtari(d: Date): string {
 /** "08.20" — prototipteki saat düzeni (iki nokta değil nokta) */
 export function saatYaz(isoDamga: string): string {
   const d = new Date(isoDamga);
+  if (localeKodu() !== 'tr-TR') {
+    return new Intl.DateTimeFormat(localeKodu(), { hour: 'numeric', minute: '2-digit' }).format(d);
+  }
   return `${String(d.getHours()).padStart(2, '0')}.${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
@@ -90,18 +115,27 @@ export function tarihtenGun(gunAnahtariDeger: string): Date {
 /** "Eylül 2026" — ay değiştirici başlığı (E-14). */
 export function ayBasligi(ayAnahtariDeger: string): string {
   const [yil, ay] = ayAnahtariDeger.split('-').map(Number);
-  return `${AYLAR[ay - 1]} ${yil}`;
+  const tarih = new Date(yil, ay - 1, 1);
+  if (localeKodu() === 'tr-TR') return `${ayAdi(tarih, 'long')} ${yil}`;
+  return new Intl.DateTimeFormat(localeKodu(), { month: 'long', year: 'numeric' }).format(tarih);
 }
 
 /** "Eylül" — yıl olmadan yalnız ay adı (E-18 ay yükü çubuğu etiketi). */
 export function ayAdiTek(ayAnahtariDeger: string): string {
   const ay = Number(ayAnahtariDeger.split('-')[1]);
-  return AYLAR[ay - 1];
+  return ayAdi(new Date(2024, ay - 1, 1), 'long');
+}
+
+export function ayYilEtiketi(ayAnahtariDeger: string): string {
+  const [yil, ay] = ayAnahtariDeger.split('-').map(Number);
+  return new Intl.DateTimeFormat(localeKodu(), { month: 'long', year: 'numeric' })
+    .format(new Date(yil, ay - 1, 1));
 }
 
 /** "10 Eylül" — kısa tarih (E-11 tarih çipi, E-12 eklenme satırı). */
 export function kisaTarih(d: Date): string {
-  return `${d.getDate()} ${AYLAR[d.getMonth()]}`;
+  if (localeKodu() === 'tr-TR') return `${d.getDate()} ${ayAdi(d, 'long')}`;
+  return new Intl.DateTimeFormat(localeKodu(), { month: 'short', day: 'numeric' }).format(d);
 }
 
 /** "31 Ağustos – 6 Eylül" — `ozet.hafta_araligi` (E-16). */
@@ -123,11 +157,18 @@ export function eklenmeEtiketi(isoDamga: string): string {
  * Bugün/dün sayfasında üst satır tam tarihtir (`uzunTarih`), h1 "Bugün"/"Dün".
  */
 export function gunlukBaslik(gunFarki: number, tarih: Date): { h1: string; ustSatir: string } {
-  if (gunFarki === 0) return { h1: 'Bugün', ustSatir: uzunTarih(tarih) };
-  if (gunFarki === -1) return { h1: 'Dün', ustSatir: uzunTarih(tarih) };
+  const bugunMetni = localeKodu() === 'tr-TR' ? 'Bugün' : 'Today';
+  const dunMetni = localeKodu() === 'tr-TR' ? 'Dün' : 'Yesterday';
+  if (gunFarki === 0) return { h1: bugunMetni, ustSatir: uzunTarih(tarih) };
+  if (gunFarki === -1) return { h1: dunMetni, ustSatir: uzunTarih(tarih) };
+  if (localeKodu() !== 'tr-TR') {
+    const gunAdiKisa = new Intl.DateTimeFormat(localeKodu(), { weekday: 'short' }).format(tarih);
+    const tarihAdi = new Intl.DateTimeFormat(localeKodu(), { month: 'short', day: 'numeric' }).format(tarih);
+    return { h1: `${gunAdiKisa}, ${tarihAdi}`, ustSatir: `${Math.abs(gunFarki)} days ago` };
+  }
   const gg = String(tarih.getDate()).padStart(2, '0');
   const ay = String(tarih.getMonth() + 1).padStart(2, '0');
-  return { h1: `${gg}/${ay} ${GUNLER[tarih.getDay()]}`, ustSatir: `${Math.abs(gunFarki)} gün önce` };
+  return { h1: `${gg}/${ay} ${gunAdi(tarih)}`, ustSatir: `${Math.abs(gunFarki)} gün önce` };
 }
 
 /** İki günün arasındaki gün farkı (saat/TZ'den bağımsız, öğlene sabitlenmiş). */
@@ -178,6 +219,11 @@ function ozelOnlukEki(gun: number, tablo: 'bulunma' | 'iyelik'): string | null {
 
 /** Ayın günü + iyelik eki: 15 → "15'i" (E-03 kurulum özeti değeri). */
 export function gunIyelikEki(gun: number): string {
+  if (localeKodu() !== 'tr-TR') {
+    const sonIki = gun % 100;
+    const ek = sonIki >= 11 && sonIki <= 13 ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' }[gun % 10] ?? 'th');
+    return `${gun}${ek}`;
+  }
   const ozel = ozelOnlukEki(gun, 'iyelik');
   return `${gun}'${ozel ?? EK_IYELIK[gun % 10]}`;
 }

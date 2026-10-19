@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Txt } from '@/components/Txt';
-import { t } from '@/content/metinler';
+import { hesapEpostasiA11y, t } from '@/content/metinler';
 import { clay, color, radius, rhythm } from '@/theme/tokens';
 
 /**
@@ -48,7 +48,7 @@ export function AccountSection({
           {t['ayar.hesap.eposta']}
         </Txt>
         <View style={{ height: rhythm.sameObject }} />
-        <Txt role="body" numberOfLines={1} ellipsizeMode="tail" accessibilityLabel={`Hesap e-postası ${eposta}`}>
+        <Txt role="body" numberOfLines={1} ellipsizeMode="tail" accessibilityLabel={hesapEpostasiA11y(eposta ?? '')}>
           {eposta}
         </Txt>
       </View>

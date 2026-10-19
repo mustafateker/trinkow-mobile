@@ -17,14 +17,15 @@ import { kurustanTutarGirisi, tutarGirisindenKurus } from '@/lib/para';
 import { routinePut, routinesGet, yeniId, type Routine } from '@/lib/revApi';
 import { color, rhythm, size } from '@/theme/tokens';
 import { veriDegisti } from '@/lib/veriBus';
+import { rutinGunlukOzeti, rutinKaldirA11y, rutinSatiriA11y, t } from '@/content/metinler';
 
-const HAZIR_RUTINLER: [string, KategoriKodu][] = [
-  ['Kahve', 'kafe'],
-  ['Sigara', 'aliskanliklar'],
-  ['Yemek', 'restoran'],
-  ['Ulaşım', 'ulasim'],
-  ['Atıştırmalık', 'market'],
-];
+const HAZIR_RUTINLER = [
+  ['Kahve', 'kafe', 'ui.routines.preset.coffee'],
+  ['Sigara', 'aliskanliklar', 'ui.routines.preset.smoking'],
+  ['Yemek', 'restoran', 'ui.routines.preset.meal'],
+  ['Ulaşım', 'ulasim', 'ui.routines.preset.transport'],
+  ['Atıştırmalık', 'market', 'ui.routines.preset.snack'],
+] as const;
 
 export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
   const load = useRevLoad(routinesGet);
@@ -52,7 +53,7 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
     setCount('1');
   }
 
-  async function run(fn: () => Promise<unknown>, success = 'Kaydedildi.') {
+  async function run(fn: () => Promise<unknown>, success: string = t['ui.common.saved']) {
     if (busy) return;
     setBusy(true);
     setMessage('');
@@ -62,7 +63,7 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
       await load.reload();
       setMessage(success);
     } catch {
-      setMessage('İşlem tamamlanamadı. Bilgileri kontrol edip yeniden dene.');
+      setMessage(t['ui.common.failed']);
     } finally {
       setBusy(false);
     }
@@ -76,23 +77,24 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
       <LoadState {...load} />
       {!onboarding ? (
         <View>
-          <Txt role="body">Günlük rutinlerini seç, kendi adet ve fiyatını yaz. Birden fazla rutin ekleyebilirsin.</Txt>
+          <Txt role="body">{t['ui.routines.description']}</Txt>
           <View style={{ height: rhythm.blockInCard }} />
           <SettingGroup>
-            <SettingRow icon="calendar-clock" iconTone="primary" baslik="Aylık aboneliklerim" aciklama="Ücretleri ve yenilenme günlerini takip et" onPress={() => router.push('/abonelikler' as never)} />
+            <SettingRow icon="calendar-clock" iconTone="primary" baslik={t['ui.routines.monthly_subscriptions']} aciklama={t['ui.routines.subscriptions_description']} onPress={() => router.push('/abonelikler' as never)} />
           </SettingGroup>
           <View style={{ height: rhythm.section }} />
-          <GrupBasligi metin="Günlük rutinler" />
-          {HAZIR_RUTINLER.map(([name, kategoriKodu], i) => {
+          <GrupBasligi metin={t['ui.routines.daily_routines']} />
+          {HAZIR_RUTINLER.map(([name, kategoriKodu, labelKey], i) => {
             const secili = active.some((rutin) => rutin.ad === name);
             const kat = kategoriGetir(kategoriKodu);
+            const label = t[labelKey];
             return (
               <View key={name}>
                 {i > 0 ? <View style={{ height: rhythm.group }} /> : null}
                 <SettingRow
                   leading={<CategoryIconBox kategori={kat} />}
-                  baslik={name}
-                  accessibilityLabel={`${name}${secili ? ', seçili' : ''}`}
+                  baslik={label}
+                  accessibilityLabel={`${label}${secili ? `, ${t['ui.routines.selected']}` : ''}`}
                   deger={secili ? <Icon name="check" size={size.iconSm} color={color.primaryText} /> : false}
                   onPress={() => {
                     const existing = active.find((rutin) => rutin.ad === name);
@@ -108,23 +110,23 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
             );
           })}
           <View style={{ height: rhythm.group }} />
-          <Button variant="ghost" label="Kendim ekleyeyim" onPress={clear} />
+          <Button variant="ghost" label={t['ui.routines.custom']} onPress={clear} />
         </View>
       ) : null}
 
       <View>
-        <GrupBasligi metin={duzenleniyor ? 'Rutini düzenle' : 'Rutin ekle'} />
-        <TextField label="Harcamanın adı" value={ad} onChangeText={setAd} />
+        <GrupBasligi metin={duzenleniyor ? t['ui.routines.edit'] : t['ui.routines.add']} />
+        <TextField label={t['ui.routines.name']} value={ad} onChangeText={setAd} />
         <View style={{ height: rhythm.blockInCard }} />
         <CategoryPicker value={cat} onChange={setCat} />
         <View style={{ height: rhythm.blockInCard }} />
-        <TextField label="Günlük adet" value={count} onChangeText={(value) => setCount(value.replace(/\D/g, ''))} keyboardType="number-pad" />
+        <TextField label={t['ui.routines.daily_quantity']} value={count} onChangeText={(value) => setCount(value.replace(/\D/g, ''))} keyboardType="number-pad" />
         <View style={{ height: rhythm.blockInCard }} />
-        <MoneyInput label="Birim fiyat · ₺" value={amount} onChangeText={setAmount} />
+        <MoneyInput label={t['ui.routines.unit_price']} value={amount} onChangeText={setAmount} />
         <View style={{ height: rhythm.blockInCard }} />
         <Button
           variant="primary"
-          label={duzenleniyor ? 'Değişiklikleri kaydet' : 'Rutini kaydet'}
+          label={duzenleniyor ? t['ui.routines.save_changes'] : t['ui.routines.save']}
           loading={busy}
           disabled={!ad.trim() || !cat || Number(count) <= 0 || !Number.isSafeInteger(Number(count)) || tutarGirisindenKurus(amount) <= 0}
           onPress={() =>
@@ -138,7 +140,7 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
                 aktif: true,
               });
               clear();
-            })
+            }, duzenleniyor ? t['ui.routines.updated'] : t['ui.routines.added'])
           }
         />
       </View>
@@ -154,7 +156,7 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
           (ekle/düzenle/kaldır, adet/fiyat) kalır. */}
       {active.length > 0 ? (
         <View>
-          <GrupBasligi metin="Aktif rutinler" />
+          <GrupBasligi metin={t['ui.routines.active']} />
           {active.map((rutin, i) => {
             const kat = kategoriGetir(rutin.kategori);
             return (
@@ -163,15 +165,15 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
                 <SettingRow
                   leading={<CategoryIconBox kategori={kat} />}
                   baslik={rutin.ad}
-                  aciklama={`${kat.ad} · Günde ${rutin.gunluk_adet} × ${money(rutin.birim_fiyat_kurus)}`}
+                  aciklama={`${kat.ad} · ${rutinGunlukOzeti(rutin.gunluk_adet, money(rutin.birim_fiyat_kurus))}`}
                   onPress={() => edit(rutin)}
-                  accessibilityLabel={`${rutin.ad}. ${kat.ad}, günde ${rutin.gunluk_adet} × ${money(rutin.birim_fiyat_kurus)}. Düzenle.`}
+                  accessibilityLabel={rutinSatiriA11y(rutin.ad, kat.ad, rutin.gunluk_adet, money(rutin.birim_fiyat_kurus))}
                   deger={
                     <IconButton
                       icon="trash"
-                      accessibilityLabel={`${rutin.ad} rutinini kaldır`}
+                      accessibilityLabel={rutinKaldirA11y(rutin.ad)}
                       disabled={busy}
-                      onPress={() => void run(() => routinePut({ ...rutin, aktif: false }))}
+                      onPress={() => void run(() => routinePut({ ...rutin, aktif: false }), t['ui.routines.removed'])}
                     />
                   }
                 />
@@ -181,14 +183,14 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
         </View>
       ) : null}
 
-      {!onboarding ? <Txt role="caption">Rutin değişiklikleri bugünden itibaren geçerlidir. Harcama girmemek otomatik tasarruf sayılmaz.</Txt> : null}
+      {!onboarding ? <Txt role="caption">{t['ui.routines.changes_notice']}</Txt> : null}
     </>
   );
 }
 
 export default function Rutinler() {
   return (
-    <RevScreen title="Rutinler ve Abonelikler">
+    <RevScreen title={t['ui.settings.routines_title']}>
       <RoutinePanel />
     </RevScreen>
   );

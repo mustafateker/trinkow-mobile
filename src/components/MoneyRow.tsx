@@ -4,6 +4,7 @@ import { StyleSheet, View } from 'react-native';
 import { MoneyInput } from '@/components/MoneyInput';
 import { Txt } from '@/components/Txt';
 import { useBuyukYaziMi } from '@/lib/erisilebilirlik';
+import { paraSimgesi } from '@/lib/para';
 import { clay, color, radius, rhythm } from '@/theme/tokens';
 
 /**
@@ -29,8 +30,8 @@ export function MoneyRow({
   value: string;
   onChangeText: (v: string) => void;
   onBlur?: () => void;
-  /** `"₺"` → değer + 8 + ₺ · `""` → son ek yok (integer alan, `number-pad`). */
-  birim: '₺' | '';
+  /** `para` renders the selected currency symbol; empty is used for quantities. */
+  birim: 'para' | '';
   error?: string;
   accessibilityLabel?: string;
 }) {
@@ -57,7 +58,7 @@ export function MoneyRow({
         <>
           <View style={{ width: rhythm.group }} />
           <Txt role="label" tone={color.text2}>
-            {birim}
+            {paraSimgesi()}
           </Txt>
         </>
       ) : null}

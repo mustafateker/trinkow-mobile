@@ -2,7 +2,10 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { yukle } = require('./yukle.cjs');
 
-const { analizAraligi, grafikNoktalariOlustur } = yukle('src/lib/analiz.ts');
+const locale = { value: 'tr-TR' };
+const { analizAraligi, grafikNoktalariOlustur } = yukle('src/lib/analiz.ts', {
+  '@/lib/yerellestirme': { localeKodu: () => locale.value },
+});
 const bugun = new Date(2026, 9, 17, 12);
 
 test('haftalık analiz bugün dahil son 7 günü kapsar', () => {
@@ -41,4 +44,21 @@ test('yıllık analiz sabit Ocak-Aralık eksenini korur', () => {
   assert.equal(noktalar[0].gider, 1000);
   assert.equal(noktalar[9].gider, 2000);
   assert.equal(noktalar[10].gelecek, true);
+});
+
+test('analiz tarih aralıkları ve grafik etiketleri İngilizce locale kullanır', () => {
+  locale.value = 'en-US';
+  const aralik = analizAraligi('hafta', bugun);
+  assert.equal(aralik.baslik, 'Oct 11 – Oct 17');
+  const noktalar = grafikNoktalariOlustur([], 'hafta', aralik.baslangic, aralik.bitis);
+  assert.equal(noktalar[0].etiket, 'Sun');
+  assert.equal(noktalar[0].eksenEtiketi, 'Oct 11');
+  assert.equal(noktalar[0].erisilebilirEtiket, 'Sunday, October 11');
+
+  const yillik = analizAraligi('yil', bugun);
+  assert.equal(yillik.baslik, '2026 · January – December');
+  const aylar = grafikNoktalariOlustur([], 'yil', yillik.baslangic, yillik.bitis);
+  assert.equal(aylar[0].etiket, 'Jan');
+  assert.equal(aylar[0].erisilebilirEtiket, 'Month 1');
+  locale.value = 'tr-TR';
 });

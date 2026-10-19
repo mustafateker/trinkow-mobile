@@ -7,6 +7,7 @@ import { ClaySurface } from '@/components/ClaySurface';
 import { Icon, type IconName } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
 import { clay, color, radius, rhythm } from '@/theme/tokens';
+import { t } from '@/content/metinler';
 
 /**
  * Bileşen envanteri §4 `Dialog` — YALNIZ yüksek etkili, geri alınamaz
@@ -46,7 +47,7 @@ export function Dialog({
         <Pressable
           style={stil.scrim}
           accessibilityRole="button"
-          accessibilityLabel="Vazgeç"
+          accessibilityLabel={t['ui.common.cancel']}
           onPress={siliniyor ? undefined : onVazgec}
         />
         <View style={stil.pad}>
@@ -95,7 +96,7 @@ function DangerButton({
       onPress={loading ? undefined : onPress}
       disabled={loading}
       accessibilityLabel={loading ? 'Siliniyor' : label}
-      accessibilityHint="Bu işlem geri alınamaz"
+      accessibilityHint={t['ui.common.undo_unavailable']}
       borderRadius={radius.pill}
       background={color.danger}
       pressedBackground={color.dangerInk}

@@ -126,11 +126,11 @@ export default function ProfilEkrani() {
       <View style={{ height: rhythm.section }} />
       {ayarVerisi.data?.eksik ? (
         <>
-          <InfoStrip variant="warning" icon="refresh-cw" metin="Bazı plan bilgileri yenilenemedi. Menüleri yine de kullanabilirsin." />
+          <InfoStrip variant="warning" icon="refresh-cw" metin={t['ui.profile.plan_load_error']} />
           <View style={{ height: rhythm.group }} />
         </>
       ) : null}
-          <GrupBasligi metin="Planın" />
+          <GrupBasligi metin={t['ui.profile.plan']} />
           <SettingGroup>
             <AyarSatiri icon="banknote" iconTone="green" baslik={t['profil.satir.butce']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? (ayarVerisi.data.gelirKurus != null ? profilSatirButceDeger(paraYaz(ayarVerisi.data.gelirKurus), ayarVerisi.data.sabitGiderSayisi) : t['tasarruf.gelirYok.baslik']) : t['profil.satir.butceBos']} onPress={() => router.push('/butce')} />
             <AyarSatiri icon="limitler" iconTone="blue" baslik={t['profil.satir.limitler']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? (ayarVerisi.data.gunlukLimitKurus != null ? profilSatirLimitlerDeger(paraYaz(ayarVerisi.data.gunlukLimitKurus), ayarVerisi.data.kategoriLimitSayisi) : t['profil.satir.limitlerBos']) : t['profil.satir.limitlerBos']} onPress={() => router.push('/limitler')} />
@@ -141,7 +141,7 @@ export default function ProfilEkrani() {
           </SettingGroup>
 
       <View style={{ height: rhythm.section }} />
-      <GrupBasligi metin="Hesabın" />
+      <GrupBasligi metin={t['ui.profile.account']} />
       <SettingGroup>
         <SettingRow icon="ayarlar" iconTone="primary" baslik={t['profil.satir.ayarlar']} aciklama={t['profil.satir.ayarlarDeger']} onPress={() => router.push('/ayarlar')} accessibilityLabel={a11yProfilSatir(t['profil.satir.ayarlar'], t['profil.satir.ayarlarDeger'])} />
         <SettingRow icon="info" iconTone="neutral" baslik={t['profil.satir.yardim']} aciklama={t['profil.satir.yardimDeger']} onPress={() => router.push('/yardim')} accessibilityLabel={a11yProfilSatir(t['profil.satir.yardim'], t['profil.satir.yardimDeger'])} />

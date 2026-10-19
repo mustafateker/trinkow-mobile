@@ -4,7 +4,7 @@ import { Button } from '@/components/Button';
 import { Icon } from '@/components/Icon';
 import { Skeleton } from '@/components/Skeleton';
 import { Txt } from '@/components/Txt';
-import { t } from '@/content/metinler';
+import { hesapAcA11y, t } from '@/content/metinler';
 import { color, radius, rhythm } from '@/theme/tokens';
 
 type Olgu = { icon: 'trending-up'; olgu: string; baglam: string };
@@ -60,7 +60,7 @@ export function IdentityPanel(
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
-      accessibilityLabel={`Hesabını aç. ${eposta}. ${olgu.olgu}, ${olgu.baglam}`}
+      accessibilityLabel={hesapAcA11y(eposta, olgu.olgu, olgu.baglam)}
       style={({ pressed }) => [stil.panel, pressed && stil.basili]}>
       <View style={stil.avatar}>
         <Icon name="user" size={22} color="#FFFFFF" />

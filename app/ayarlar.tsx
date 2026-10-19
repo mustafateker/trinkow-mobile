@@ -1,7 +1,7 @@
 import { islemHatasiniGoster } from '@/lib/islemHatasi';
 import { router, useFocusEffect } from 'expo-router';
 import { useVeriBaglami } from '@/db/baglam';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, Share, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -34,8 +34,11 @@ import {
 import {
   gunSiniriKaydet,
   gunSiniriOku,
+  dilKaydet,
+  paraBirimiKaydet,
   varsayilanOdemeKaydet,
   varsayilanOdemeOku,
+  yerellestirmeOku,
   type GunSiniriSaat,
 } from '@/db/ayarTercihleri';
 import { ilkKayitGunu, tumKayitSayisi, tumSayfalariGetir, tumVeriyiSil, type OdemeTipi } from '@/db/harcama';
@@ -56,6 +59,9 @@ import { paraYaz, tutarGirisindenKurus, kurustanTutarGirisi } from '@/lib/para';
 import { ayAnahtari, ayBasligi, gunIyelikEki, tarihtenGun } from '@/lib/tarih';
 import { veriDegisti } from '@/lib/veriBus';
 import { color, layout, radius, rhythm, v4 } from '@/theme/tokens';
+import type { Dil, ParaBirimi } from '@/lib/yerellestirme';
+import { yerellestirmeyiSakla } from '@/lib/yerellestirmeDeposu';
+import { useYerellestirme } from '@/lib/useYerellestirme';
 
 /**
  * D-2c-1 · E-19 Ayarlar. Referans: prototip-v4/11-ayarlar.html (4 yüzey).
@@ -67,45 +73,20 @@ import { color, layout, radius, rhythm, v4 } from '@/theme/tokens';
  * odaklandığında (`useFocusEffect`) tazelenir, bu yüzden giriş/kayıt/çıkış
  * sonrası buraya dönüldüğünde satır güncel görünür.
  */
-const SAGLAYICI_ETIKETI: Record<string, string> = {
-  google: t['ayar.hesap.saglayici.google'],
-  apple: t['ayar.hesap.saglayici.apple'],
-  eposta: t['ayar.hesap.saglayici.sifre'],
-};
-
-const KIP_META: { id: Niyet; icon: 'target' | 'landmark' | 'trending-up'; baslik: string; alt: string }[] = [
-  { id: 'takip', icon: 'target', baslik: t['ob.niyet.takip'], alt: t['ob.niyet.takip.alt'] },
-  { id: 'tasarruf', icon: 'landmark', baslik: t['ob.niyet.tasarruf'], alt: t['ob.niyet.tasarruf.alt'] },
-  { id: 'borc', icon: 'trending-up', baslik: t['ob.niyet.borc'], alt: t['ob.niyet.borc.alt'] },
-];
-
-const KIP_ETIKET: Record<Niyet, string> = {
-  takip: t['pano.kip.takip'],
-  tasarruf: t['pano.kip.tasarruf'],
-  borc: t['pano.kip.borc'],
-};
-
-const GUN_SINIRI_SECENEKLERI: { value: `${GunSiniriSaat}`; label: string }[] = [
-  { value: '0', label: t['ayar.gun_siniri.0'] },
-  { value: '3', label: t['ayar.gun_siniri.3'] },
-  { value: '6', label: t['ayar.gun_siniri.6'] },
-];
-
-const ODEME_SECENEKLERI: { value: OdemeTipi; label: string; icon: 'banknote' | 'credit-card' }[] = [
-  { value: 'nakit', label: t['ekle.odeme.nakit'], icon: 'banknote' },
-  { value: 'kart', label: t['ekle.odeme.kart'], icon: 'credit-card' },
-];
-
 const MAAS_GUNLERI = Array.from({ length: 31 }, (_, i) => i + 1);
 
 export default function AyarlarEkrani() {
   const db = useVeriBaglami();
   const insets = useSafeAreaInsets();
+  useYerellestirme();
 
   const [yukleniyor, setYukleniyor] = useState(true);
   const [hata, setHata] = useState(false);
   const [gunSiniri, setGunSiniri] = useState<GunSiniriSaat>(0);
   const [odeme, setOdeme] = useState<OdemeTipi>('kart');
+  const [dil, setDil] = useState<Dil>('en');
+  const [paraBirimi, setParaBirimi] = useState<ParaBirimi>('TRY');
+  const [tercihlerHazir, setTercihlerHazir] = useState(false);
   const [niyet, setNiyet] = useState<Niyet>('takip');
   const [gelirKurus, setGelirKurus] = useState<number | null>(null);
   const [maasGunu, setMaasGunu] = useState<number | null>(null);
@@ -131,15 +112,20 @@ export default function AyarlarEkrani() {
       const sonuclar = await Promise.allSettled([
         gunSiniriOku(db),
         varsayilanOdemeOku(db),
+        yerellestirmeOku(db),
         profilOku(db),
         profilDetayOku(db),
         tumKayitSayisi(db),
         ilkKayitGunu(db),
         oturumOku(),
       ]);
-      const [sinir, odemeD, profil, detay, adet, ilkGun, oturumKaydi] = sonuclar;
+      const [sinir, odemeD, yerellestirme, profil, detay, adet, ilkGun, oturumKaydi] = sonuclar;
       if (sinir.status === 'fulfilled') setGunSiniri(sinir.value);
       if (odemeD.status === 'fulfilled') setOdeme(odemeD.value);
+      if (yerellestirme.status === 'fulfilled') {
+        setDil(yerellestirme.value.dil);
+        setParaBirimi(yerellestirme.value.paraBirimi);
+      }
       if (profil.status === 'fulfilled') {
         setNiyet(profil.value.niyet ?? 'takip');
         setGelirKurus(profil.value.gelirKurus);
@@ -155,8 +141,14 @@ export default function AyarlarEkrani() {
       setHata(true);
     } finally {
       setYukleniyor(false);
+      setTercihlerHazir(true);
     }
   }, [db]);
+
+  useEffect(() => {
+    if (!tercihlerHazir) return;
+    void yerellestirmeyiSakla(dil, paraBirimi).catch(islemHatasiniGoster);
+  }, [dil, paraBirimi, tercihlerHazir]);
 
   useFocusEffect(
     useCallback(() => {
@@ -169,6 +161,10 @@ export default function AyarlarEkrani() {
     void oku();
   }
 
+  function yerellestirmeYazmaBasarisiz() {
+    islemHatasiniGoster();
+  }
+
   async function gunSiniriSec(deger: `${GunSiniriSaat}`) {
     const saat = Number(deger) as GunSiniriSaat;
     setGunSiniri(saat);
@@ -178,6 +174,16 @@ export default function AyarlarEkrani() {
   async function odemeSec(deger: OdemeTipi) {
     setOdeme(deger);
     await varsayilanOdemeKaydet(db, deger);
+  }
+
+  async function dilSec(deger: Dil) {
+    setDil(deger);
+    await dilKaydet(db, deger);
+  }
+
+  async function paraBirimiSec(deger: ParaBirimi) {
+    setParaBirimi(deger);
+    await paraBirimiKaydet(db, deger);
   }
 
   async function kipSec(id: Niyet) {
@@ -235,10 +241,10 @@ export default function AyarlarEkrani() {
         budgetGet(), routinesGet(), subscriptionsGet(), favoritesGet(), movementsGet(''), tumSayfalariGetir({}),
       ]);
       await Share.share({
-        title: 'Trinkow veri dışa aktarımı',
+        title: t['ui.settings.export_title'],
         message: JSON.stringify({ surum: 1, aktarim_tarihi: new Date().toISOString(), butce, rutinler, abonelikler, favoriler, birikimler, harcamalar }, null, 2),
       });
-    } catch { toastGoster({ tur: 'warning', metin: 'Veriler dışa aktarılamadı. Bağlantını kontrol edip yeniden dene.' }); }
+    } catch { toastGoster({ tur: 'warning', metin: t['ui.settings.export_failed'] }); }
   }
 
   async function oturumuKapatVeGirisEkraninaDon() {
@@ -266,6 +272,21 @@ export default function AyarlarEkrani() {
 
   const maasGunuDegeri = maasDuzensiz ? t['ob.maas.duzensiz'] : maasGunu !== null ? obOzetMaasGunu(gunIyelikEki(maasGunu)) : t['tan.girilmedi'];
   const katman2Deger = katman2Kalan === 8 ? ayarPlanBekliyor(8) : ayarPlanKalan(katman2Kalan);
+  const saglayiciEtiketi: Record<string, string> = {
+    google: t['ayar.hesap.saglayici.google'], apple: t['ayar.hesap.saglayici.apple'], eposta: t['ayar.hesap.saglayici.sifre'],
+  };
+  const kipMeta: { id: Niyet; icon: 'target' | 'landmark' | 'trending-up'; baslik: string; alt: string }[] = [
+    { id: 'takip', icon: 'target', baslik: t['ob.niyet.takip'], alt: t['ob.niyet.takip.alt'] },
+    { id: 'tasarruf', icon: 'landmark', baslik: t['ob.niyet.tasarruf'], alt: t['ob.niyet.tasarruf.alt'] },
+    { id: 'borc', icon: 'trending-up', baslik: t['ob.niyet.borc'], alt: t['ob.niyet.borc.alt'] },
+  ];
+  const kipEtiket: Record<Niyet, string> = { takip: t['pano.kip.takip'], tasarruf: t['pano.kip.tasarruf'], borc: t['pano.kip.borc'] };
+  const gunSiniriSecenekleri: { value: `${GunSiniriSaat}`; label: string }[] = [
+    { value: '0', label: t['ayar.gun_siniri.0'] }, { value: '3', label: t['ayar.gun_siniri.3'] }, { value: '6', label: t['ayar.gun_siniri.6'] },
+  ];
+  const odemeSecenekleri: { value: OdemeTipi; label: string; icon: 'banknote' | 'credit-card' }[] = [
+    { value: 'nakit', label: t['ekle.odeme.nakit'], icon: 'banknote' }, { value: 'kart', label: t['ekle.odeme.kart'], icon: 'credit-card' },
+  ];
 
   if (yukleniyor) {
     return (
@@ -292,44 +313,56 @@ export default function AyarlarEkrani() {
         <View style={[stil.panel, stil.pad, { paddingBottom: layout.scrollPadBottom + insets.bottom }]}>
         {hata ? (
           <>
-            <InfoStrip variant="warning" icon="refresh-cw" metin="Bazı bilgiler yenilenemedi. Görünen ayarları kullanabilir veya tekrar deneyebilirsin." />
+            <InfoStrip variant="warning" icon="refresh-cw" metin={t['ui.settings.load_error']} />
             <View style={{ height: rhythm.group }} />
-            <Button label="Tekrar dene" variant="ghost" icon="refresh-cw" auto onPress={() => void oku()} />
+            <Button label={t['ui.settings.retry']} variant="ghost" icon="refresh-cw" auto onPress={() => void oku()} />
             <View style={{ height: rhythm.section }} />
           </>
         ) : null}
-        <Txt role="h2">Varsayılan</Txt>
+        <Txt role="h2">{t['ui.settings.defaults']}</Txt>
         <View style={{ height: rhythm.blockInCard }} />
         <View style={stil.bolum}>
+          <Txt role="bodyStrong">{t['ayar.dil']}</Txt>
+          <View style={{ height: rhythm.sameObject }} />
+          <Txt role="caption" tone={color.text2}>{t['ayar.dil_aciklama']}</Txt>
+          <View style={{ height: rhythm.blockInCard }} />
+          <SegmentedControl secenekler={[{ value: 'tr' as Dil, label: 'Türkçe' }, { value: 'en' as Dil, label: 'English' }]} deger={dil} onChange={(v) => void dilSec(v).catch(yerellestirmeYazmaBasarisiz)} />
+          <View style={stil.bolumAyraci} />
+          <Txt role="bodyStrong">{t['ayar.para_birimi']}</Txt>
+          <View style={{ height: rhythm.sameObject }} />
+          <Txt role="caption" tone={color.text2}>{t['ayar.para_birimi_aciklama']}</Txt>
+          <View style={{ height: rhythm.blockInCard }} />
+          <SegmentedControl secenekler={[{ value: 'TRY' as ParaBirimi, label: '₺ TL' }, { value: 'USD' as ParaBirimi, label: '$ USD' }, { value: 'EUR' as ParaBirimi, label: '€ EUR' }]} deger={paraBirimi} onChange={(v) => void paraBirimiSec(v).catch(yerellestirmeYazmaBasarisiz)} />
+          <View style={stil.bolumAyraci} />
           <Txt role="bodyStrong">{t['ayar.gun_siniri']}</Txt>
           <View style={{ height: rhythm.sameObject }} />
           <Txt role="caption" tone={color.text2}>{t['ayar.gun_siniri_aciklama']}</Txt>
           <View style={{ height: rhythm.blockInCard }} />
-          <SegmentedControl secenekler={GUN_SINIRI_SECENEKLERI} deger={`${gunSiniri}` as `${GunSiniriSaat}`} onChange={(v) => void gunSiniriSec(v).catch(yazmaBasarisiz)} />
+          <SegmentedControl secenekler={gunSiniriSecenekleri} deger={`${gunSiniri}` as `${GunSiniriSaat}`} onChange={(v) => void gunSiniriSec(v).catch(yazmaBasarisiz)} />
           <View style={stil.bolumAyraci} />
           <Txt role="bodyStrong">{t['ayar.varsayilan_odeme']}</Txt>
           <View style={{ height: rhythm.sameObject }} />
           <Txt role="caption" tone={color.text2}>{t['ayar.odeme_aciklama']}</Txt>
           <View style={{ height: rhythm.blockInCard }} />
-          <SegmentedControl secenekler={ODEME_SECENEKLERI} deger={odeme} onChange={(v) => void odemeSec(v).catch(yazmaBasarisiz)} />
+          <SegmentedControl secenekler={odemeSecenekleri} deger={odeme} onChange={(v) => void odemeSec(v).catch(yazmaBasarisiz)} />
         </View>
 
         <View style={{ height: rhythm.section }} />
 
-        <Txt role="h2">Hedef ve plan</Txt>
+        <Txt role="h2">{t['ui.settings.goal_plan']}</Txt>
         <View style={{ height: rhythm.blockInCard }} />
         <View style={stil.bolum}>
           <ValueWell
             etiket={t['ayar.kip']}
-            deger={KIP_ETIKET[niyet]}
+            deger={kipEtiket[niyet]}
             onPress={() => setKipSheetAcik(true)}
-            accessibilityLabel={a11yDegerDegistir(t['ayar.kip'], KIP_ETIKET[niyet])}
+            accessibilityLabel={a11yDegerDegistir(t['ayar.kip'], kipEtiket[niyet])}
           />
           <View style={stil.bolumAyraci} />
           {gelirDuzenleAcik ? <>
             <MoneyInput label={t['ayar.plan.gelir']} value={gelirBuffer} onChangeText={setGelirBuffer} autoFocus />
             <View style={{ height: rhythm.group }} />
-            <Button label="Geliri kaydet" variant="secondary" onPress={() => void gelirDuzenleKapat().catch(yazmaBasarisiz)} />
+            <Button label={t['ui.settings.save_income']} variant="secondary" onPress={() => void gelirDuzenleKapat().catch(yazmaBasarisiz)} />
           </> : <ValueWell
               etiket={t['ayar.plan.gelir']}
               deger={gelirKurus ? paraYaz(gelirKurus) : t['ayar.plan.gelir_girilmedi']}
@@ -376,7 +409,7 @@ export default function AyarlarEkrani() {
         {/* Hesap — D-2c-2: gerçek oturuma bağlandı; D-2c-3/K-080: hesap
             zorunlu, çıkış/silme sonrası `_layout.tsx`'in giriş duvarı
             devreye girer (bkz. src/lib/hesapEylemleri.ts). */}
-        <Txt role="h2">Hesap ve veri</Txt>
+        <Txt role="h2">{t['ui.settings.account_data']}</Txt>
         <View style={{ height: rhythm.blockInCard }} />
         <View style={stil.bolum}>
           <Txt role="h2">{t['ayar.hesap.baslik']}</Txt>
@@ -385,7 +418,7 @@ export default function AyarlarEkrani() {
             <AccountSection
               variant="signed-in"
               eposta={oturum.email}
-              saglayiciEtiketi={SAGLAYICI_ETIKETI[oturum.kimlikSaglayici] ?? t['ayar.hesap.saglayici.sifre']}
+              saglayiciEtiketi={saglayiciEtiketi[oturum.kimlikSaglayici] ?? t['ayar.hesap.saglayici.sifre']}
               onCikisYap={() => void oturumuKapatVeGirisEkraninaDon().catch(yazmaBasarisiz)}
               onHesabiSil={() => router.push('/hesap-sil')}
             />
@@ -397,29 +430,29 @@ export default function AyarlarEkrani() {
           <View style={{ height: rhythm.sameObject }} />
           <Txt role="caption" tone={color.text2}>{t['ayar.veri_aciklama']}</Txt>
           <View style={{ height: rhythm.blockInCard }} />
-          <Button label="Verilerimi dışa aktar" variant="secondary" onPress={() => void verileriDisaAktar()} />
+          <Button label={t['ui.settings.export_data']} variant="secondary" onPress={() => void verileriDisaAktar()} />
           <View style={{ height: rhythm.group }} />
           <Button label={t['ayar.veri_sil']} variant="ghost" icon="trash" auto disabled={kayitAdedi === 0} onPress={() => setVeriSilAcik(true)} />
         </View>
 
         <View style={{ height: rhythm.section }} />
 
-        <Txt role="h2">Finans araçları</Txt>
+        <Txt role="h2">{t['ui.settings.finance_tools']}</Txt>
         <View style={{ height: rhythm.blockInCard }} />
         <SettingGroup>
-          <SettingRow icon="banknote" iconTone="green" baslik="Gelir ve bütçem" aciklama="Gelirini ve sabit giderlerini düzenle" onPress={() => router.push('/butce')} />
-          <SettingRow icon="limitler" iconTone="blue" baslik="Limitler" aciklama="Günlük ve kategori sınırlarını düzenle" onPress={() => router.push('/limitler')} />
-          <SettingRow icon="repeat" iconTone="orange" baslik="Rutinler ve Abonelikler" aciklama="Düzenli harcamalarını ve yenilenmeleri yönet" onPress={() => router.push('/rutinler')} />
-          <SettingRow icon="notebook" iconTone="pink" baslik="Favorilerim" aciklama="Hızlı ekleme kalemlerini düzenle" onPress={() => router.push('/favoriler')} />
+          <SettingRow icon="banknote" iconTone="green" baslik={t['ui.settings.budget_title']} aciklama={t['ui.settings.budget_description']} onPress={() => router.push('/butce')} />
+          <SettingRow icon="limitler" iconTone="blue" baslik={t['ui.settings.limits_title']} aciklama={t['ui.settings.limits_description']} onPress={() => router.push('/limitler')} />
+          <SettingRow icon="repeat" iconTone="orange" baslik={t['ui.settings.routines_title']} aciklama={t['ui.settings.routines_description']} onPress={() => router.push('/rutinler')} />
+          <SettingRow icon="notebook" iconTone="pink" baslik={t['ui.settings.favorites_title']} aciklama={t['ui.settings.favorites_description']} onPress={() => router.push('/favoriler')} />
         </SettingGroup>
 
         <View style={{ height: rhythm.section }} />
 
-        <Txt role="h2">Destek</Txt>
+        <Txt role="h2">{t['ui.settings.support']}</Txt>
         <View style={{ height: rhythm.blockInCard }} />
         <SettingGroup>
-          <SettingRow icon="info" iconTone="primary" baslik="Yardım ve sık sorulanlar" aciklama="Trinkow kullanımıyla ilgili yanıtlar" onPress={() => router.push('/yardim')} />
-          <SettingRow icon="eye" iconTone="neutral" baslik="Yasal ve gizlilik" aciklama="Koşullar, gizlilik ve KVKK" onPress={() => router.push('/legal')} />
+          <SettingRow icon="info" iconTone="primary" baslik={t['ui.settings.help_title']} aciklama={t['ui.settings.help_description']} onPress={() => router.push('/yardim')} />
+          <SettingRow icon="eye" iconTone="neutral" baslik={t['ui.settings.legal_title']} aciklama={t['ui.settings.legal_description']} onPress={() => router.push('/legal')} />
         </SettingGroup>
 
         <View style={{ height: rhythm.section }} />
@@ -433,7 +466,7 @@ export default function AyarlarEkrani() {
       <BottomSheet visible={kipSheetAcik} onClose={() => setKipSheetAcik(false)}>
         <Txt role="h2">{t['ayar.kip_degistir']}</Txt>
         <View style={{ height: rhythm.blockInCard }} />
-        {KIP_META.map((k, i) => (
+        {kipMeta.map((k, i) => (
           <View key={k.id}>
             {i > 0 ? <View style={{ height: rhythm.group }} /> : null}
             <OptionCard icon={k.icon} title={k.baslik} caption={k.alt} selected={niyet === k.id} onPress={() => void kipSec(k.id).catch(yazmaBasarisiz)} />

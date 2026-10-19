@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { CategoryIconBox } from '@/components/CategoryIconBox';
 import { Txt } from '@/components/Txt';
-import { tasarrufKategoriPay, tasarrufKategoriRutin } from '@/content/metinler';
+import { kategoriPayA11y, tasarrufKategoriPay, tasarrufKategoriRutin } from '@/content/metinler';
 import { aileRenkleri, kategori } from '@/lib/kategoriler';
 import { paraYaz } from '@/lib/para';
 import { clay, color, radius, rhythm, size } from '@/theme/tokens';
@@ -52,7 +52,7 @@ export function CategoryShareRow({
           style={stil.oluk}
           accessible
           accessibilityRole="progressbar"
-          accessibilityLabel={`${kat.ad} payı`}
+          accessibilityLabel={kategoriPayA11y(kat.ad)}
           accessibilityValue={{ min: 0, max: 100, now: Math.round(payYuzdesi) }}>
           {genislik > 0 ? <View style={[stil.dolgu, { width: `${genislik * 100}%`, backgroundColor: renk.solid }]} /> : null}
         </View>

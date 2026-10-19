@@ -15,6 +15,7 @@ import { ApiAgHatasi, ApiHatasi, GELISTIRME_GIRISI, benKimim, girisYap, googleIl
 import { oturumYaz } from '@/lib/oturumDeposu';
 import { SosyalGirisHatasi, appleIleDevamEt, googleIleDevamEt, sosyalSaglayicilar } from '@/lib/sosyalGiris';
 import { rhythm } from '@/theme/tokens';
+import { t } from '@/content/metinler';
 
 export default function GirisEkrani() {
   const [eposta, setEposta] = useState('');
@@ -68,27 +69,27 @@ export default function GirisEkrani() {
       }
     } finally { setSosyalMesgul(false); }
   }
-  return <AuthShell title="Hoş geldin" subtitle="Harcama ve Bütçe Takibi ile Evdeki Hesabı Çarşıya Uydur" onBack={router.canGoBack() ? () => router.back() : undefined}>
+  return <AuthShell title={t['ui.login.title']} subtitle={t['ui.login.tagline']} onBack={router.canGoBack() ? () => router.back() : undefined}>
         {hata ? <InfoStrip variant="warning" icon="info" metin={hata} /> : null}
         {hata ? <View style={{ height: rhythm.blockInCard }} /> : null}
         <TextField label={demo ? 'Test adı' : 'E-posta'} value={eposta} onChangeText={setEposta} keyboardType="email-address" autoCapitalize="none" autoComplete="email" textContentType="emailAddress" />
         <View style={{ height: rhythm.blockInCard }} />
-        <PasswordField label="Şifre" value={sifre} onChangeText={setSifre} autoComplete="current-password" textContentType="password" />
+        <PasswordField label={t['alan.sifre']} value={sifre} onChangeText={setSifre} autoComplete="current-password" textContentType="password" />
         <View style={{ height: rhythm.group }} />
         <View style={stil.hatirlaSatiri}>
-          <View style={stil.hatirla}><Checkbox checked={hatirla} onPress={() => setHatirla(!hatirla)} label="Beni hatırla" /></View>
-          <Button label="Şifremi unuttum" variant="ghost" textRole="label" auto onPress={() => router.push('/sifremi-unuttum')} />
+          <View style={stil.hatirla}><Checkbox checked={hatirla} onPress={() => setHatirla(!hatirla)} label={t['ui.login.remember']} /></View>
+          <Button label={t['ui.login.forgot']} variant="ghost" textRole="label" auto onPress={() => router.push('/sifremi-unuttum')} />
         </View>
         <View style={{ height: rhythm.blockInCard }} />
-        <Button label="Giriş yap" loadingLabel="Giriş yapılıyor…" variant="primary" loading={mesgul} disabled={sosyalMesgul || !eposta.trim() || !sifre} onPress={() => void gonder()} />
+        <Button label={t['ui.login.submit']} loadingLabel={t['ui.login.loading']} variant="primary" loading={mesgul} disabled={sosyalMesgul || !eposta.trim() || !sifre} onPress={() => void gonder()} />
         <View style={{ height: rhythm.section }} />
         <OrDivider />
         <View style={{ height: rhythm.blockInCard }} />
         {sosyalSaglayicilar().map((provider, index) => <View key={provider}>{index > 0 ? <View style={{ height: rhythm.group }} /> : null}<SocialAuthButton provider={provider} disabled={mesgul || sosyalMesgul || provider === 'apple'} onPress={() => void (provider === 'apple' ? appleIleDevamEt() : googleGonder())} /></View>)}
-        {GELISTIRME_GIRISI ? <><View style={{ height: rhythm.blockInCard }} /><SettingRow baslik="Geliştirme test girişi" aciklama="Yalnız test hesabıyla giriş yapar." anahtarDegeri={demo} onAnahtarDegistir={() => setDemo(!demo)} /></> : null}
+        {GELISTIRME_GIRISI ? <><View style={{ height: rhythm.blockInCard }} /><SettingRow baslik={t['ui.login.dev_title']} aciklama={t['ui.login.dev_description']} anahtarDegeri={demo} onAnahtarDegistir={() => setDemo(!demo)} /></> : null}
         <View style={{ height: rhythm.section }} />
-        <View style={stil.altSatir}><Txt role="caption">Hesabın yok mu?</Txt><Button label="Hesap oluştur" variant="ghost" textRole="label" auto onPress={() => router.replace('/kayit')} /></View>
-        <Button label="Gizlilik ve kullanım şartları" variant="ghost" textRole="caption" onPress={() => router.push('/legal')} />
+        <View style={stil.altSatir}><Txt role="caption">{t['ui.login.no_account']}</Txt><Button label={t['ui.login.create_account']} variant="ghost" textRole="label" auto onPress={() => router.replace('/kayit')} /></View>
+        <Button label={t['ui.login.legal']} variant="ghost" textRole="caption" onPress={() => router.push('/legal')} />
   </AuthShell>;
 }
 const stil = StyleSheet.create({

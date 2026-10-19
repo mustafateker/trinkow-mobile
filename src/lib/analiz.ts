@@ -1,3 +1,5 @@
+import { localeKodu } from '@/lib/yerellestirme';
+
 export type AnalizDonemi = 'hafta' | 'ay' | 'yil';
 
 export type GrafikNoktasi = {
@@ -10,9 +12,6 @@ export type GrafikNoktasi = {
 };
 
 export type HarcamaNoktasi = { gun: string; tutarKurus: number };
-
-const HAFTA_GUNLERI = ['Paz', 'Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt'];
-const AYLAR_KISA = ['Oca', 'Şub', 'Mar', 'Nis', 'May', 'Haz', 'Tem', 'Ağu', 'Eyl', 'Eki', 'Kas', 'Ara'];
 
 function gunBaslangici(tarih: Date) {
   return new Date(tarih.getFullYear(), tarih.getMonth(), tarih.getDate(), 12);
@@ -29,7 +28,14 @@ function gunAnahtari(tarih: Date) {
 }
 
 function kisaTarih(tarih: Date) {
-  return `${tarih.getDate()} ${AYLAR_KISA[tarih.getMonth()]}`;
+  if (localeKodu() === 'tr-TR') {
+    return `${tarih.getDate()} ${new Intl.DateTimeFormat(localeKodu(), { month: 'short' }).format(tarih)}`;
+  }
+  return new Intl.DateTimeFormat(localeKodu(), { month: 'short', day: 'numeric' }).format(tarih);
+}
+
+function ayKisa(tarih: Date) {
+  return new Intl.DateTimeFormat(localeKodu(), { month: 'short' }).format(tarih);
 }
 
 export function analizAraligi(donem: AnalizDonemi, simdi = new Date()) {
@@ -43,7 +49,8 @@ export function analizAraligi(donem: AnalizDonemi, simdi = new Date()) {
     return { baslangic, bitis, baslik: `${kisaTarih(baslangic)} – ${kisaTarih(bitis)}` };
   }
   const baslangic = new Date(bitis.getFullYear(), 0, 1, 12);
-  return { baslangic, bitis, baslik: `${bitis.getFullYear()} · Ocak – Aralık` };
+  const yilAylari = `${new Intl.DateTimeFormat(localeKodu(), { month: 'long' }).format(new Date(bitis.getFullYear(), 0, 1))} – ${new Intl.DateTimeFormat(localeKodu(), { month: 'long' }).format(new Date(bitis.getFullYear(), 11, 1))}`;
+  return { baslangic, bitis, baslik: `${bitis.getFullYear()} · ${yilAylari}` };
 }
 
 function giderHaritasi(harcamalar: readonly HarcamaNoktasi[]) {
@@ -62,7 +69,8 @@ export function grafikNoktalariOlustur(
 ): GrafikNoktasi[] {
   const toplamlar = giderHaritasi(harcamalar);
   if (donem === 'yil') {
-    return AYLAR_KISA.map((etiket, ay) => {
+    return Array.from({ length: 12 }, (_, ay) => {
+      const etiket = ayKisa(new Date(bitis.getFullYear(), ay, 1));
       const ayAnahtari = `${bitis.getFullYear()}-${String(ay + 1).padStart(2, '0')}`;
       const gider = harcamalar
         .filter((harcama) => harcama.gun.startsWith(ayAnahtari))
@@ -71,7 +79,7 @@ export function grafikNoktalariOlustur(
         anahtar: ayAnahtari,
         etiket,
         eksenEtiketi: etiket,
-        erisilebilirEtiket: `${ay + 1}. ay`,
+        erisilebilirEtiket: localeKodu() === 'tr-TR' ? `${ay + 1}. ay` : `Month ${ay + 1}`,
         gider,
         gelecek: ay > bitis.getMonth(),
       };
@@ -84,9 +92,9 @@ export function grafikNoktalariOlustur(
     const anahtar = gunAnahtari(tarih);
     return {
       anahtar,
-      etiket: donem === 'hafta' ? HAFTA_GUNLERI[tarih.getDay()] : String(tarih.getDate()),
+      etiket: donem === 'hafta' ? new Intl.DateTimeFormat(localeKodu(), { weekday: 'short' }).format(tarih) : String(tarih.getDate()),
       eksenEtiketi: kisaTarih(tarih),
-      erisilebilirEtiket: tarih.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', weekday: 'long' }),
+      erisilebilirEtiket: new Intl.DateTimeFormat(localeKodu(), { day: 'numeric', month: 'long', weekday: 'long' }).format(tarih),
       gider: toplamlar.get(anahtar) ?? 0,
       gelecek: tarih.getTime() > bitis.getTime(),
     };

@@ -401,7 +401,7 @@ export default function HarcamaEkleEkrani() {
       <View style={[stil.guvenliAlan, { height: insets.top }]} />
       <View style={stil.koyuBaslik}>
         <View style={stil.baslikMetni}>
-          <Txt role="caption" tone={color.navMuted}>Yeni kayıt</Txt>
+          <Txt role="caption" tone={color.navMuted}>{t['ui.expense.new']}</Txt>
           <Txt role="h1" tone="#FFFFFF">{t['ekle.baslik']}</Txt>
         </View>
         <IconButton
@@ -476,8 +476,7 @@ export default function HarcamaEkleEkrani() {
             <View style={{ height: rhythm.section }} />
             <View style={stil.pad}>
               <Txt role="label" tone={color.text2}>
-                Favoriler ve sık kullanılanlar
-              </Txt>
+                {t['ui.expense.favorites']}</Txt>
             </View>
             <View style={{ height: rhythm.group }} />
             <ScrollView
@@ -503,9 +502,9 @@ export default function HarcamaEkleEkrani() {
           <>
             <View style={{ height: rhythm.section }} />
             <View style={stil.pad}>
-              <Txt role="label" tone={color.text2}>Rutin harcamalar</Txt>
+              <Txt role="label" tone={color.text2}>{t['ui.expense.routines']}</Txt>
               <View style={{ height: rhythm.sameObject }} />
-              <Txt role="caption">Tek dokunuşla tutar ve kategoriyi doldur.</Txt>
+              <Txt role="caption">{t['ui.expense.quick_fill']}</Txt>
             </View>
             <View style={{ height: rhythm.group }} />
             <ScrollView
@@ -513,7 +512,7 @@ export default function HarcamaEkleEkrani() {
               keyboardShouldPersistTaps="handled"
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={[stil.yatayKaydir, { paddingHorizontal: layout.screenPaddingX }]}>
-              {rutinId ? <Chip ad="Rutin bağlantısını kaldır" onPress={() => setRutinId(null)} /> : null}
+              {rutinId ? <Chip ad={t['ui.expense.remove_routine_link']} onPress={() => setRutinId(null)} /> : null}
               {rutinler.map((r) => (
                 <Chip
                   key={r.id}
@@ -532,7 +531,7 @@ export default function HarcamaEkleEkrani() {
 
         <View style={{ height: rhythm.section }} />
         <View style={stil.pad}>
-          <Txt role="label" tone={color.text2}>Ürün veya açıklama</Txt>
+          <Txt role="label" tone={color.text2}>{t['ui.expense.item_or_note']}</Txt>
           <View style={{ height: rhythm.group }} />
           <SearchField
             deger={aramaMetni}
@@ -563,8 +562,7 @@ export default function HarcamaEkleEkrani() {
                 {gecmisSonuclar.length > 0 ? (
                   <>
                     <Txt role="label" tone={color.text2}>
-                      Favoriler ve sık kullanılanlar
-                    </Txt>
+                      {t['ui.expense.favorites']}</Txt>
                     <View style={{ height: rhythm.group }} />
                     {gecmisSonuclar.map((s, i) => (
                       <View key={`${s.kategori}:${s.urunAdi}`} style={i > 0 ? { marginTop: rhythm.group } : undefined}>
@@ -617,18 +615,18 @@ export default function HarcamaEkleEkrani() {
             <CategoryPicker value={kategoriKodu} onChange={kategoriSec} />
             {abonelikMi ? (
               <View style={[stil.pad, { marginTop: rhythm.blockInCard }]}>
-                <Txt role="label" tone={color.text2}>Ödeme periyodu</Txt>
+                <Txt role="label" tone={color.text2}>{t['ui.expense.payment_period']}</Txt>
                 <View style={{ height: rhythm.group }} />
                 <View style={stil.satir}>
                   <Chip
-                    ad="Aylık"
+                    ad={t['ui.common.monthly']}
                     selected
                     dotColor={color.primary}
-                    accessibilityLabel="Abonelik ödeme periyodu, aylık"
+                    accessibilityLabel={t['ui.expense.subscription_period_a11y']}
                   />
                 </View>
                 <View style={{ height: rhythm.group }} />
-                <Txt role="caption" tone={color.text2}>Abonelik tutarı aylık gider olarak kaydedilir.</Txt>
+                <Txt role="caption" tone={color.text2}>{t['ui.expense.subscription_monthly']}</Txt>
               </View>
             ) : null}
             {tahmin && !kategoriKilitli ? (
@@ -651,7 +649,7 @@ export default function HarcamaEkleEkrani() {
               style={({ pressed }) => [stil.detaySatiri, pressed && stil.detaySatiriBasili]}>
               <View style={stil.detayIkon}><Icon name="limitler" size={20} color={color.primary} /></View>
               <View style={stil.esnek}>
-                <Txt role="bodyStrong">Diğer detaylar</Txt>
+                <Txt role="bodyStrong">{t['ui.expense.other_details']}</Txt>
                 <Txt role="caption">{abonelikMi ? 'Aylık · ' : ''}{odeme === 'kart' ? 'Kart' : 'Nakit'}{taksitSayisi ? ` · ${taksitSayisi} taksit` : ''}{notMetni.trim() ? ' · Not eklendi' : ''}</Txt>
               </View>
               <View style={detaylarAcik ? stil.okAcik : undefined}>
@@ -736,7 +734,7 @@ export default function HarcamaEkleEkrani() {
             selected={notAcik}
             dotColor={color.primary}
             onPress={() => setNotAcik((a) => !a)}
-            accessibilityLabel="Not ekle"
+            accessibilityLabel={t['ui.expense.add_note']}
           />
         </View>
 
@@ -771,7 +769,7 @@ export default function HarcamaEkleEkrani() {
             </>
           ) : null}
           <Button
-            label="Harcamayı kaydet"
+            label={t['ui.expense.save']}
             variant="primary"
             disabled={tutarKurus <= 0}
             loading={kaydediliyor}

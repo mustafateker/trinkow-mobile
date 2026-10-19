@@ -34,7 +34,7 @@ export function LimitReviewCard({
         <Button label={t['pano.limit_sorgu.eylem']} variant="secondary" auto onPress={onReview} />
       </View>
       <View style={{ width: rhythm.blockInCard }} />
-      <IconButton icon="x" accessibilityLabel="Kartı kapat" onPress={onDismiss} />
+      <IconButton icon="x" accessibilityLabel={t['ui.common.dismiss_card']} onPress={onDismiss} />
     </ClaySurface>
   );
 }

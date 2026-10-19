@@ -7,13 +7,13 @@ import type { Niyet } from '@/db/profil';
  * konum: adım 2 hedef alanı etiketi ve adım 4 özet açıklaması burada.
  */
 export const HEDEF_ETIKET_ALAN: Record<Niyet, string> = {
-  tasarruf: t['alan.hedef.tasarruf'],
-  borc: t['alan.hedef.borc'],
-  takip: t['alan.hedef.takip'],
+  get tasarruf() { return t['alan.hedef.tasarruf']; },
+  get borc() { return t['alan.hedef.borc']; },
+  get takip() { return t['alan.hedef.takip']; },
 };
 
 export const OZET_ACIKLAMA: Record<Niyet, string> = {
-  tasarruf: t['ob.ozet.aciklama.tasarruf'],
-  borc: t['ob.ozet.aciklama.borc'],
-  takip: t['ob.ozet.aciklama.takip'],
+  get tasarruf() { return t['ob.ozet.aciklama.tasarruf']; },
+  get borc() { return t['ob.ozet.aciklama.borc']; },
+  get takip() { return t['ob.ozet.aciklama.takip']; },
 };

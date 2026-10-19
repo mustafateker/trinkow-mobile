@@ -9,6 +9,7 @@ import { Txt } from '@/components/Txt';
 import { ApiHatasi, sifreyiYenile } from '@/lib/api';
 import { oturumSil } from '@/lib/oturumDeposu';
 import { rhythm } from '@/theme/tokens';
+import { t } from '@/content/metinler';
 export default function SifreSifirla() {
   const { token } = useLocalSearchParams<{ token?: string }>();
   const [sifre, setSifre] = useState('');
@@ -24,16 +25,16 @@ export default function SifreSifirla() {
     catch (e) { setHata(e instanceof ApiHatasi && e.durum === 400 ? 'Bağlantı geçersiz veya süresi dolmuş. Yeni bağlantı iste.' : 'Şifre yenilenemedi. Yeniden dene.'); }
     finally { setMesgul(false); }
   }
-  return <AuthShell title="Yeni şifre belirle" subtitle="Hesabın için güçlü ve hatırlayabileceğin bir şifre seç." onBack={() => router.replace('/giris')}>
-    {bitti ? <><Txt role="body">Şifren yenilendi. Tüm cihazlardaki eski oturumların kapatıldı.</Txt><View style={{ height: rhythm.blockInCard }} /><Button label="Giriş yap" variant="primary" onPress={() => router.replace('/giris')} /></> : <>
+  return <AuthShell title={t['ui.password.reset_title']} subtitle={t['ui.password.reset_subtitle']} onBack={() => router.replace('/giris')}>
+    {bitti ? <><Txt role="body">{t['ui.password.reset_success']}</Txt><View style={{ height: rhythm.blockInCard }} /><Button label={t['ui.login.submit']} variant="primary" onPress={() => router.replace('/giris')} /></> : <>
       {hata || !token ? <InfoStrip variant="warning" icon="info" metin={hata ?? 'Şifre yenileme bağlantısı eksik. Yeni bağlantı iste.'} /> : null}
       {hata || !token ? <View style={{ height: rhythm.blockInCard }} /> : null}
-      <PasswordField label="Yeni şifre" value={sifre} onChangeText={setSifre} autoComplete="new-password" textContentType="newPassword" />
+      <PasswordField label={t['ui.password.new']} value={sifre} onChangeText={setSifre} autoComplete="new-password" textContentType="newPassword" />
       <View style={{ height: rhythm.blockInCard }} />
-      <PasswordField label="Yeni şifre tekrar" value={tekrar} onChangeText={setTekrar} autoComplete="new-password" textContentType="newPassword" />
+      <PasswordField label={t['ui.password.confirm_new']} value={tekrar} onChangeText={setTekrar} autoComplete="new-password" textContentType="newPassword" />
       <View style={{ height: rhythm.blockInCard }} />
-      <Button label="Şifreyi yenile" variant="primary" loading={mesgul} disabled={!token || sifre.length < 8 || !tekrar} onPress={() => void kaydet()} />
-      <Button label="Yeni bağlantı iste" variant="ghost" onPress={() => router.replace('/sifremi-unuttum')} />
+      <Button label={t['ui.password.reset']} variant="primary" loading={mesgul} disabled={!token || sifre.length < 8 || !tekrar} onPress={() => void kaydet()} />
+      <Button label={t['ui.password.request_link']} variant="ghost" onPress={() => router.replace('/sifremi-unuttum')} />
     </>}
   </AuthShell>;
 }

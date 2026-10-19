@@ -3,6 +3,7 @@ import { InputAccessoryView, Keyboard, Platform, Pressable, StyleSheet, TextInpu
 import { Txt } from '@/components/Txt';
 import { nativeTutarGirisi } from '@/lib/para';
 import { color, radius, type } from '@/theme/tokens';
+import { t } from '@/content/metinler';
 
 /** Native focus/selection/paste; money stays a decimal string until submission. */
 export function MoneyInput({ value, onChangeText, label = 'Tutar', autoFocus = false, style, integerOnly = false, hideLabel = false, onFocus, onBlur }: {
@@ -22,7 +23,7 @@ export function MoneyInput({ value, onChangeText, label = 'Tutar', autoFocus = f
       inputAccessoryViewID={Platform.OS === 'ios' ? accessory : undefined}
       style={[styles.input, style]} />
     {Platform.OS === 'ios' && <InputAccessoryView nativeID={accessory}>
-      <View style={styles.toolbar}><Pressable accessibilityRole="button" onPress={Keyboard.dismiss} style={styles.done}><Txt role="label">Bitti</Txt></Pressable></View>
+      <View style={styles.toolbar}><Pressable accessibilityRole="button" onPress={Keyboard.dismiss} style={styles.done}><Txt role="label">{t['ui.common.done']}</Txt></Pressable></View>
     </InputAccessoryView>}
   </View>;
 }

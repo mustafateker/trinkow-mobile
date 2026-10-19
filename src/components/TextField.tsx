@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'rea
 import { Icon } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
 import { a11y, clay, color, fontFamily, radius, rhythm, size } from '@/theme/tokens';
+import { t } from '@/content/metinler';
 
 /**
  * tokens.md §7.4 — metin girişi (`.giris`). Yükseklik 56, radius 16,
@@ -92,7 +93,7 @@ export function TextField({
           <Pressable
             onPress={() => onChangeText('')}
             accessibilityRole="button"
-            accessibilityLabel="Temizle"
+            accessibilityLabel={t['ui.common.clear']}
             style={stil.ikonButonu}>
             <Icon name="x" size={20} color={color.text2} />
           </Pressable>
@@ -109,8 +110,7 @@ export function TextField({
         <>
           <View style={{ height: rhythm.sameObject }} />
           <Txt role="micro" tone={color.text2} style={stil.sagHiza}>
-            {kalan} kaldı
-          </Txt>
+            {kalan} {t['ui.common.remaining']}</Txt>
         </>
       ) : null}
     </View>

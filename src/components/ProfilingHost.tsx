@@ -22,21 +22,21 @@ import { toastGoster } from '@/lib/toastBus';
 import { veriDegisimineAbone, veriDegisti } from '@/lib/veriBus';
 import { radius, rhythm } from '@/theme/tokens';
 
-const YATIRIM_SECENEK: { v: YatirimNiyet; etiket: string }[] = [
-  { v: 'yapiyorum', etiket: t['tan.yatirim.yapiyorum'] },
-  { v: 'dusunuyorum', etiket: t['tan.yatirim.dusunuyorum'] },
-  { v: 'ilgilenmiyorum', etiket: t['tan.yatirim.ilgilenmiyorum'] },
+const YATIRIM_SECENEK: { v: YatirimNiyet; etiket: keyof typeof t }[] = [
+  { v: 'yapiyorum', etiket: 'tan.yatirim.yapiyorum' },
+  { v: 'dusunuyorum', etiket: 'tan.yatirim.dusunuyorum' },
+  { v: 'ilgilenmiyorum', etiket: 'tan.yatirim.ilgilenmiyorum' },
 ];
 
-const TAKSIT_SECENEK: { v: TaksitSiklik; etiket: string }[] = [
-  { v: 'sik_sik', etiket: t['prof.taksit.sik_sik'] },
-  { v: 'bazen', etiket: t['prof.taksit.bazen'] },
-  { v: 'nadiren', etiket: t['prof.taksit.nadiren'] },
+const TAKSIT_SECENEK: { v: TaksitSiklik; etiket: keyof typeof t }[] = [
+  { v: 'sik_sik', etiket: 'prof.taksit.sik_sik' },
+  { v: 'bazen', etiket: 'prof.taksit.bazen' },
+  { v: 'nadiren', etiket: 'prof.taksit.nadiren' },
 ];
 
-const BILDIRIM_SECENEK: { v: boolean; etiket: string }[] = [
-  { v: true, etiket: t['prof.bildirim.gonder'] },
-  { v: false, etiket: t['prof.bildirim.gonderme'] },
+const BILDIRIM_SECENEK: { v: boolean; etiket: keyof typeof t }[] = [
+  { v: true, etiket: 'prof.bildirim.gonder' },
+  { v: false, etiket: 'prof.bildirim.gonderme' },
 ];
 
 /**
@@ -93,7 +93,7 @@ export function ProfilingHost() {
           <SecimKart
             key={s.v}
             ilk={i === 0}
-            etiket={s.etiket}
+            etiket={t[s.etiket]}
             onPress={async () => {
               await profillemeYatirimCevapla(db, s.v);
               setSoruId(null);
@@ -117,7 +117,7 @@ export function ProfilingHost() {
           <SecimKart
             key={s.v}
             ilk={i === 0}
-            etiket={s.etiket}
+            etiket={t[s.etiket]}
             onPress={async () => {
               await profillemeTaksitCevapla(db, s.v);
               setSoruId(null);
@@ -143,7 +143,7 @@ export function ProfilingHost() {
         <SecimKart
           key={String(s.v)}
           ilk={i === 0}
-          etiket={s.etiket}
+          etiket={t[s.etiket]}
           onPress={async () => {
             await profillemeBildirimCevapla(db, s.v);
             setSoruId(null);

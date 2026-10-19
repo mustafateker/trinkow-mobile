@@ -18,7 +18,12 @@ import {
   a11yGunlukRutinBolum,
   a11yGunlukRutinBolumGecmis,
   a11yGunlukRutinYaziliyor,
+  abonelikKayitliA11y,
+  abonelikYenilendiyseEkleA11y,
   gunlukRutinToastAldim,
+  rutinAlimSayisiBugun,
+  yarinCokluAbonelikUyarisi,
+  yarinTekAbonelikUyarisi,
   t,
 } from '@/content/metinler';
 import { ayarOku, ayarYaz, harcamaEkle, harcamaSil, ODEME_VARSAYILAN, type Harcama } from '@/db/harcama';
@@ -287,7 +292,7 @@ export function RoutineQuickSection({
           <View accessibilityLiveRegion="polite">
             <InfoStrip variant="warning" icon="calendar-clock" metin={yarinAbonelikUyarisi(yarinAbonelikler)} />
             <View style={{ height: rhythm.group }} />
-            <Button variant="ghost" label="Abonelikleri yönet" icon="chevron-right" auto onPress={() => router.push('/abonelikler')} />
+            <Button variant="ghost" label={t['ui.common.manage_subscriptions']} icon="chevron-right" auto onPress={() => router.push('/abonelikler')} />
           </View>
         ) : null}
         {uyariVar && (yukleniyor || hataMi || icerikVar) ? <View style={{ height: rhythm.blockInCard }} /> : null}
@@ -306,12 +311,12 @@ export function RoutineQuickSection({
               <View>
                 {okumaHatasi ? (
                   <View accessibilityLiveRegion="polite">
-                    <InfoStrip variant="warning" icon="wifi-off" metin="Rutinler yüklenemedi. Yeniden dene." textTone={color.text} />
+                    <InfoStrip variant="warning" icon="wifi-off" metin={t['ui.routines.load_error']} textTone={color.text} />
                   </View>
                 ) : null}
                 {abonelikOkumaHatasi ? (
                   <View style={okumaHatasi ? stil.blokArasi : undefined} accessibilityLiveRegion="polite">
-                    <InfoStrip variant="warning" icon="wifi-off" metin="Abonelikler yüklenemedi. Yeniden dene." textTone={color.text} />
+                    <InfoStrip variant="warning" icon="wifi-off" metin={t['ui.subscriptions.load_error']} textTone={color.text} />
                   </View>
                 ) : null}
                 {bugunAbonelikler.length > 0 ? (
@@ -319,10 +324,10 @@ export function RoutineQuickSection({
                     <InfoStrip
                       variant="info"
                       icon="calendar-clock"
-                      metin="Aboneliğini yeniledin mi? Yenilendiyse + düğmesine dokun; giderlerine ekleyelim."
+                      metin={t['ui.subscriptions.renewed_prompt']}
                     />
                     <View style={{ height: rhythm.blockInCard }} />
-                    <Txt role="caption" tone={color.text2}>Bugün yenilenen abonelikler</Txt>
+                    <Txt role="caption" tone={color.text2}>{t['ui.common.renewing_today']}</Txt>
                     <View style={{ height: rhythm.group }} />
                     {bugunAbonelikler.map((abonelik, i) => (
                       <View key={abonelik.id}>
@@ -362,7 +367,7 @@ export function RoutineQuickSection({
                 ) : null}
                 {yazmaHatasi ? (
                   <View style={stil.blokArasi} accessibilityLiveRegion="polite">
-                    <InfoStrip variant="warning" icon="wifi-off" metin="Gider kaydedilemedi. Yeniden dene." textTone={color.text} />
+                    <InfoStrip variant="warning" icon="wifi-off" metin={t['gunlukRutin.hata.isaret']} textTone={color.text} />
                   </View>
                 ) : null}
               </View>
@@ -378,10 +383,10 @@ export function RoutineQuickSection({
 function yarinAbonelikUyarisi(abonelikler: ScheduledSubscription[]): string {
   if (abonelikler.length === 1) {
     const abonelik = abonelikler[0];
-    return `Yarın ${abonelik.ad} aboneliğin ${paraYaz(abonelik.tutar_kurus)} tutarla otomatik yenilenecek. Kullanmıyorsan aboneliğini iptal edebilirsin.`;
+    return yarinTekAbonelikUyarisi(abonelik.ad, paraYaz(abonelik.tutar_kurus));
   }
   const toplam = abonelikler.reduce((sonuc, abonelik) => sonuc + abonelik.tutar_kurus, 0);
-  return `Yarın ${abonelikler.length} aboneliğin toplam ${paraYaz(toplam)} tutarla otomatik yenilenecek. Kullanmadıklarını iptal edebilirsin.`;
+  return yarinCokluAbonelikUyarisi(abonelikler.length, paraYaz(toplam));
 }
 
 function SubscriptionQuickRow({
@@ -395,7 +400,7 @@ function SubscriptionQuickRow({
 }) {
   const marka = abonelikMarkasiBul(abonelik.saglayici, abonelik.ad);
   const tutar = paraYaz(abonelik.tutar_kurus);
-  const durumMetni = abonelik.odendi ? 'Giderlere işlendi' : 'Bugün yenileniyor · İşlenmedi';
+  const durumMetni = abonelik.odendi ? t['ui.subscriptions.recorded'] : t['ui.subscriptions.renewing_unprocessed'];
   return (
     <View style={stil.satir}>
       <SubscriptionBrandLogo marka={marka} size={a11y.minTarget} />
@@ -411,7 +416,7 @@ function SubscriptionQuickRow({
         selected={abonelik.odendi}
         disabled={abonelik.odendi}
         loading={loading}
-        accessibilityLabel={abonelik.odendi ? `${abonelik.ad} giderlere işlendi` : `${abonelik.ad} yenilendiyse ${tutar} gider olarak ekle`}
+        accessibilityLabel={abonelik.odendi ? abonelikKayitliA11y(abonelik.ad) : abonelikYenilendiyseEkleA11y(abonelik.ad, tutar)}
         onPress={onYenilendi}
       />
     </View>
@@ -450,7 +455,7 @@ function RoutineQuickRow({
         <Txt role="bodyStrong" numberOfLines={1} ellipsizeMode="tail">
           {rutin.ad}
         </Txt>
-        {alinanAdet > 0 ? <Txt role="caption" tone={color.text2}>Bugün {alinanAdet} kez</Txt> : null}
+        {alinanAdet > 0 ? <Txt role="caption" tone={color.text2}>{rutinAlimSayisiBugun(alinanAdet)}</Txt> : null}
       </View>
       <Txt role="amount" numberOfLines={1}>
         {tutar}

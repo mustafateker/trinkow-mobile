@@ -20,11 +20,11 @@ import { SegmentedControl } from '@/components/SegmentedControl';
 import { Skeleton } from '@/components/Skeleton';
 import { TextField } from '@/components/TextField';
 import { Txt } from '@/components/Txt';
-import { detayTaksitBilgi, silGovdeTaksit, t } from '@/content/metinler';
+import { detayTaksitBilgi, silGovdeTaksit, t, tutarDuzeltA11y } from '@/content/metinler';
 import { harcamaGetir, harcamaGuncelle, type Harcama, type OdemeTipi } from '@/db/harcama';
 import { harcamaTekilSilVeGeriAlSun, taksitSerisiSilVeToastGoster } from '@/lib/harcamaEylemleri';
 import { aileRenkleri, kategori as kategoriGetir, type KategoriKodu } from '@/lib/kategoriler';
-import { TUTAR_BUYUK_ESIK_KURUS, kurustanTutarGirisi, paraYaz, sayiyaCevir, tutarGirisindenKurus, tutarGosterimi } from '@/lib/para';
+import { TUTAR_BUYUK_ESIK_KURUS, kurustanTutarGirisi, paraSimgesi, paraYaz, sayiyaCevir, tutarGirisindenKurus, tutarGosterimi } from '@/lib/para';
 import { eklenmeEtiketi, kisaTarih, saatYaz } from '@/lib/tarih';
 import { veriDegisti } from '@/lib/veriBus';
 import { clay, color, layout, radius, rhythm, size } from '@/theme/tokens';
@@ -229,7 +229,7 @@ export default function HarcamaDetayEkrani() {
             <Pressable
               disabled={taksitli || tutarDuzenleAcik}
               accessibilityRole="button"
-              accessibilityLabel={tutarDuzenleAcik ? 'Tutar düzenleyiciyi kapat' : 'Tutarı düzenle'}
+              accessibilityLabel={tutarDuzeltA11y(tutarDuzenleAcik)}
               onPress={() => setTutarDuzenleAcik((a) => !a)}>
               {tutarDuzenleAcik ? (
                 <AmountWell
@@ -256,7 +256,7 @@ export default function HarcamaDetayEkrani() {
                     </Txt>
                     <View style={{ width: rhythm.group }} />
                     <Txt role="amount" tone={color.text2}>
-                      ₺
+                      {paraSimgesi()}
                     </Txt>
                   </View>
                 </ClaySurface>
@@ -284,7 +284,7 @@ export default function HarcamaDetayEkrani() {
             <View style={{ height: rhythm.group }} />
             <ClayPressable
               onPress={() => setKategoriSecimAcik(true)}
-              accessibilityLabel="Kategoriyi değiştir"
+              accessibilityLabel={t['ui.expense.change_category']}
               borderRadius={radius.tile}
               style={stil.secimOzeti}>
               <View style={[stil.nokta, { backgroundColor: aileRenkleri(kat.aile).solid }]} />

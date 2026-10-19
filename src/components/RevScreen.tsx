@@ -9,7 +9,7 @@ import { TabDock, type TabKey } from '@/components/TabBar';
 import { t } from '@/content/metinler';
 import { color,radius,layout,rhythm } from '@/theme/tokens';
 import { paraYaz } from '@/lib/para';
-export const money = (n:number|null|undefined) => n == null ? 'Henüz bilinmiyor' : paraYaz(n,true);
+export const money = (n:number|null|undefined) => n == null ? t['ui.common.unknown'] : paraYaz(n,true);
 export function Card({children}:{children:ReactNode}) { return <View style={s.card}>{children}</View>; }
 /**
  * Koyu üst bar altından başlayan, açık ve üst köşesi yuvarlak tek içerik
@@ -67,13 +67,13 @@ export function useRevLoad<T>(fetcher:()=>Promise<T>) {
     if(!veriVar.current)setLoading(true);
     setError('');
     try{setData(await fetcher());}
-    catch{setError('Bilgiler yüklenemedi. Bağlantını kontrol edip yeniden deneyebilirsin.');}
+    catch{setError(t['ui.common.load_failed']);}
     finally{setLoading(false);}
   },[fetcher,setData]);
   useFocusEffect(useCallback(()=>{void reload();},[reload]));
   return {data,error,loading,reload,setData};
 }
-export function LoadState({loading,error,reload}:{loading:boolean;error:string;reload:()=>void}) { return loading?<Txt role="body">Yükleniyor…</Txt>:error?<Card><Txt role="body">{error}</Txt><Button variant="secondary" label="Yeniden dene" onPress={reload}/></Card>:null; }
+export function LoadState({loading,error,reload}:{loading:boolean;error:string;reload:()=>void}) { return loading?<Txt role="body">{t['ui.common.loading']}</Txt>:error?<Card><Txt role="body">{error}</Txt><Button variant="secondary" label={t['ui.common.retry']} onPress={reload}/></Card>:null; }
 export const s=StyleSheet.create({
   disKap:{flex:1,backgroundColor:color.bg},
   screen:{flex:1},

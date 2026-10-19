@@ -3,7 +3,8 @@ import { StyleSheet, View } from 'react-native';
 import { ClayPressable } from '@/components/ClayPressable';
 import { Icon } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
-import { KATEGORILER, type KategoriKodu } from '@/lib/kategoriler';
+import { onboardingRutinSatiriA11y } from '@/content/metinler';
+import { kategori as kategoriGetir, type KategoriKodu } from '@/lib/kategoriler';
 import { catColor, radius, rhythm, color } from '@/theme/tokens';
 
 /**
@@ -24,13 +25,13 @@ export function RoutineRow({
   gunlukTutarYazi: string;
   onPress: () => void;
 }) {
-  const k = KATEGORILER[kategori];
+  const k = kategoriGetir(kategori);
   const renk = catColor[k.aile];
 
   return (
     <ClayPressable
       onPress={onPress}
-      accessibilityLabel={`${ad}, ${altYazi}, günlük ${gunlukTutarYazi}. Düzenle`}
+      accessibilityLabel={onboardingRutinSatiriA11y(ad, altYazi, gunlukTutarYazi)}
       borderRadius={radius.tile}
       style={stil.satir}>
       <View style={[stil.kategoriKabi, { backgroundColor: renk.soft }]}>

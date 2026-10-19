@@ -11,6 +11,7 @@ import { GrupBasligi, SettingRow } from '@/components/SettingRow';
 import { MoneyInput } from '@/components/MoneyInput';
 import { TextField } from '@/components/TextField';
 import { Txt } from '@/components/Txt';
+import { favoriHarcamaA11y, favoriKaldirA11y, favoriOzet, t } from '@/content/metinler';
 import { kategori as kategoriGetir, type KategoriKodu } from '@/lib/kategoriler';
 import { tutarGirisindenKurus } from '@/lib/para';
 import { favoriteDelete, favoritePut, favoritesGet, yeniId } from '@/lib/revApi';
@@ -33,21 +34,21 @@ export default function Favoriler() {
       await fn();
       await load.reload();
     } catch {
-      setError('İşlem tamamlanamadı. Yeniden deneyebilirsin.');
+      setError(t['ui.favorites.save_failed']);
     } finally {
       setBusy(false);
     }
   }
 
   return (
-    <RevScreen title="Sık kullanılanlar">
+    <RevScreen title={t['ui.favorites.title']}>
       <LoadState {...load} />
 
       {load.data && load.data.kalemler.length > 0 ? (
         <View>
           {load.data.kalemler.map((f, i) => {
             const kat = kategoriGetir(f.kategori);
-            const ozet = `${kat.ad} · Son fiyat ${money(f.tutar_kurus)}`;
+            const ozet = favoriOzet(kat.ad, money(f.tutar_kurus));
             return (
               <View key={f.id}>
                 {i > 0 ? <View style={{ height: rhythm.group }} /> : null}
@@ -56,12 +57,12 @@ export default function Favoriler() {
                   baslik={f.ad}
                   aciklama={ozet}
                   onPress={() => router.push({ pathname: '/harcama-ekle', params: { kategori: f.kategori, ad: f.ad, tutarKurus: String(f.tutar_kurus) } })}
-                  accessibilityLabel={`${f.ad}. ${ozet}. Harcama ekle.`}
+                  accessibilityLabel={favoriHarcamaA11y(f.ad, ozet)}
                   deger={
                     f.sabitlenmis ? (
                       <IconButton
                         icon="x"
-                        accessibilityLabel={`${f.ad} sık kullanılanlardan kaldır`}
+                        accessibilityLabel={favoriKaldirA11y(f.ad)}
                         disabled={busy}
                         onPress={() => void run(() => favoriteDelete(f.id))}
                       />
@@ -75,16 +76,16 @@ export default function Favoriler() {
       ) : null}
 
       <View>
-        <GrupBasligi metin="Ürün ekle" />
-        <TextField label="Ürün adı" value={ad} onChangeText={setAd} />
+        <GrupBasligi metin={t['ui.favorites.add_product']} />
+        <TextField label={t['ui.favorites.name']} value={ad} onChangeText={setAd} />
         <View style={{ height: rhythm.blockInCard }} />
         <CategoryPicker value={cat} onChange={setCat} />
         <View style={{ height: rhythm.blockInCard }} />
-        <MoneyInput label="Son fiyat · ₺" value={amount} onChangeText={setAmount} />
+        <MoneyInput label={t['ui.favorites.last_price']} value={amount} onChangeText={setAmount} />
         <View style={{ height: rhythm.blockInCard }} />
         <Button
           variant="primary"
-          label="Sık kullanılanlara kaydet"
+          label={t['ui.favorites.save']}
           loading={busy}
           disabled={!ad.trim() || !cat || tutarGirisindenKurus(amount) <= 0}
           onPress={() =>

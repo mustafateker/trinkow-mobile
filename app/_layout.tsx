@@ -16,7 +16,7 @@ import * as SplashScreen from 'expo-splash-screen';
 
 import { useVeriBaglami } from '@/db/baglam';
 import { onboardingTamamlandiMi } from '@/db/profil';
-import { gunSiniriOku, kurulumGunuBaslat } from '@/db/ayarTercihleri';
+import { gunSiniriOku, kurulumGunuBaslat, yerellestirmeOku } from '@/db/ayarTercihleri';
 import { katalogTazele } from '@/db/katalog';
 import { ProfilingHost } from '@/components/ProfilingHost';
 import { LaunchScreen } from '@/components/LaunchScreen';
@@ -28,6 +28,8 @@ import { gunSiniriSaatiniAyarla } from '@/lib/tarih';
 import { t } from '@/content/metinler';
 import { toastGoster } from '@/lib/toastBus';
 import { color } from '@/theme/tokens';
+import { sunucuYerellestirmesiniUygula, yerellestirmeyiBaslat } from '@/lib/yerellestirmeDeposu';
+import { useYerellestirme } from '@/lib/useYerellestirme';
 
 // Android gesture navigation is transparent in edge-to-edge mode. The native
 // root behind it must therefore match our dock instead of falling back to
@@ -78,9 +80,14 @@ function OturumGezgini() {
           return;
         }
         await benKimim();
-        const [saat, tamam] = await Promise.all([gunSiniriOku(db), onboardingTamamlandiMi(db)]);
+        const [saat, tamam, yerellestirme] = await Promise.all([
+          gunSiniriOku(db),
+          onboardingTamamlandiMi(db),
+          yerellestirmeOku(db),
+        ]);
         if (iptal) return;
         gunSiniriSaatiniAyarla(saat);
+        await sunucuYerellestirmesiniUygula(yerellestirme.dil, yerellestirme.paraBirimi);
         await kurulumGunuBaslat(db);
         if (iptal) return;
         await acilisSuresiniTamamla();
@@ -152,13 +159,23 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 });
 
 export default function RootLayout() {
+  useYerellestirme();
+  const [yerellestirmeHazir, setYerellestirmeHazir] = useState(false);
   const [fontHazir, fontHatasi] = useFonts({
     PlusJakartaSans_500Medium,
     PlusJakartaSans_700Bold,
     PlusJakartaSans_800ExtraBold,
   });
 
-  if (!fontHazir && !fontHatasi) return null;
+  useEffect(() => {
+    let etkin = true;
+    void yerellestirmeyiBaslat().finally(() => {
+      if (etkin) setYerellestirmeHazir(true);
+    });
+    return () => { etkin = false; };
+  }, []);
+
+  if ((!fontHazir && !fontHatasi) || !yerellestirmeHazir) return null;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

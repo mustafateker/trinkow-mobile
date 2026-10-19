@@ -24,7 +24,7 @@ import {
 import { kategoriAyHarcamalari, kategoriAyOzeti, type Harcama } from '@/db/harcama';
 import { tumKategoriLimitleri } from '@/db/limitler';
 import { aileRenkleri, kategori } from '@/lib/kategoriler';
-import { paraYaz, sayiyaCevir } from '@/lib/para';
+import { paraSimgesi, paraYaz, sayiyaCevir } from '@/lib/para';
 import { ayBasligi, ayAnahtari, ayEkle } from '@/lib/tarih';
 import { veriDegisimineAbone } from '@/lib/veriBus';
 import { clay, color, layout, radius, rhythm, size } from '@/theme/tokens';
@@ -154,7 +154,7 @@ export default function KategoriDetayEkrani() {
                       </Txt>
                       <View style={{ width: rhythm.sameObject }} />
                       <Txt role="amount" tone={color.text2}>
-                        ₺
+                        {paraSimgesi()}
                       </Txt>
                     </View>
                   </View>
@@ -265,7 +265,7 @@ function AyDegistirici({
         </View>
       ) : (
         <View style={stil.aySatiri}>
-          <IconButton icon="chevron-left" accessibilityLabel="Önceki ay" onPress={onOnceki} />
+          <IconButton icon="chevron-left" accessibilityLabel={t['ui.common.previous_month']} onPress={onOnceki} />
           <View style={stil.ayOrta}>
             <Txt role="bodyStrong">{baslik}</Txt>
             <View style={{ height: rhythm.sameObject }} />
@@ -273,7 +273,7 @@ function AyDegistirici({
               {adet}
             </Txt>
           </View>
-          <IconButton icon="chevron-right" accessibilityLabel="Sonraki ay" onPress={onSonraki} />
+          <IconButton icon="chevron-right" accessibilityLabel={t['ui.common.next_month']} onPress={onSonraki} />
         </View>
       )}
     </ClaySurface>

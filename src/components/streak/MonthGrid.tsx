@@ -2,15 +2,15 @@ import { StyleSheet, View } from 'react-native';
 
 import { DayStatusBox } from '@/components/streak/DayStatusBox';
 import { Txt } from '@/components/Txt';
-import { gunsecA11yGun } from '@/content/metinler';
+import { gunsecA11yGun, t } from '@/content/metinler';
 import type { GunSeciciGunu } from '@/db/useGunSecici';
-import { ayIlkGununHaftaIndeksi, HAFTA_GUN_MIKRO, uzunTarih } from '@/lib/tarih';
+import { ayIlkGununHaftaIndeksi, haftaGunMikro, uzunTarih } from '@/lib/tarih';
 import { color, v4 } from '@/theme/tokens';
 
-const DURUM_ADI: Record<GunSeciciGunu['durum'], string> = {
-  altinda: 'limit altı',
-  disinda: 'limit dışı',
-  bos: 'kayıt yok',
+const DURUM_ANAHTARI: Record<GunSeciciGunu['durum'], keyof typeof t> = {
+  altinda: 'gunsec.lejant.altinda',
+  disinda: 'gunsec.lejant.disinda',
+  bos: 'gunsec.lejant.kayit_yok',
 };
 
 /**
@@ -32,7 +32,7 @@ export function MonthGrid({ ay, gunler, onGunSec }: { ay: string; gunler: GunSec
   return (
     <View>
       <View style={stil.satir}>
-        {HAFTA_GUN_MIKRO.map((etiket) => (
+        {haftaGunMikro().map((etiket) => (
           <View key={etiket} style={stil.hucre}>
             <Txt role="micro" tone={color.text2}>
               {etiket}
@@ -54,7 +54,7 @@ export function MonthGrid({ ay, gunler, onGunSec }: { ay: string; gunler: GunSec
                     pasif={g.pasif}
                     bugunMu={g.bugunMu}
                     onPress={g.pasif ? undefined : () => onGunSec(g)}
-                    accessibilityLabel={gunsecA11yGun(uzunTarih(g.tarih), DURUM_ADI[g.durum], g.bugunMu)}
+                    accessibilityLabel={gunsecA11yGun(uzunTarih(g.tarih), t[DURUM_ANAHTARI[g.durum]], g.bugunMu)}
                   />
                 </View>
               ) : (

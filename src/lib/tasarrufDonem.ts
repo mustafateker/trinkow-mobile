@@ -1,12 +1,20 @@
 import { ayBasligi, gunAnahtari, gunEkle, kisaTarih, tarihtenGun } from '@/lib/tarih';
+import { t } from '@/content/metinler';
 
 export type TasarrufDonemi = 'gun' | 'hafta' | 'ay' | 'yil';
 
-export const TASARRUF_DONEMLERI: { value: TasarrufDonemi; label: string }[] = [
-  { value: 'gun', label: 'Gün' },
-  { value: 'hafta', label: 'Hafta' },
-  { value: 'ay', label: 'Ay' },
-  { value: 'yil', label: 'Yıl' },
+const TASARRUF_DONEM_ANAHTARI: Record<TasarrufDonemi, keyof typeof t> = {
+  gun: 'ui.analysis.period_day',
+  hafta: 'ui.analysis.period_week',
+  ay: 'ui.analysis.period_month',
+  yil: 'ui.analysis.period_year',
+};
+
+export const TASARRUF_DONEMLERI: { value: TasarrufDonemi; labelKey: keyof typeof t }[] = [
+  { value: 'gun', labelKey: TASARRUF_DONEM_ANAHTARI.gun },
+  { value: 'hafta', labelKey: TASARRUF_DONEM_ANAHTARI.hafta },
+  { value: 'ay', labelKey: TASARRUF_DONEM_ANAHTARI.ay },
+  { value: 'yil', labelKey: TASARRUF_DONEM_ANAHTARI.yil },
 ];
 
 export function tasarrufDonemSinirlari(tur: TasarrufDonemi, referans: string): { baslangic: string; bitis: string } {
@@ -41,5 +49,5 @@ export function tasarrufDonemBasligi(tur: TasarrufDonemi, referans: string): str
 }
 
 export function tasarrufDonemKisaEtiketi(tur: TasarrufDonemi): string {
-  return TASARRUF_DONEMLERI.find((secenek) => secenek.value === tur)?.label ?? 'Dönem';
+  return t[TASARRUF_DONEM_ANAHTARI[tur]];
 }

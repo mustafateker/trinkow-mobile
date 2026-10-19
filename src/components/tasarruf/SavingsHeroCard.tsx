@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { Txt } from '@/components/Txt';
-import { t } from '@/content/metinler';
+import { tasarrufGenelDurumA11y, t } from '@/content/metinler';
 import { paraYaz } from '@/lib/para';
 import { color, radius, rhythm } from '@/theme/tokens';
 
@@ -37,9 +37,9 @@ export function SavingsHeroCard({
     <View
       style={stil.kazanim}
       accessible
-      accessibilityLabel={`Genel tasarruf durumu ${tasarrufBiliniyor ? paraYaz(hesaplananTasarrufKurus) : 'henüz hesaplanmadı'}`}>
+      accessibilityLabel={tasarrufGenelDurumA11y(tasarrufBiliniyor ? paraYaz(hesaplananTasarrufKurus) : t['ui.savings.not_calculated'])}>
       <View style={stil.baslikSatiri}>
-        <Txt role="h2" style={stil.esnek}>Genel tasarruf durumu</Txt>
+        <Txt role="h2" style={stil.esnek}>{t['ui.savings.overview']}</Txt>
         <View style={[stil.durumNokta, { backgroundColor: durumRengi }]} />
       </View>
       <View style={{ height: rhythm.group }} />

@@ -4,7 +4,7 @@ import { CategoryIconBox } from '@/components/CategoryIconBox';
 import { Icon } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
 import type { Harcama } from '@/db/harcama';
-import { GUNLUK_HARCAMA_KATEGORILERI, KATEGORILER, type KategoriKodu } from '@/lib/kategoriler';
+import { GUNLUK_HARCAMA_KATEGORILERI, kategori as kategoriGetir, type KategoriKodu } from '@/lib/kategoriler';
 import { paraYaz } from '@/lib/para';
 import { saatYaz } from '@/lib/tarih';
 import { a11y, color, radius, rhythm, size } from '@/theme/tokens';
@@ -21,7 +21,7 @@ export function CategoryQuickAddCard({
   return (
     <View>
       {GUNLUK_HARCAMA_KATEGORILERI.map((kod, index) => {
-        const kategori = KATEGORILER[kod];
+        const kategori = kategoriGetir(kod);
         const kategoriHarcamalari = harcamalar.filter((harcama) => harcama.kategori === kod);
         const toplam = kategoriHarcamalari.reduce((sum, harcama) => sum + harcama.tutarKurus, 0);
         return (

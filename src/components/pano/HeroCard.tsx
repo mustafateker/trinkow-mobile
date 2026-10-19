@@ -3,7 +3,7 @@ import Svg, { Circle } from 'react-native-svg';
 
 import { IconButton } from '@/components/IconButton';
 import { Txt } from '@/components/Txt';
-import { t } from '@/content/metinler';
+import { heroHarcamaA11y, heroLimitAsimA11y, heroLimitKullanimA11y, t } from '@/content/metinler';
 import { paraYaz } from '@/lib/para';
 import { color, radius, rhythm } from '@/theme/tokens';
 
@@ -41,9 +41,13 @@ export function HeroCard({ gunFarki, harcananKurus, limitKurus, oncekiPasif, onO
   const oran = limitli ? harcananKurus / limitKurus : 0;
   const doluluk = Math.min(Math.max(oran, 0), 1);
   const yuzde = Math.max(0, Math.round(oran * 100));
-  const a11yDeger = limitli ? `Limitin yüzde ${yuzde} kadarı kullanıldı` : `${paraYaz(harcananKurus)} harcandı`;
   const kalanKurus = limitKurus !== null ? limitKurus - harcananKurus : 0;
-  const ustEtiket = limitli ? 'Günlük bütçe' : etiket;
+  const a11yDeger = limitli
+    ? limitDisi
+      ? heroLimitAsimA11y(paraYaz(Math.abs(kalanKurus)), bugunMu)
+      : heroLimitKullanimA11y(yuzde, bugunMu)
+    : heroHarcamaA11y(paraYaz(harcananKurus));
+  const ustEtiket = limitli ? t['ui.common.daily_budget'] : etiket;
 
   return (
     <View>
@@ -134,20 +138,19 @@ function GunlukCircleChart({
   yuzde: number;
   limitDisi: boolean;
 }) {
-  const kalanEtiketi = limitDisi ? 'Bütçe dışı' : 'Kalan';
+  const kalanEtiketi = limitDisi ? t['ui.common.over_budget'] : t['ui.common.remaining_amount'];
   const kalanTutar = paraYaz(Math.abs(kalanKurus));
   const vurgu = limitDisi ? color.warning : color.primary;
-  const gunBaglami = bugunMu ? 'Bugünkü' : 'O günkü';
   const durumMetni = limitDisi
-    ? `${gunBaglami} limitinin ${kalanTutar} üzerine çıktın.`
-    : `${gunBaglami} limitinin yüzde ${yuzde} kadarı kullanıldı.`;
+    ? heroLimitAsimA11y(kalanTutar, bugunMu)
+    : heroLimitKullanimA11y(yuzde, bugunMu);
 
   return (
     <View
       style={stil.grafikAlan}
       accessible
       accessibilityRole="progressbar"
-      accessibilityLabel={`Harcanan ${paraYaz(harcananKurus)}. ${kalanEtiketi} ${kalanTutar}`}
+      accessibilityLabel={`${t['ui.common.spent']} ${paraYaz(harcananKurus)}. ${kalanEtiketi} ${kalanTutar}`}
       accessibilityValue={{ min: 0, max: 100, now: Math.round(doluluk * 100) }}>
       <View style={stil.grafikKabi}>
         <Svg width={GRAFIK_BOYUT} height={GRAFIK_BOYUT}>
@@ -190,7 +193,7 @@ function GunlukCircleChart({
         <View style={stil.ozetHucre}>
           <View style={stil.ozetEtiketSatiri}>
             <View style={[stil.grafikNokta, { backgroundColor: vurgu }]} />
-            <Txt role="caption" tone={color.text2}>Harcanan</Txt>
+            <Txt role="caption" tone={color.text2}>{t['ui.common.spent']}</Txt>
           </View>
           <Txt role="amount" numberOfLines={1} adjustsFontSizeToFit>{paraYaz(harcananKurus)}</Txt>
         </View>
@@ -198,7 +201,7 @@ function GunlukCircleChart({
         <View style={stil.ozetHucre}>
           <View style={stil.ozetEtiketSatiri}>
             <View style={[stil.grafikNokta, { backgroundColor: color.text3 }]} />
-            <Txt role="caption" tone={color.text2}>Günlük limit</Txt>
+            <Txt role="caption" tone={color.text2}>{t['ui.limits.daily_limit']}</Txt>
           </View>
           <Txt role="amount" numberOfLines={1} adjustsFontSizeToFit>{paraYaz(limitKurus)}</Txt>
         </View>

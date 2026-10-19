@@ -44,8 +44,10 @@ test('kayıt ekranı sosyal giriş içermez ve yasal onay bağlantılarını kor
   const fs = require('node:fs');
   const kaynak = fs.readFileSync(require('node:path').resolve(__dirname, '..', 'app/kayit.tsx'), 'utf8');
   assert.doesNotMatch(kaynak, /SocialAuthButton|sosyalSaglayicilar/);
-  assert.match(kaynak, /\*\*Kullanım şartlarını\*\*/);
-  assert.match(kaynak, /\*\*Gizlilik politikasını\*\*/);
+  assert.match(kaynak, /ui\.registration\.terms/);
+  assert.match(kaynak, /pathname: '\/legal', params: \{ belge: 'kosullar' \}/);
+  assert.match(kaynak, /ui\.registration\.privacy/);
+  assert.match(kaynak, /pathname: '\/legal', params: \{ belge: 'gizlilik' \}/);
 });
 
 test('giriş ekranında Google düğmesi gerçek akışa bağlı ve koşulsuz pasif değil', () => {

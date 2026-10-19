@@ -133,7 +133,7 @@ export function RoutineSheet({
       <View style={{ height: rhythm.group }} />
       <MoneyRow
         label={t['ob.rutin.fiyat']}
-        birim="₺"
+        birim="para"
         value={fiyat}
         onChangeText={setFiyat}
         onBlur={() => setFiyatDokunuldu(true)}

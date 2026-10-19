@@ -3,7 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { ClayPressable } from '@/components/ClayPressable';
 import { DayBox } from '@/components/DayBox';
 import { Txt } from '@/components/Txt';
-import { kategoriGunEtiketi } from '@/content/metinler';
+import { harcamaSatiriA11y, kategoriGunEtiketi, t } from '@/content/metinler';
 import type { Harcama } from '@/db/harcama';
 import { paraYaz } from '@/lib/para';
 import { ayKisaAdi, saatYaz, tarihtenGun } from '@/lib/tarih';
@@ -24,7 +24,7 @@ export function CategoryDetailRow({
   onPress?: () => void;
 }) {
   const gunTarihi = tarihtenGun(harcama.gun);
-  const odemeEtiketi = harcama.odeme === 'nakit' ? 'Nakit' : 'Kart';
+  const odemeEtiketi = harcama.odeme === 'nakit' ? t['ekle.odeme.nakit'] : t['ekle.odeme.kart'];
   const notEki = harcama.notMetni ? ` · ${harcama.notMetni}` : '';
   const birincil = `${saatYaz(harcama.zaman)} · ${odemeEtiketi}${notEki}`;
   const tutar = paraYaz(harcama.tutarKurus);
@@ -32,7 +32,7 @@ export function CategoryDetailRow({
   return (
     <ClayPressable
       onPress={onPress}
-      accessibilityLabel={`${kategoriGunEtiketi(String(gunTarihi.getDate()), ayKisaAdi(gunTarihi))}, ${tutar}, ${birincil}${limitDisi ? ', limit dışı' : ''}`}
+      accessibilityLabel={harcamaSatiriA11y(kategoriGunEtiketi(String(gunTarihi.getDate()), ayKisaAdi(gunTarihi)), tutar, birincil, limitDisi)}
       borderRadius={radius.tile}
       background={limitDisi ? color.warningSoft : color.surface}
       pressedBackground={color.groove}
@@ -49,8 +49,7 @@ export function CategoryDetailRow({
           <>
             <View style={{ height: rhythm.sameObject }} />
             <Txt role="caption" tone={color.warningInk}>
-              limit dışı
-            </Txt>
+              {t['ui.common.over_limit']}</Txt>
           </>
         ) : null}
       </View>

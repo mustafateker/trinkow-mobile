@@ -8,7 +8,7 @@ import { Icon } from '@/components/Icon';
 import { IconButton } from '@/components/IconButton';
 import { Txt } from '@/components/Txt';
 import { t } from '@/content/metinler';
-import { aileRenkleri, KATEGORILER, ILK_ALTI, TUM_KATEGORILER, type KategoriKodu } from '@/lib/kategoriler';
+import { aileRenkleri, kategori as kategoriGetir, ILK_ALTI, TUM_KATEGORILER, type KategoriKodu } from '@/lib/kategoriler';
 import { clay, color, layout, radius, rhythm, size } from '@/theme/tokens';
 
 /**
@@ -43,7 +43,7 @@ export function CategoryPicker({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={[stil.satir, { paddingHorizontal: layout.screenPaddingX }]}>
         {gorunecekler.map((kod) => {
-          const k = KATEGORILER[kod];
+          const k = kategoriGetir(kod);
           const secili = value === kod;
           return (
             <Chip
@@ -101,13 +101,13 @@ export function CategoryGridSheet({
   return (
     <BottomSheet visible={visible} onClose={onClose}>
       <View style={stil.basSatiri}>
-        <Txt role="h2">Kategori</Txt>
-        <IconButton icon="x" accessibilityLabel="Kapat" onPress={onClose} />
+        <Txt role="h2">{t['ui.expense.category']}</Txt>
+        <IconButton icon="x" accessibilityLabel={t['ui.common.close']} onPress={onClose} />
       </View>
       <View style={{ height: rhythm.blockInCard }} />
       <View style={stil.izgara}>
         {TUM_KATEGORILER.map((kod) => {
-          const k = KATEGORILER[kod];
+          const k = kategoriGetir(kod);
           const renk = aileRenkleri(k.aile);
           const secili = value === kod;
           return (

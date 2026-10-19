@@ -32,7 +32,7 @@ export function CategoryDistributionCard({
     <View>
       {gorunenler.length === 0 ? (
         <>
-          <Txt role="body">Bu dönemde kategori harcaması yok.</Txt>
+          <Txt role="body">{t['ui.savings.category_empty']}</Txt>
           <View style={{ height: rhythm.group }} />
           <Txt role="caption">{t['tasarruf.kategori.bos.alt']}</Txt>
         </>

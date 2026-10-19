@@ -11,16 +11,17 @@ import { kurustanTutarGirisi, tutarGirisindenKurus } from '@/lib/para';
 import { budgetBody, budgetGet, budgetPut, type BudgetInput } from '@/lib/revApi';
 import { rhythm } from '@/theme/tokens';
 import { veriDegisti } from '@/lib/veriBus';
+import { t } from '@/content/metinler';
 
 type Alan = 'gelir' | 'kira' | 'fatura' | 'ulasim' | 'kredi' | 'hedef' | 'borc';
-const alanlar: [Alan, string][] = [
-  ['gelir', 'Aylık gelir · ₺'],
-  ['kira', 'Kira · ₺'],
-  ['fatura', 'Faturalar · ₺'],
-  ['ulasim', 'Zorunlu ulaşım · ₺'],
-  ['kredi', 'Aylık kredi ödemesi · ₺'],
-  ['hedef', 'Aylık hedef birikim · ₺'],
-  ['borc', 'Kalan toplam borç · ₺'],
+const alanlar: [Alan, keyof typeof t][] = [
+  ['gelir', 'alan.gelir'],
+  ['kira', 'alan.kira'],
+  ['fatura', 'alan.fatura'],
+  ['ulasim', 'alan.ulasim'],
+  ['kredi', 'alan.kredi'],
+  ['hedef', 'alan.hedef.tasarruf'],
+  ['borc', 'alan.borc'],
 ];
 
 export default function Butce() {
@@ -64,9 +65,9 @@ export default function Butce() {
       const result = await budgetPut(body);
       load.setData(result);
       veriDegisti();
-      setMessage('Bütçen bugünden itibaren güncellendi.');
+      setMessage(t['ui.budget.updated']);
     } catch {
-      setMessage('Kaydedilemedi. Geliri ve kategori paylarını kontrol et.');
+      setMessage(t['ui.budget.save_failed']);
     } finally {
       setBusy(false);
     }
@@ -75,35 +76,35 @@ export default function Butce() {
   const b = load.data?.butce;
 
   return (
-    <RevScreen title="Bütçem">
+    <RevScreen title={t['ui.budget.title']}>
       <LoadState {...load} />
       {load.data && !load.loading && !load.error ? (
         <>
-          <Txt role="body">Değişiklikler bugünden itibaren geçerli olur; geçmiş günlerin hesabı değişmez.</Txt>
+          <Txt role="body">{t['ui.budget.changes_notice']}</Txt>
 
           <View>
-            <GrupBasligi metin="Gelir ve giderler" />
+            <GrupBasligi metin={t['ui.budget.income_expenses']} />
             {alanlar.map(([key, label], i) => (
               <View key={key}>
                 {i > 0 ? <View style={{ height: rhythm.blockInCard }} /> : null}
-                <MoneyInput label={label} value={fields[key]} onChangeText={(value) => setFields((old) => ({ ...old, [key]: value }))} />
+                <MoneyInput label={t[label]} value={fields[key]} onChangeText={(value) => setFields((old) => ({ ...old, [key]: value }))} />
               </View>
             ))}
             <View style={{ height: rhythm.blockInCard }} />
-            <Txt role="caption">Gelir veya borç bilinmiyorsa boş bırakabilirsin. Hedef birikim, gerçekleşmiş birikim sayılmaz.</Txt>
+            <Txt role="caption">{t['ui.budget.unknown_notice']}</Txt>
           </View>
 
           <View>
-            <GrupBasligi metin="Otomatik günlük limit" />
+            <GrupBasligi metin={t['ui.budget.daily_limit']} />
             <Txt role="display">{money(b?.gunluk_limit_kurus)}</Txt>
             {b?.butce_acigi_kurus ? (
               <>
                 <View style={{ height: rhythm.sameObject }} />
-                <Txt role="body">Aylık bütçe açığı: {money(b.butce_acigi_kurus)}</Txt>
+                <Txt role="body">{t['ui.budget.monthly_shortfall']}{money(b.butce_acigi_kurus)}</Txt>
               </>
             ) : null}
             <View style={{ height: rhythm.sameObject }} />
-            <Txt role="caption">Gelir − sabit ödemeler − hedef birikim, ayın günlerine dağıtılır.</Txt>
+            <Txt role="caption">{t['ui.budget.distribution_notice']}</Txt>
           </View>
 
           {message ? (
@@ -113,11 +114,11 @@ export default function Butce() {
           ) : null}
 
           <View>
-            <Button variant="primary" label={b ? 'Kaydet' : 'Bütçemi oluştur'} loading={busy} onPress={() => void save()} />
+            <Button variant="primary" label={b ? t['ui.budget.save'] : t['ui.budget.create']} loading={busy} onPress={() => void save()} />
             <View style={{ height: rhythm.group }} />
-            <Button variant="secondary" label="Günlük ve kategori limitleri" disabled={!b} onPress={() => router.push('/limitler')} />
+            <Button variant="secondary" label={t['ui.budget.limits']} disabled={!b} onPress={() => router.push('/limitler')} />
             <View style={{ height: rhythm.group }} />
-            <Button variant="secondary" label="Rutinler ve Abonelikler" onPress={() => router.push('/rutinler')} />
+            <Button variant="secondary" label={t['ui.settings.routines_title']} onPress={() => router.push('/rutinler')} />
           </View>
         </>
       ) : null}

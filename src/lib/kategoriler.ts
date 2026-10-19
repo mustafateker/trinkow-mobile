@@ -1,4 +1,5 @@
 import type { IconName } from '@/components/Icon';
+import { t } from '@/content/metinler';
 import { catColor, type CatFamily } from '@/theme/tokens';
 
 /**
@@ -94,7 +95,9 @@ export const GUNLUK_HARCAMA_KATEGORILERI: KategoriKodu[] = TUM_KATEGORILER.filte
 export const SABIT_ODEME_KATEGORILERI: KategoriKodu[] = ['abonelik', 'fatura', 'kiraev'];
 
 export function kategori(kod: string): Kategori {
-  return KATEGORILER[kod as KategoriKodu] ?? KATEGORILER.market;
+  const secilen = KATEGORILER[kod as KategoriKodu] ?? KATEGORILER.market;
+  const adAnahtari: `kategori.ad.${KategoriKodu}` = `kategori.ad.${secilen.kod}`;
+  return { ...secilen, ad: t[adAnahtari] };
 }
 
 export function aileRenkleri(aile: CatFamily) {

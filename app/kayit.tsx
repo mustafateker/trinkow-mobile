@@ -106,7 +106,7 @@ export default function KayitEkrani() {
   }
 
   return (
-    <AuthShell title="Hesabını oluştur" subtitle="Günlük harcamalarını birkaç saniyede görmeye başla." onBack={() => router.replace('/giris')}>
+    <AuthShell title={t['ui.registration.title']} subtitle={t['ui.registration.subtitle']} onBack={() => router.replace('/giris')}>
 
           {agHatasi ? (
             <>
@@ -165,7 +165,7 @@ export default function KayitEkrani() {
             checked={onayKosullar}
             onPress={() => onayIsaretle('kosullar')}
             error={onayHata}
-            label={<LegalConsentText metin="**Kullanım şartlarını** okudum, kabul ediyorum." onLinkPress={() => router.push({ pathname: '/legal', params: { belge: 'kosullar' } })} />}
+            label={<LegalConsentText metin={t['ui.registration.terms']} onLinkPress={() => router.push({ pathname: '/legal', params: { belge: 'kosullar' } })} />}
             accessibilityLabel={t['a11y.onay.kosullar']}
           />
           <View style={{ height: rhythm.group }} />
@@ -173,7 +173,7 @@ export default function KayitEkrani() {
             checked={onayGizlilik}
             onPress={() => onayIsaretle('gizlilik')}
             error={onayHata}
-            label={<LegalConsentText metin="**Gizlilik politikasını** okudum, kabul ediyorum." onLinkPress={() => router.push({ pathname: '/legal', params: { belge: 'gizlilik' } })} />}
+            label={<LegalConsentText metin={t['ui.registration.privacy']} onLinkPress={() => router.push({ pathname: '/legal', params: { belge: 'gizlilik' } })} />}
             accessibilityLabel={t['a11y.onay.gizlilik']}
           />
           <View style={{ height: rhythm.group }} />

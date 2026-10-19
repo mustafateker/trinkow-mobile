@@ -3,6 +3,7 @@ import type { VeriBaglami } from '@/db/baglam';
 import { ODEME_VARSAYILAN, type OdemeTipi } from '@/db/harcama';
 import { tercihleriGetir, tercihleriGuncelle, type TercihlerYaniti } from '@/lib/api';
 import { gunAnahtari, gunSiniriSaatiniAyarla } from '@/lib/tarih';
+import type { Dil, ParaBirimi, YerellestirmeTercihi } from '@/lib/yerellestirme';
 
 /**
  * D-2c-1 · E-19 Ayarlar — arka oda tercihleri. BE-6a ile `GET/PATCH
@@ -87,6 +88,19 @@ export async function varsayilanOdemeOku(_db: VeriBaglami): Promise<OdemeTipi> {
 /** NOT: yalnız tercihi saklar; `app/harcama-ekle.tsx` bu turda DEĞİŞMEDİ (bkz. rapor). */
 export async function varsayilanOdemeKaydet(_db: VeriBaglami, odeme: OdemeTipi): Promise<void> {
   await tercihleriGuncelle({ varsayilan_odeme: odeme });
+}
+
+export async function yerellestirmeOku(_db: VeriBaglami): Promise<YerellestirmeTercihi> {
+  const tercih = await tercihleriGetirTekil();
+  return { dil: tercih.dil ?? 'en', paraBirimi: tercih.para_birimi ?? 'TRY' };
+}
+
+export async function dilKaydet(_db: VeriBaglami, dil: Dil): Promise<void> {
+  await tercihleriGuncelle({ dil });
+}
+
+export async function paraBirimiKaydet(_db: VeriBaglami, paraBirimi: ParaBirimi): Promise<void> {
+  await tercihleriGuncelle({ para_birimi: paraBirimi });
 }
 
 /**

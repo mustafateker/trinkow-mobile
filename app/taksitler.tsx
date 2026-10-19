@@ -40,7 +40,7 @@ import {
 } from '@/db/harcama';
 import { useReduceMotion } from '@/lib/hareket';
 import { aileRenkleri, kategori, TUM_KATEGORILER } from '@/lib/kategoriler';
-import { paraYaz, sayiyaCevir } from '@/lib/para';
+import { paraSimgesi, paraYaz, sayiyaCevir } from '@/lib/para';
 import {
   ayToplamLiraHesapla,
   enBuyukKategoriKodu,
@@ -202,7 +202,7 @@ export default function TaksitlerEkrani() {
                 <Txt role="display">{sayiyaCevir(ayToplamKurus)}</Txt>
                 <View style={{ width: rhythm.sameObject }} />
                 <Txt role="amount" tone={color.text2}>
-                  ₺
+                  {paraSimgesi()}
                 </Txt>
               </View>
               <View style={{ height: rhythm.blockInCard }} />

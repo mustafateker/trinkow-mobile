@@ -5,6 +5,7 @@ import { SegmentedControl } from '@/components/SegmentedControl';
 import { Txt } from '@/components/Txt';
 import { TASARRUF_DONEMLERI, type TasarrufDonemi } from '@/lib/tasarrufDonem';
 import { rhythm } from '@/theme/tokens';
+import { t } from '@/content/metinler';
 
 export function SavingsPeriodSheet({
   visible,
@@ -17,12 +18,17 @@ export function SavingsPeriodSheet({
   onChange: (value: TasarrufDonemi) => void;
   onClose: () => void;
 }) {
+  const secenekler = TASARRUF_DONEMLERI.map((secenek) => ({
+    value: secenek.value,
+    label: t[secenek.labelKey],
+  }));
+
   return (
     <BottomSheet visible={visible} onClose={onClose}>
-      <Txt role="h2">Tasarruf dönemi</Txt>
+      <Txt role="h2">{t['ui.savings.period']}</Txt>
       <View style={{ height: rhythm.blockInCard }} />
       <SegmentedControl
-        secenekler={TASARRUF_DONEMLERI}
+        secenekler={secenekler}
         deger={value}
         onChange={(yeni) => {
           onChange(yeni);

@@ -47,7 +47,7 @@ export function MovementsSection({
         <EmptyState
           icon="banknote"
           baslik={t['tasarruf.hareket.bos.baslik']}
-          govde="Bu dönemde birikim hareketi yok."
+          govde={t['ui.savings.movements_empty']}
         />
       ) : (
         <>

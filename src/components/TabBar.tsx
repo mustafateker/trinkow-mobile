@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, type IconName } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
 import { clay, color, radius, rhythm, size } from '@/theme/tokens';
+import { t } from '@/content/metinler';
 
 /**
  * Tasarım kiti §6.J — koyu lacivert (`ink-950`) sabit dock. Dört ana sekme
@@ -15,11 +16,11 @@ export type TabKey = 'gunluk' | 'tasarruflar' | 'analizler' | 'profil';
 
 const PASIF_TON = color.navMuted;
 
-const SEKMELER: { key: TabKey; ad: string; ikon: IconName }[] = [
-  { key: 'gunluk', ad: 'Bugün', ikon: 'gauge' },
-  { key: 'tasarruflar', ad: 'Tasarruf', ikon: 'notebook' },
-  { key: 'analizler', ad: 'Analizler', ikon: 'chart' },
-  { key: 'profil', ad: 'Profil', ikon: 'user' },
+const SEKMELER: { key: TabKey; metin: keyof typeof t; ikon: IconName }[] = [
+  { key: 'gunluk', metin: 'ui.common.today', ikon: 'gauge' },
+  { key: 'tasarruflar', metin: 'tasarruf.baslik', ikon: 'notebook' },
+  { key: 'analizler', metin: 'ui.analysis.title', ikon: 'chart' },
+  { key: 'profil', metin: 'ui.tabs.profile', ikon: 'user' },
 ];
 
 export function TabBar({
@@ -29,9 +30,10 @@ export function TabBar({
   active: TabKey;
   onSelect?: (key: TabKey) => void;
 }) {
+  const sekmeler = SEKMELER.map((sekme) => ({ ...sekme, ad: t[sekme.metin] }));
   return (
     <View style={stil.cubuk}>
-      {SEKMELER.slice(0, 2).map((s) => {
+      {sekmeler.slice(0, 2).map((s) => {
         const aktif = s.key === active;
         const tone = aktif ? '#FFFFFF' : PASIF_TON;
         return <Pressable
@@ -58,12 +60,12 @@ export function TabBar({
         <Pressable
           onPress={() => router.push('/harcama-ekle')}
           accessibilityRole="button"
-          accessibilityLabel="Harcama ekle"
+          accessibilityLabel={t['gunluk.harcama_ekle']}
           style={({ pressed }) => [stil.ekle, pressed && stil.ekleBasili]}>
           <Icon name="plus" size={32} color="#FFFFFF" strokeWidth={2.5} />
         </Pressable>
       </View>
-      {SEKMELER.slice(2).map((s) => {
+      {sekmeler.slice(2).map((s) => {
         const aktif = s.key === active;
         const tone = aktif ? '#FFFFFF' : PASIF_TON;
         return <Pressable

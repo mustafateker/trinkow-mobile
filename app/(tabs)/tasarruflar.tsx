@@ -14,7 +14,7 @@ import { SavingsHeroCard } from '@/components/tasarruf/SavingsHeroCard';
 import { SavingsPeriodSheet } from '@/components/tasarruf/SavingsPeriodSheet';
 import { SavingsSkeleton } from '@/components/tasarruf/SavingsSkeleton';
 import { Txt } from '@/components/Txt';
-import { t, tasarrufHareketKaydedildiToast, tasarrufHareketSilindiToast } from '@/content/metinler';
+import { t, tasarrufDonemiA11y, tasarrufHareketKaydedildiToast, tasarrufHareketSilindiToast } from '@/content/metinler';
 import { bugun, movementDelete, movementPut, routinesGet, savingsPeriodGet, movementsPeriodGet, yeniId, type Movement } from '@/lib/revApi';
 import { paraYaz } from '@/lib/para';
 import { tasarrufDonemBasligi, tasarrufDonemKisaEtiketi, tasarrufDonemSinirlari, type TasarrufDonemi } from '@/lib/tasarrufDonem';
@@ -120,7 +120,7 @@ export default function TasarruflarEkrani() {
       <Pressable
         onPress={() => setDonemSheetAcik(true)}
         accessibilityRole="button"
-        accessibilityLabel={`Tasarruf dönemi: ${tasarrufDonemKisaEtiketi(donem)}`}
+        accessibilityLabel={tasarrufDonemiA11y(tasarrufDonemKisaEtiketi(donem))}
         style={({ pressed }) => [stil.donemButonu, pressed && stil.donemButonuBasili]}>
         <Txt role="label" tone="#FFFFFF">{tasarrufDonemKisaEtiketi(donem)}</Txt>
         <Icon name="chevron-down" size={20} color="#FFFFFF" />

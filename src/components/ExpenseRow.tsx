@@ -9,7 +9,7 @@ import { ClayPressable } from '@/components/ClayPressable';
 import { Dialog } from '@/components/Dialog';
 import { Icon, type IconName } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
-import { silGovdeTaksit, t } from '@/content/metinler';
+import { harcamaSatiriA11y, silGovdeTaksit, taksitKisaEtiketi, t } from '@/content/metinler';
 import type { Harcama } from '@/db/harcama';
 import { harcamaTekilSilVeGeriAlSun, harcamaTekrarla, taksitSerisiSilVeToastGoster } from '@/lib/harcamaEylemleri';
 import { kategori } from '@/lib/kategoriler';
@@ -55,11 +55,11 @@ export function ExpenseRow({
   const tutar = paraYaz(harcama.tutarKurus);
   // Birincil satır: ürün adı varsa o, yoksa kategori adı (Ü-5: ayrı alan)
   const birincil = harcama.urunAdi ?? kat.ad;
-  const odemeEtiketi = harcama.odeme === 'nakit' ? 'Nakit' : 'Kart';
+  const odemeEtiketi = harcama.odeme === 'nakit' ? t['ekle.odeme.nakit'] : t['ekle.odeme.kart'];
   // §7.3 `installment` durumu — "3/12 taksit" ikincil satıra eklenir, ikon değişmez.
   const taksitEtiketi =
     harcama.taksitId && harcama.taksitNo && harcama.taksitToplam
-      ? ` · ${harcama.taksitNo}/${harcama.taksitToplam} taksit`
+      ? taksitKisaEtiketi(harcama.taksitNo, harcama.taksitToplam)
       : '';
   const ikincil = `${saatYaz(harcama.zaman)} · ${odemeEtiketi}${taksitEtiketi}`;
   // "Kalan {adet} taksit" — bu kayıttan SONRAKİ ödenmemiş taksit sayısı (E-13 ile aynı formül).
@@ -93,7 +93,7 @@ export function ExpenseRow({
   const satir = (
     <ClayPressable
       onPress={onPress}
-      accessibilityLabel={`${birincil}, ${tutar}, ${ikincil}${limitDisi ? ', limit dışı' : ''}`}
+      accessibilityLabel={harcamaSatiriA11y(birincil, tutar, ikincil, limitDisi)}
       borderRadius={radius.tile}
       background={limitDisi ? color.warningSoft : color.surface}
       pressedBackground={color.groove}
@@ -129,8 +129,7 @@ export function ExpenseRow({
         <Txt role="amount">{tutar}</Txt>
         {limitDisi ? (
           <Txt role="caption" tone={color.warningInk}>
-            limit dışı
-          </Txt>
+            {t['ui.common.over_limit']}</Txt>
         ) : null}
       </View>
     </ClayPressable>

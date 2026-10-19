@@ -6,6 +6,7 @@ import { ClaySurface } from '@/components/ClaySurface';
 import { Icon } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
 import { clay, color, radius, rhythm } from '@/theme/tokens';
+import { t } from '@/content/metinler';
 
 type GuncellemeBilgisi = {
   storeVersion?: string;
@@ -75,30 +76,27 @@ export function InAppUpdateHost() {
               <Icon name="refresh-cw" size={24} color={color.primary} />
             </View>
             <View style={{ height: rhythm.blockInCard }} />
-            <Txt role="h2">Yeni sürüm hazır</Txt>
+            <Txt role="h2">{t['ui.common.new_version']}</Txt>
             <View style={{ height: rhythm.group }} />
-            <Txt role="body">
-              Trinkow&apos;un yeni sürümü yayınlandı. Güncelleme şimdi güvenli biçimde indirilecek ve uygulama yeniden açılacak.
-            </Txt>
+            <Txt role="body">{t['ui.common.update_message']}</Txt>
             {bilgi?.storeVersion ? (
               <>
                 <View style={{ height: rhythm.group }} />
-                <Txt role="caption" tone={color.text2}>Google Play sürüm kodu: {bilgi.storeVersion}</Txt>
+                <Txt role="caption" tone={color.text2}>{t['ui.common.play_version']}{bilgi.storeVersion}</Txt>
               </>
             ) : null}
             {hata ? (
               <>
                 <View style={{ height: rhythm.group }} />
                 <Txt role="caption" tone={color.dangerInk}>
-                  Güncelleme başlatılamadı. İnternet bağlantını kontrol edip tekrar dene.
-                </Txt>
+                  {t['ui.common.update_failed']}</Txt>
               </>
             ) : null}
             <View style={{ height: rhythm.blockInCard }} />
             <Button
-              label={hata ? 'Tekrar dene' : 'Şimdi güncelle'}
+              label={hata ? t['ui.common.retry'] : t['ui.common.update_now']}
               loading={guncelleniyor}
-              loadingLabel="Güncelleme açılıyor"
+              loadingLabel={t['ui.common.update_launching']}
               variant="primary"
               icon="refresh-cw"
               onPress={() => void guncelle()}

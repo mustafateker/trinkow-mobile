@@ -3,6 +3,7 @@ import { KeyboardAvoidingView, Platform, ScrollView, Modal, Pressable, StyleShee
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { color, radius } from '@/theme/tokens';
+import { t } from '@/content/metinler';
 
 /**
  * Tasarım kiti §6.I — üst köşeler 28 (`radius.hero`), zemin `bg`, gölge
@@ -38,7 +39,7 @@ export function BottomSheet({
         <Pressable
           style={[StyleSheet.absoluteFill, stil.scrim]}
           accessibilityRole="button"
-          accessibilityLabel="Kapat"
+          accessibilityLabel={t['ui.common.close']}
           onPress={onClose}
         />
         <View style={[stil.sheet, { paddingBottom: footer ? 0 : insets.bottom + 16 }]}>
