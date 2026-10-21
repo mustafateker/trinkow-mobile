@@ -1,5 +1,4 @@
 import { usePathname } from 'expo-router';
-import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
@@ -51,7 +50,6 @@ const BILDIRIM_SECENEK: { v: boolean; etiket: keyof typeof t }[] = [
  * bırakıldı; onun yerine aynı metinle bir toast gösterilir (bkz. rapor).
  */
 export function ProfilingHost() {
-  const db = useVeriBaglami();
   const pathname = usePathname();
   const [soruId, setSoruId] = useState<ProfillemeSoruId | null>(null);
 
@@ -60,8 +58,8 @@ export function ProfilingHost() {
       setSoruId(null);
       return;
     }
-    void aktifProfillemeSorusu(db).then(setSoruId).catch(() => setSoruId(null));
-  }, [db, pathname]);
+    void aktifProfillemeSorusu().then(setSoruId).catch(() => setSoruId(null));
+  }, [pathname]);
 
   useEffect(() => {
     kontrolEt();
@@ -73,7 +71,7 @@ export function ProfilingHost() {
 
   async function reddet(id: ProfillemeSoruId) {
     try {
-      await profillemeReddet(db, id);
+      await profillemeReddet(id);
       setSoruId(null);
     } catch {
       toastGoster({ tur: 'warning', metin: t['hata.okuma.govde'] });
@@ -95,7 +93,7 @@ export function ProfilingHost() {
             ilk={i === 0}
             etiket={t[s.etiket]}
             onPress={async () => {
-              await profillemeYatirimCevapla(db, s.v);
+              await profillemeYatirimCevapla(s.v);
               setSoruId(null);
               veriDegisti();
             }}
@@ -119,7 +117,7 @@ export function ProfilingHost() {
             ilk={i === 0}
             etiket={t[s.etiket]}
             onPress={async () => {
-              await profillemeTaksitCevapla(db, s.v);
+              await profillemeTaksitCevapla(s.v);
               setSoruId(null);
               // "Taksit yükü" kartının panoya eklenmesi Günlük'e dokunmayı
               // gerektirir (kapsam dışı, bkz. rapor) — karşılığı toast'la söylenir.
@@ -145,7 +143,7 @@ export function ProfilingHost() {
           ilk={i === 0}
           etiket={t[s.etiket]}
           onPress={async () => {
-            await profillemeBildirimCevapla(db, s.v);
+            await profillemeBildirimCevapla(s.v);
             setSoruId(null);
             veriDegisti();
           }}

@@ -13,8 +13,8 @@ import { Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
+import { QueryClientProvider } from '@tanstack/react-query';
 
-import { useVeriBaglami } from '@/db/baglam';
 import { onboardingTamamlandiMi } from '@/db/profil';
 import { gunSiniriOku, kurulumGunuBaslat, yerellestirmeOku } from '@/db/ayarTercihleri';
 import { katalogTazele } from '@/db/katalog';
@@ -22,7 +22,7 @@ import { ProfilingHost } from '@/components/ProfilingHost';
 import { LaunchScreen } from '@/components/LaunchScreen';
 import { InAppUpdateHost } from '@/components/InAppUpdateHost';
 import { ToastHost } from '@/components/ToastHost';
-import { ApiHatasi, benKimim } from '@/lib/api';
+import { ApiHatasi } from '@/lib/api';
 import { oturumDegisimineAbone, oturumOku, oturumSil } from '@/lib/oturumDeposu';
 import { gunSiniriSaatiniAyarla } from '@/lib/tarih';
 import { t } from '@/content/metinler';
@@ -30,6 +30,7 @@ import { toastGoster } from '@/lib/toastBus';
 import { color } from '@/theme/tokens';
 import { sunucuYerellestirmesiniUygula, yerellestirmeyiBaslat } from '@/lib/yerellestirmeDeposu';
 import { useYerellestirme } from '@/lib/useYerellestirme';
+import { oturumOnbelleginiTemizle, queryClient } from '@/lib/queryClient';
 
 // Android gesture navigation is transparent in edge-to-edge mode. The native
 // root behind it must therefore match our dock instead of falling back to
@@ -51,12 +52,12 @@ function IlkYonlendirme({ onboarding }: { onboarding: boolean }) {
 
 /** Ekranlar oturum ve gün sınırı okunmadan API çağırmaya başlamaz. */
 function OturumGezgini() {
-  const db = useVeriBaglami();
   const [tetik, setTetik] = useState(0);
   const [durum, setDurum] = useState<'yukleniyor' | 'kapali' | 'acik'>('yukleniyor');
   const [ilkEkran, setIlkEkran] = useState('(tabs)');
 
   useEffect(() => oturumDegisimineAbone(() => {
+    oturumOnbelleginiTemizle();
     setDurum('yukleniyor');
     setTetik((n) => n + 1);
   }), []);
@@ -64,7 +65,7 @@ function OturumGezgini() {
   useEffect(() => {
     let iptal = false;
     async function baslat() {
-      const enErkenGecis = Date.now() + 1200;
+      const enErkenGecis = Date.now() + 300;
       async function acilisSuresiniTamamla() {
         const kalan = enErkenGecis - Date.now();
         if (kalan > 0) await new Promise((tamamla) => setTimeout(tamamla, kalan));
@@ -79,22 +80,21 @@ function OturumGezgini() {
           setDurum('kapali');
           return;
         }
-        await benKimim();
         const [saat, tamam, yerellestirme] = await Promise.all([
-          gunSiniriOku(db),
-          onboardingTamamlandiMi(db),
-          yerellestirmeOku(db),
+          gunSiniriOku(),
+          onboardingTamamlandiMi(),
+          yerellestirmeOku(),
         ]);
         if (iptal) return;
         gunSiniriSaatiniAyarla(saat);
         await sunucuYerellestirmesiniUygula(yerellestirme.dil, yerellestirme.paraBirimi);
-        await kurulumGunuBaslat(db);
+        await kurulumGunuBaslat();
         if (iptal) return;
         await acilisSuresiniTamamla();
         if (iptal) return;
         setIlkEkran(tamam ? '(tabs)' : 'onboarding');
         setDurum('acik');
-        void katalogTazele(db).catch(() => {});
+        void katalogTazele().catch(() => {});
       } catch (hata) {
         if (iptal) return;
         if (hata instanceof ApiHatasi && [401, 403, 404].includes(hata.durum)) {
@@ -113,7 +113,7 @@ function OturumGezgini() {
     }
     void baslat();
     return () => { iptal = true; };
-  }, [db, tetik]);
+  }, [tetik]);
 
   if (durum === 'yukleniyor') {
     return <LaunchScreen onReady={() => SplashScreen.hideAsync().catch(() => {})} />;
@@ -178,8 +178,9 @@ export default function RootLayout() {
   if ((!fontHazir && !fontHatasi) || !yerellestirmeHazir) return null;
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <SafeAreaProvider>
+    <QueryClientProvider client={queryClient}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <SafeAreaProvider>
         {/* Tasarım kiti §6.A — her ekran koyu bir üst bar/header taşır, bu yüzden
             durum çubuğu ikonları hep açık renk. useColorScheme kullanılmaz. */}
         <StatusBar style="light" />
@@ -188,7 +189,8 @@ export default function RootLayout() {
           <ToastHost />
           <InAppUpdateHost />
         </View>
-      </SafeAreaProvider>
-    </GestureHandlerRootView>
+        </SafeAreaProvider>
+      </GestureHandlerRootView>
+    </QueryClientProvider>
   );
 }

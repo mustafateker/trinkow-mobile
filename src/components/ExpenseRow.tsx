@@ -1,6 +1,5 @@
 import { islemHatasiniGoster } from '@/lib/islemHatasi';
 import { useState } from 'react';
-import { useVeriBaglami } from '@/db/baglam';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { Swipeable } from 'react-native-gesture-handler';
 
@@ -47,7 +46,6 @@ export function ExpenseRow({
   /** E-10/E-14 satırlarında true — Akış C/D kaydırma eylemlerini açar. */
   kaydirilabilir?: boolean;
 }) {
-  const db = useVeriBaglami();
   const [silDialogAcik, setSilDialogAcik] = useState(false);
   const [siliniyor, setSiliniyor] = useState(false);
 
@@ -66,14 +64,14 @@ export function ExpenseRow({
   const seriKalan = Math.max((harcama.taksitToplam ?? 0) - (harcama.taksitNo ?? 0), 0);
 
   function tekrarla() {
-    void harcamaTekrarla(db, harcama).catch(islemHatasiniGoster);
+    void harcamaTekrarla(harcama).catch(islemHatasiniGoster);
   }
 
   function silBaslat() {
     if (harcama.taksitId) {
       setSilDialogAcik(true);
     } else {
-      void harcamaTekilSilVeGeriAlSun(db, harcama).catch(islemHatasiniGoster);
+      void harcamaTekilSilVeGeriAlSun(harcama).catch(islemHatasiniGoster);
     }
   }
 
@@ -81,7 +79,7 @@ export function ExpenseRow({
     if (!harcama.taksitId) return;
     setSiliniyor(true);
     try {
-      await taksitSerisiSilVeToastGoster(db, harcama.taksitId);
+      await taksitSerisiSilVeToastGoster(harcama.taksitId);
       setSilDialogAcik(false);
     } catch {
       islemHatasiniGoster();

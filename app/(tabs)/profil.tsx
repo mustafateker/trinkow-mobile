@@ -1,5 +1,4 @@
 import { router } from 'expo-router';
-import { useVeriBaglami } from '@/db/baglam';
 import { useCallback } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { IconName } from '@/components/Icon';
@@ -55,7 +54,6 @@ type AyarVerisi = {
  * yalnız Ayarlar'dan değişir (§26.3), tek eylem hiyerarşisi §7/5 gereği.
  */
 export default function ProfilEkrani() {
-  const db = useVeriBaglami();
   const oturum = useRevLoad(useCallback(oturumOku, []));
 
   const ayarVerisi = useRevLoad(
@@ -66,9 +64,9 @@ export default function ProfilEkrani() {
         routinesGet(),
         favoritesGet(),
         savingsGet(buAy),
-        surenSeriler(db, buAy),
-        taksitBuAyToplam(db, buAy),
-        seriDurumuHesapla(db),
+        surenSeriler(buAy),
+        taksitBuAyToplam(buAy),
+        seriDurumuHesapla(),
       ]);
       const [butceYaniti, rutinYaniti, favoriYaniti, tasarrufAy, taksitSeriler, buAyTaksitToplam, seriYaniti] = sonuclar;
       const butce = butceYaniti.status === 'fulfilled' ? butceYaniti.value.butce : null;
@@ -91,7 +89,7 @@ export default function ProfilEkrani() {
         seri,
         eksik: sonuclar.some((sonuc) => sonuc.status === 'rejected'),
       };
-    }, [db]),
+    }, []),
   );
 
   const panelYukleniyor = oturum.loading || (oturum.data !== null && ayarVerisi.loading);

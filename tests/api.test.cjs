@@ -5,6 +5,18 @@ const adres = yukle('src/lib/apiAdres.ts');
 
 function ortam(fetch, globals = {}) {
   let oturum = { erisimTokeni: 'eski', yenilemeTokeni: 'refresh', kullaniciId: 'a', oturumKimligi: 'oturum-a' };
+  const sorgular = new Map();
+  const queryClient = {
+    fetchQuery: ({ queryKey, queryFn }) => {
+      const anahtar = JSON.stringify(queryKey);
+      const mevcut = sorgular.get(anahtar);
+      if (mevcut) return mevcut;
+      const islem = Promise.resolve().then(queryFn).finally(() => sorgular.delete(anahtar));
+      sorgular.set(anahtar, islem);
+      return islem;
+    },
+    clear: () => sorgular.clear(),
+  };
   const api = yukle('src/lib/api.ts', {
     'expo-constants': { expoConfig: { hostUri: '192.168.1.22:8081' } },
     'react-native': { Platform: { OS: 'ios' } },
@@ -15,6 +27,11 @@ function ortam(fetch, globals = {}) {
         if (oturum?.yenilemeTokeni === refresh) oturum = { ...oturum, erisimTokeni: token, yenilemeTokeni: yeniRefresh };
       },
       oturumGecersizKil: async (refresh) => { if (oturum?.yenilemeTokeni === refresh) oturum = null; },
+    },
+    '@/lib/queryClient': {
+      queryClient,
+      apiStaleTime: () => 30_000,
+      mutasyonSonrasiOnbellekGecersizKil: async () => {},
     },
   }, { fetch, ...globals });
   return { api, oturum: () => oturum, degistir: (value) => { oturum = value; } };
@@ -60,6 +77,18 @@ test('Google public OAuth yapılandırması backendden alınır', async () => {
 
   const yapilandirma = await api.googleYapilandirmasiniGetir();
   assert.equal(yapilandirma.webClientId, 'web.apps.googleusercontent.com');
+});
+
+test('Aynı GET eşzamanlı çağrıldığında tek ağ isteğine düşer', async () => {
+  let istekSayisi = 0;
+  const { api } = ortam(async () => {
+    istekSayisi++;
+    await new Promise((tamamla) => setTimeout(tamamla, 5));
+    return yanit({ id: 'a', email: 'a@example.com', kimlik_saglayici: 'sifre' });
+  });
+
+  await Promise.all([api.benKimim(), api.benKimim(), api.benKimim()]);
+  assert.equal(istekSayisi, 1);
 });
 
 test('Eşzamanlı 401 yanıtları tek yenileme yapar', async () => {

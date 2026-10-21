@@ -1,4 +1,3 @@
-import type { VeriBaglami } from '@/db/baglam';
 
 import { kategoriLimitleriniTohumla } from '@/db/limitler';
 import { katman1Kaydet as katman1KaydetIstegi, katman2Kaydet as katman2KaydetIstegi, kullaniciProfiliGetir, gunlukLimitiAyarlaIstegi, planiKurIstegi, type AliskanlikGirdisi as ApiAliskanlikGirdisi, type AliskanlikYaniti as ApiAliskanlikYaniti, type Katman1IstegiGovdesi, type Katman2IstegiGovdesi, type KullaniciProfilYaniti } from '@/lib/api';
@@ -8,10 +7,7 @@ import { gunAnahtari } from '@/lib/tarih';
 /**
  * BE-6a — `profil` tablosu artık tamamen SUNUCUDADIR (K-068). Bu dosya
  * yalnız `src/lib/api.ts`'in `kullanici` uç noktalarını çağırır; yerel
- * SQLite'a `profil` tablosuna bir daha OKUMA/YAZMA YAPILMAZ (aşağıdaki
- * `db: VeriBaglami` parametreleri yalnız dışa verilen imzayı — bu
- * modülü çağıran ekranları (onboarding/tanisma/plan/ayarlar) DEĞİŞTİRMEMEK
- * için korunur; gövdede kullanılmazlar).
+ * SQLite'a `profil` tablosuna bir daha OKUMA/YAZMA YAPILMAZ.
  *
  * `src/db/semasi.ts`'teki `profil` tablosu şimdilik SİLİNMEDİ (bir sonraki
  * turda harcama verisiyle birlikte topluca temizlenecek, PM talimatı) —
@@ -81,7 +77,7 @@ function yanitiProfileCevir(y: KullaniciProfilYaniti): Profil {
   };
 }
 
-export async function profilOku(_db: VeriBaglami): Promise<Profil> {
+export async function profilOku(): Promise<Profil> {
   return yanitiProfileCevir(await profilYanitiGetir());
 }
 
@@ -101,8 +97,8 @@ export async function gunlukLimitKurusOku(): Promise<number | null> {
  * `app/_layout.tsx` bunu çağırır; bir sonraki tur (D-2c, E-00 açılış) aynı
  * fonksiyonu kullanacak, ikinci bir "tamamlandı mı" tanımı yazılmaz.
  */
-export async function onboardingTamamlandiMi(db: VeriBaglami): Promise<boolean> {
-  return (await profilOku(db)).onboardingTamamlandi;
+export async function onboardingTamamlandiMi(): Promise<boolean> {
+  return (await profilOku()).onboardingTamamlandi;
 }
 
 export type OnboardingGirdisi = {
@@ -118,7 +114,7 @@ export type OnboardingGirdisi = {
  * seferde kapatır. Sunucudaki `gunluk_limit_kurus`a DOKUNMAZ: öneri kabul
  * edilmeden gerçek limit yazılmaz (K-059/5) — bkz. `oneriKabulEt`.
  */
-export async function onboardingKaydet(_db: VeriBaglami, girdi: OnboardingGirdisi): Promise<void> {
+export async function onboardingKaydet(girdi: OnboardingGirdisi): Promise<void> {
   const govde: Katman1IstegiGovdesi = {
     niyet: girdi.niyet,
     gelir_kurus: girdi.gelirKurus,
@@ -134,7 +130,7 @@ export async function onboardingKaydet(_db: VeriBaglami, girdi: OnboardingGirdis
  * 7-8). `PUT /kullanici/plan/gunluk-limit` otoriteyi VE `limit_gecmisi`yi TEK
  * istekte yazar (K-085 Madde 6) — istemci ikinci kez yazmaz (BE-6d).
  */
-export async function oneriKabulEt(_db: VeriBaglami, limitKurus: number): Promise<void> {
+export async function oneriKabulEt(limitKurus: number): Promise<void> {
   sonBilinenYanit = await gunlukLimitiAyarlaIstegi(limitKurus, gunAnahtari(new Date()));
 }
 
@@ -165,17 +161,17 @@ async function katman1KismiGuncelle(degisiklik: Partial<Katman1IstegiGovdesi>): 
 }
 
 /** Ayarlar > Plan ve profil — "Aylık net gelir" satırı. */
-export async function gelirKaydet(_db: VeriBaglami, gelirKurus: number | null): Promise<void> {
+export async function gelirKaydet(gelirKurus: number | null): Promise<void> {
   await katman1KismiGuncelle({ gelir_kurus: gelirKurus });
 }
 
 /** Ayarlar > Plan ve profil — "Maaş günü" satırı. */
-export async function maasGunuKaydet(_db: VeriBaglami, maasGunu: number | null, maasDuzensiz: boolean): Promise<void> {
+export async function maasGunuKaydet(maasGunu: number | null, maasDuzensiz: boolean): Promise<void> {
   await katman1KismiGuncelle({ maas_gunu: maasDuzensiz ? null : maasGunu, maas_duzensiz: maasDuzensiz });
 }
 
 /** Ayarlar — "Kip" satırı: E-01'in niyet cevabını sonradan değiştirir. */
-export async function niyetKaydet(_db: VeriBaglami, niyet: Niyet): Promise<void> {
+export async function niyetKaydet(niyet: Niyet): Promise<void> {
   await katman1KismiGuncelle({ niyet });
 }
 
@@ -238,7 +234,7 @@ function yanitiDetayaCevir(y: KullaniciProfilYaniti): ProfilDetay {
   };
 }
 
-export async function profilDetayOku(_db: VeriBaglami): Promise<ProfilDetay> {
+export async function profilDetayOku(): Promise<ProfilDetay> {
   return yanitiDetayaCevir(await profilYanitiGetir());
 }
 
@@ -292,7 +288,7 @@ const HABIT_ALAN: Partial<Record<ProfilDetayKolonu, { kart: HabitKart; alt: Habi
  * gönderiyoruz — aksi hâlde kardeş alan (ör. daha önce yazılmış fiyat)
  * `None`'a düşer (bkz. dosya başı notu).
  */
-export async function profilDetayAlanKaydet(db: VeriBaglami, kolon: ProfilDetayKolonu, deger: string | number | null): Promise<void> {
+export async function profilDetayAlanKaydet(kolon: ProfilDetayKolonu, deger: string | number | null): Promise<void> {
   const habit = HABIT_ALAN[kolon];
   if (habit) {
     const mevcut = sonBilinenYanit ?? (await profilYanitiGetir());
@@ -321,12 +317,11 @@ export async function profilDetayAlanKaydet(db: VeriBaglami, kolon: ProfilDetayK
  * tohumlanmıyor, sunucuya yazılıyor (bkz. `db/limitler.ts`).
  */
 export async function planKur(
-  db: VeriBaglami,
-  gunlukLimitKurus: number,
+    _gunlukLimitKurus: number,
   aylikKurus: { kafe: number; restoran: number; abonelik: number; aliskanliklar: number },
 ): Promise<void> {
   sonBilinenYanit = await planiKurIstegi(gunAnahtari(new Date()));
-  await kategoriLimitleriniTohumla(db, aylikKurus);
+  await kategoriLimitleriniTohumla(aylikKurus);
 }
 
 /**

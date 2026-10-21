@@ -2,7 +2,7 @@
   "expo": {
     "name": "Trinkow",
     "slug": "trinkow",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "orientation": "default",
     "scheme": "trinkow",
     "userInterfaceStyle": "light",
@@ -17,7 +17,7 @@
     },
     "android": {
       "package": "com.triworkster.trinkow",
-      "versionCode": 4,
+      "versionCode": 5,
       "blockedPermissions": [
         "com.google.android.gms.permission.AD_ID"
       ],
@@ -32,7 +32,10 @@
       [
         "expo-localization",
         {
-          "supportedLocales": ["tr", "en"]
+          "supportedLocales": [
+            "tr",
+            "en"
+          ]
         }
       ],
       [

@@ -18,6 +18,7 @@ import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 import { apiAdresiniCoz } from '@/lib/apiAdres';
 import { oturumErisimTokeniGuncelle, oturumOku, oturumGecersizKil } from '@/lib/oturumDeposu';
+import { apiStaleTime, mutasyonSonrasiOnbellekGecersizKil, queryClient } from '@/lib/queryClient';
 
 const TEMEL_URL = apiAdresiniCoz(process.env.EXPO_PUBLIC_API_URL, __DEV__ ? Constants.expoConfig?.hostUri : undefined, Platform.OS);
 export const GELISTIRME_GIRISI = __DEV__ && process.env.EXPO_PUBLIC_DEV_LOGIN === '1';
@@ -47,7 +48,24 @@ type IstekSecenekleri = {
   erisimTokeni?: string;
 };
 
-export async function istek<T>(yol: string, secenekler: IstekSecenekleri = {}, tekrarDenendi = false): Promise<T> {
+export async function istek<T>(yol: string, secenekler: IstekSecenekleri = {}): Promise<T> {
+  const yontem = secenekler.yontem ?? 'GET';
+  if (yontem === 'GET') {
+    const oturum = secenekler.tokenGerekli ? await oturumOku() : null;
+    const oturumAnahtari = oturum?.oturumKimligi
+      ?? (secenekler.erisimTokeni ? `gecici:${secenekler.erisimTokeni.slice(-12)}` : 'anonim');
+    return queryClient.fetchQuery({
+      queryKey: ['api', oturumAnahtari, yol],
+      queryFn: () => hamIstek<T>(yol, secenekler),
+      staleTime: apiStaleTime(yol),
+    });
+  }
+  const sonuc = await hamIstek<T>(yol, secenekler);
+  await mutasyonSonrasiOnbellekGecersizKil(yol, secenekler.govde);
+  return sonuc;
+}
+
+async function hamIstek<T>(yol: string, secenekler: IstekSecenekleri = {}, tekrarDenendi = false): Promise<T> {
   const { yontem = 'GET', govde, tokenGerekli = false } = secenekler;
   const oturum = tokenGerekli ? await oturumOku() : null;
   if (tokenGerekli && !oturum) throw new ApiHatasi(401, 'OTURUM_YOK', 'Oturum açmalısın.');
@@ -76,7 +94,7 @@ export async function istek<T>(yol: string, secenekler: IstekSecenekleri = {}, t
   }
 
   if (yanit.status === 401 && oturum) {
-    if (!tekrarDenendi && ((await oturumOku())?.yenilemeTokeni !== oturum.yenilemeTokeni || await tokenYenileDene(oturum.yenilemeTokeni))) return istek<T>(yol, secenekler, true);
+    if (!tekrarDenendi && ((await oturumOku())?.yenilemeTokeni !== oturum.yenilemeTokeni || await tokenYenileDene(oturum.yenilemeTokeni))) return hamIstek<T>(yol, secenekler, true);
     await oturumGecersizKil(oturum.yenilemeTokeni);
   }
 
@@ -419,6 +437,25 @@ function sorguDizesi(parametreler: Record<string, string | number | undefined>):
 /** `POST /harcama/` — 201; ürün adı verilmişse sunucu ürün→kategori öğrenmesini de günceller. */
 export async function harcamaEkleIstegi(govde: HarcamaEkleGovdesi): Promise<HarcamaYaniti> {
   return istek<HarcamaYaniti>('/harcama/', { yontem: 'POST', govde, tokenGerekli: true });
+}
+
+export type TaksitSerisiEkleGovdesi = {
+  taksit_id: string;
+  toplam_tutar_kurus: number;
+  taksit_sayisi: number;
+  kategori: string;
+  urun_adi: string | null;
+  ilk_zaman: string;
+  ilk_gun: string;
+  odeme: OdemeTipiGovde;
+  not_metni: string | null;
+};
+
+/** `POST /harcama/taksit-serisi` — bütün seri tek transaction'da, idempotent oluşturulur. */
+export async function taksitSerisiEkleIstegi(
+  govde: TaksitSerisiEkleGovdesi,
+): Promise<{ taksit_id: string; ilk_id: string }> {
+  return istek('/harcama/taksit-serisi', { yontem: 'POST', govde, tokenGerekli: true });
 }
 
 /** `GET /harcama/` — `gun` / `baslangic_gun`+`bitis_gun` / `kategori` süzgeciyle sayfalanmış listeleme (`sayfa_boyutu` ≤ 200). */

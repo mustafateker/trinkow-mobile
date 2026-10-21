@@ -36,8 +36,8 @@ function kur({ kurulum, suAn, cevaplar = {}, bildirimBelirlendi = false, ayar = 
       bildirimAksamOzetKaydet: async () => {},
     },
     '@/db/harcama': {
-      ayarOku: async (_db, k) => ayar[k] ?? null,
-      ayarYaz: async (_db, k, v) => { ayar[k] = v; },
+      ayarOku: async (k) => ayar[k] ?? null,
+      ayarYaz: async (k, v) => { ayar[k] = v; },
     },
     '@/db/profil': {
       profilDetayAlanKaydet: async () => {},
@@ -50,18 +50,18 @@ function kur({ kurulum, suAn, cevaplar = {}, bildirimBelirlendi = false, ayar = 
 
 test('onboarding tamamlanmadıysa hiçbir soru gösterilmez (gün eşiği geçmiş olsa bile)', async () => {
   const prof = kur({ kurulum: '2026-09-20', suAn: '2026-09-26T10:00:00', onboardingTamamlandi: false });
-  assert.equal(await prof.aktifProfillemeSorusu({}), null);
+  assert.equal(await prof.aktifProfillemeSorusu(), null);
 });
 
 test('kurulum günü = gün 1 — eşik gün 2 olan Yatırım henüz gösterilmez', async () => {
   // suAn == kurulum günüyle aynı takvim günü → kurulumdanBuGune() = 1.
   const prof = kur({ kurulum: '2026-09-20', suAn: '2026-09-20T10:00:00' });
-  assert.equal(await prof.aktifProfillemeSorusu({}), null);
+  assert.equal(await prof.aktifProfillemeSorusu(), null);
 });
 
 test('gün 2 (kurulumdan +1 tam gün) — Yatırım sorusu döner', async () => {
   const prof = kur({ kurulum: '2026-09-20', suAn: '2026-09-21T10:00:00' });
-  assert.equal(await prof.aktifProfillemeSorusu({}), 'yatirim');
+  assert.equal(await prof.aktifProfillemeSorusu(), 'yatirim');
 });
 
 test('gün 3 — Yatırım cevaplanmışsa sıradaki Taksit sorusu döner', async () => {
@@ -70,7 +70,7 @@ test('gün 3 — Yatırım cevaplanmışsa sıradaki Taksit sorusu döner', asyn
     suAn: '2026-09-22T10:00:00',
     cevaplar: { yatirimNiyet: 'yapiyorum' },
   });
-  assert.equal(await prof.aktifProfillemeSorusu({}), 'taksit');
+  assert.equal(await prof.aktifProfillemeSorusu(), 'taksit');
 });
 
 test('gün 3 ama Taksit de cevaplanmış — henüz gün 4 olmadığından Bildirim gösterilmez', async () => {
@@ -79,7 +79,7 @@ test('gün 3 ama Taksit de cevaplanmış — henüz gün 4 olmadığından Bildi
     suAn: '2026-09-22T10:00:00',
     cevaplar: { yatirimNiyet: 'yapiyorum', taksitSiklik: 'bazen' },
   });
-  assert.equal(await prof.aktifProfillemeSorusu({}), null);
+  assert.equal(await prof.aktifProfillemeSorusu(), null);
 });
 
 test('üçü de cevaplanınca bileşen bir daha hiç görünmez (gün 4+)', async () => {
@@ -89,7 +89,7 @@ test('üçü de cevaplanınca bileşen bir daha hiç görünmez (gün 4+)', asyn
     cevaplar: { yatirimNiyet: 'yapiyorum', taksitSiklik: 'bazen' },
     bildirimBelirlendi: true,
   });
-  assert.equal(await prof.aktifProfillemeSorusu({}), null);
+  assert.equal(await prof.aktifProfillemeSorusu(), null);
 });
 
 test('günde en fazla 1 — bugün zaten gösterildiyse eşik geçmiş başka bir soru bile çıkmaz', async () => {
@@ -98,7 +98,7 @@ test('günde en fazla 1 — bugün zaten gösterildiyse eşik geçmiş başka bi
     suAn: '2026-09-25T10:00:00', // gün 6, üç soru da eşiği geçti
     ayar: { profilleme_son_gosterim_gun: '2026-09-25' },
   });
-  assert.equal(await prof.aktifProfillemeSorusu({}), null);
+  assert.equal(await prof.aktifProfillemeSorusu(), null);
 });
 
 test('reddedilen soru 14 gün dolmadan geri gelmez', async () => {
@@ -108,7 +108,7 @@ test('reddedilen soru 14 gün dolmadan geri gelmez', async () => {
     ayar: { profilleme_red_yatirim: '2026-09-19' },
   });
   // 2026-09-19'dan 2026-10-02'ye 13 gün — hâlâ cooldown içinde, sıradaki soruya geç.
-  assert.equal(await prof.aktifProfillemeSorusu({}), 'taksit');
+  assert.equal(await prof.aktifProfillemeSorusu(), 'taksit');
 });
 
 test('reddedilen soru 14 gün dolunca geri gelir', async () => {
@@ -117,13 +117,13 @@ test('reddedilen soru 14 gün dolunca geri gelir', async () => {
     suAn: '2026-10-04T10:00:00', // red'den 15 gün sonra
     ayar: { profilleme_red_yatirim: '2026-09-19' },
   });
-  assert.equal(await prof.aktifProfillemeSorusu({}), 'yatirim');
+  assert.equal(await prof.aktifProfillemeSorusu(), 'yatirim');
 });
 
 test('profillemeReddet çağrısı red tarihini VE günlük gösterim damgasını yazar', async () => {
   const ayar = {};
   const prof = kur({ kurulum: '2026-09-20', suAn: '2026-09-25T10:00:00', ayar });
-  await prof.profillemeReddet({}, 'yatirim');
+  await prof.profillemeReddet('yatirim');
   assert.equal(ayar['profilleme_red_yatirim'], '2026-09-25');
   assert.equal(ayar['profilleme_son_gosterim_gun'], '2026-09-25');
 });

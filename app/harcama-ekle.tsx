@@ -1,6 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useVeriBaglami } from '@/db/baglam';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -78,7 +77,6 @@ const TAKSIT_SECENEKLERI = [3, 6, 9, 12];
 type TutarAltMetinTuru = 'gecmisten' | 'katalogdan' | 'kategori' | null;
 
 export default function HarcamaEkleEkrani() {
-  const db = useVeriBaglami();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ gunFarki?: string; kategori?: string; ad?: string; tutarKurus?: string; rutinId?: string }>();
 
@@ -140,19 +138,19 @@ export default function HarcamaEkleEkrani() {
 
   useEffect(() => {
     let canli = true;
-    void sikAlinanlar(db, 30).then((l) => canli && setSikAlinanlarListesi(l)).catch(() => {});
+    void sikAlinanlar(30).then((l) => canli && setSikAlinanlarListesi(l)).catch(() => {});
     void routinesGet().then((r) => canli && setRutinler(r.rutinler)).catch(() => {});
-    void gunlukLimit(db).then((l) => canli && setLimitKurus(l)).catch(() => {});
-    void tumOgrenilenKategoriler(db).then((m) => canli && setOgrenilenKategoriler(m)).catch(() => {});
-    void tahminGecmisi(db).then((l) => canli && setGecmisKayitlari(l)).catch(() => {});
+    void gunlukLimit().then((l) => canli && setLimitKurus(l)).catch(() => {});
+    void tumOgrenilenKategoriler().then((m) => canli && setOgrenilenKategoriler(m)).catch(() => {});
+    void tahminGecmisi().then((l) => canli && setGecmisKayitlari(l)).catch(() => {});
     // K-072 — yalnız İLK yüklemede ön-seçim olarak uygulanır; kullanıcının
     // ekranda `odemeSec` ile yaptığı değişikliği bu efekt geç render'da EZMEZ
-    // (bağımlılık dizisi yalnız `db`, taksitliAcik/odeme buraya eklenmez).
-    void varsayilanOdemeOku(db).then((v) => canli && setOdeme(v)).catch(() => {});
+    // (taksitliAcik/odeme bağımlılık dizisine eklenmez).
+    void varsayilanOdemeOku().then((v) => canli && setOdeme(v)).catch(() => {});
     return () => {
       canli = false;
     };
-  }, [db]);
+  }, []);
 
   // D-2d-2 — E-24 Gün seçici (kip=sec) seçtiği günü bu bus'la bildirir.
   useEffect(() => gunSeciciAbone(setSecilenGunFarki), []);
@@ -164,11 +162,11 @@ export default function HarcamaEkleEkrani() {
 
   useEffect(() => {
     let canli = true;
-    void gunToplami(db, seciliGun).then((v) => canli && setGununToplamiKurus(v));
+    void gunToplami(seciliGun).then((v) => canli && setGununToplamiKurus(v));
     return () => {
       canli = false;
     };
-  }, [db, seciliGun]);
+  }, [seciliGun]);
 
   // F-18 — kullanıcının kendi geçmişinde arama (SQLite, tipik <50ms).
   // Katalog senkron/RAM-içi olduğu için burada beklenmez (RN inşa notu #1).
@@ -182,7 +180,7 @@ export default function HarcamaEkleEkrani() {
     }
     let canli = true;
     setGecmisYukleniyor(true);
-    void urunAra(db, sorgu, 20).then((sonuc) => {
+    void urunAra(sorgu, 20).then((sonuc) => {
       if (!canli) return;
       setGecmisSonuclar(sonuc);
       setGecmisYukleniyor(false);
@@ -190,7 +188,7 @@ export default function HarcamaEkleEkrani() {
     return () => {
       canli = false;
     };
-  }, [db, aramaMetni, urunAdi]);
+  }, [aramaMetni, urunAdi]);
 
   const tutarKurus = tutarGirisindenKurus(buffer);
   const abonelikMi = kategoriKodu === 'abonelik';
@@ -354,7 +352,7 @@ export default function HarcamaEkleEkrani() {
     setYazmaHata(undefined);
     try {
       if (taksitliAcik && taksitSayisi) {
-        await taksitSerisiOlustur(db, {
+        await taksitSerisiOlustur({
           tutarKurusToplam: tutarKurus,
           taksitSayisi,
           kategori: kategoriKodu,
@@ -364,7 +362,7 @@ export default function HarcamaEkleEkrani() {
           ilkZaman: seciliTarih,
         });
       } else {
-        await harcamaEkle(db, {
+        await harcamaEkle({
           istemciId, rutinId, adet: 1,
           tutarKurus,
           kategori: kategoriKodu,

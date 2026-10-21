@@ -1,4 +1,3 @@
-import type { VeriBaglami } from '@/db/baglam';
 
 import { bildirimAksamOzetKaydet, bildirimTercihBelirlendiMi, kurulumGunuOku } from '@/db/ayarTercihleri';
 import { ayarOku, ayarYaz } from '@/db/harcama';
@@ -35,66 +34,66 @@ const RED_COOLDOWN_GUN = 14;
 export const SORU_GUNU: Record<ProfillemeSoruId, number> = { yatirim: 2, taksit: 3, bildirim: 4 };
 const SIRA: ProfillemeSoruId[] = ['yatirim', 'taksit', 'bildirim'];
 
-async function kurulumdanBuGune(db: VeriBaglami): Promise<number> {
+async function kurulumdanBuGune(): Promise<number> {
   // K-084/2 — sunucudaki tercihler.kurulum_gunu TEK otoritedir.
-  const kurulum = await kurulumGunuOku(db);
+  const kurulum = await kurulumGunuOku();
   // kurulum günü = gün 1 (henüz uygulamayı yeni açmış birine "2. gün" gösterilmez).
   return gunFarkiHesapla(new Date(), tarihtenGun(kurulum)) + 1;
 }
 
-async function cevaplandiMi(db: VeriBaglami, id: ProfillemeSoruId): Promise<boolean> {
-  if (id === 'yatirim') return (await profilDetayOku(db)).yatirimNiyet !== null;
-  if (id === 'taksit') return (await profilDetayOku(db)).taksitSiklik !== null;
-  return bildirimTercihBelirlendiMi(db);
+async function cevaplandiMi(id: ProfillemeSoruId): Promise<boolean> {
+  if (id === 'yatirim') return (await profilDetayOku()).yatirimNiyet !== null;
+  if (id === 'taksit') return (await profilDetayOku()).taksitSiklik !== null;
+  return bildirimTercihBelirlendiMi();
 }
 
-async function redCooldowndaMi(db: VeriBaglami, id: ProfillemeSoruId): Promise<boolean> {
-  const redTarihi = await ayarOku(db, `profilleme_red_${id}`);
+async function redCooldowndaMi(id: ProfillemeSoruId): Promise<boolean> {
+  const redTarihi = await ayarOku(`profilleme_red_${id}`);
   if (!redTarihi) return false;
   return gunFarkiHesapla(new Date(), tarihtenGun(redTarihi)) < RED_COOLDOWN_GUN;
 }
 
 /** Bugün gösterilecek soru var mı? Yoksa `null` (bileşen bu turda hiç render edilmez). */
-export async function aktifProfillemeSorusu(db: VeriBaglami): Promise<ProfillemeSoruId | null> {
-  const profil = await profilOku(db);
+export async function aktifProfillemeSorusu(): Promise<ProfillemeSoruId | null> {
+  const profil = await profilOku();
   if (!profil.onboardingTamamlandi) return null;
 
   const bugunAnahtari = gunAnahtari(new Date());
-  const sonGosterim = await ayarOku(db, 'profilleme_son_gosterim_gun');
+  const sonGosterim = await ayarOku('profilleme_son_gosterim_gun');
   if (sonGosterim === bugunAnahtari) return null; // günde en fazla 1
 
-  const gunSayisi = await kurulumdanBuGune(db);
+  const gunSayisi = await kurulumdanBuGune();
 
   for (const id of SIRA) {
     if (gunSayisi < SORU_GUNU[id]) continue;
-    if (await cevaplandiMi(db, id)) continue;
-    if (await redCooldowndaMi(db, id)) continue;
+    if (await cevaplandiMi(id)) continue;
+    if (await redCooldowndaMi(id)) continue;
     return id;
   }
   return null;
 }
 
-async function gosterildiIsaretle(db: VeriBaglami): Promise<void> {
-  await ayarYaz(db, 'profilleme_son_gosterim_gun', gunAnahtari(new Date()));
+async function gosterildiIsaretle(): Promise<void> {
+  await ayarYaz('profilleme_son_gosterim_gun', gunAnahtari(new Date()));
 }
 
 /** "Şimdi değil" / kapatma (X) — ikisi de reddet sayılır, 14 gün cooldown başlar. */
-export async function profillemeReddet(db: VeriBaglami, id: ProfillemeSoruId): Promise<void> {
-  await ayarYaz(db, `profilleme_red_${id}`, gunAnahtari(new Date()));
-  await gosterildiIsaretle(db);
+export async function profillemeReddet(id: ProfillemeSoruId): Promise<void> {
+  await ayarYaz(`profilleme_red_${id}`, gunAnahtari(new Date()));
+  await gosterildiIsaretle();
 }
 
-export async function profillemeYatirimCevapla(db: VeriBaglami, niyet: YatirimNiyet): Promise<void> {
-  await profilDetayAlanKaydet(db, 'yatirim_niyet', niyet);
-  await gosterildiIsaretle(db);
+export async function profillemeYatirimCevapla(niyet: YatirimNiyet): Promise<void> {
+  await profilDetayAlanKaydet('yatirim_niyet', niyet);
+  await gosterildiIsaretle();
 }
 
-export async function profillemeTaksitCevapla(db: VeriBaglami, siklik: TaksitSiklik): Promise<void> {
-  await profilDetayAlanKaydet(db, 'taksit_siklik', siklik);
-  await gosterildiIsaretle(db);
+export async function profillemeTaksitCevapla(siklik: TaksitSiklik): Promise<void> {
+  await profilDetayAlanKaydet('taksit_siklik', siklik);
+  await gosterildiIsaretle();
 }
 
-export async function profillemeBildirimCevapla(db: VeriBaglami, gonder: boolean): Promise<void> {
-  await bildirimAksamOzetKaydet(db, gonder);
-  await gosterildiIsaretle(db);
+export async function profillemeBildirimCevapla(gonder: boolean): Promise<void> {
+  await bildirimAksamOzetKaydet(gonder);
+  await gosterildiIsaretle();
 }

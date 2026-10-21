@@ -1,5 +1,4 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -37,7 +36,6 @@ export default function KategoriDetayEkrani() {
   const { kod } = useLocalSearchParams<{ kod: string }>();
   const kat = kategori(kod ?? 'market');
   const renk = aileRenkleri(kat.aile);
-  const db = useVeriBaglami();
   const insets = useSafeAreaInsets();
 
   const [ayGosterge, setAyGosterge] = useState(() => new Date());
@@ -55,9 +53,9 @@ export default function KategoriDetayEkrani() {
     setHata(false);
     try {
       const [liste, ozetSonuc, limitler] = await Promise.all([
-        kategoriAyHarcamalari(db, kat.kod, ay),
-        kategoriAyOzeti(db, kat.kod, ay),
-        tumKategoriLimitleri(db),
+        kategoriAyHarcamalari(kat.kod, ay),
+        kategoriAyOzeti(kat.kod, ay),
+        tumKategoriLimitleri(),
       ]);
       setHarcamalar(liste);
       setOzet(ozetSonuc);
@@ -67,7 +65,7 @@ export default function KategoriDetayEkrani() {
     } finally {
       setYukleniyor(false);
     }
-  }, [db, ay, kat.kod]);
+  }, [ay, kat.kod]);
 
   useEffect(() => {
     void oku();
@@ -220,7 +218,7 @@ export default function KategoriDetayEkrani() {
             ) : null}
 
             {!skeletonGoster && !hata && ozet.adet === 0 ? (
-              <KategoriBosDurumu kat={kat} renk={renk} />
+              <KategoriBosDurumu kat={kat} />
             ) : null}
           </>
         }
@@ -301,7 +299,7 @@ function OzetSkeleton() {
   );
 }
 
-function KategoriBosDurumu({ kat, renk }: { kat: ReturnType<typeof kategori>; renk: { solid: string; soft: string } }) {
+function KategoriBosDurumu({ kat }: { kat: ReturnType<typeof kategori> }) {
   return (
     <ClaySurface level="raisedLg" borderRadius={radius.hero} style={stil.bosKart}>
       <View style={stil.bosDisk}>

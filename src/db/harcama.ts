@@ -1,5 +1,4 @@
 import * as SecureStore from 'expo-secure-store';
-import type { VeriBaglami } from '@/db/baglam';
 
 import { gunlukLimitKurusOku } from '@/db/profil';
 import {
@@ -10,6 +9,7 @@ import {
   harcamaGuncelleIstegi,
   harcamalariListeleIstegi,
   harcamaSilIstegi,
+  taksitSerisiEkleIstegi,
   taksitSerisiSilIstegi,
   tumVerileriSilIstegi,
   type HarcamaGuncellemeGovdesi,
@@ -17,7 +17,7 @@ import {
   type HarcamaYaniti,
 } from '@/lib/api';
 import type { GecmisKayit } from '@/lib/kategoriTahmin';
-import { ayEkle, gunAnahtari } from '@/lib/tarih';
+import { gunAnahtari } from '@/lib/tarih';
 import { turkceNormalize } from '@/lib/urunArama';
 
 /**
@@ -118,15 +118,14 @@ export async function tumSayfalariGetir(suzgec: HarcamaListeSuzgeci): Promise<Ha
 }
 
 /** Bir ayın TÜM kayıtları — E-14 gün gruplama burada, `src/lib/gruplama.ts` ile. */
-export async function ayHarcamalari(_db: VeriBaglami, ay: string): Promise<Harcama[]> {
+export async function ayHarcamalari(ay: string): Promise<Harcama[]> {
   const kayitlar = await tumSayfalariGetir({ baslangic_gun: `${ay}-01`, bitis_gun: `${ay}-31` });
   return kayitlar.map(cevir);
 }
 
 /** Analiz ekranı için iki gün (dahil) arasındaki tüm harcamalar. */
 export async function harcamaAraligi(
-  _db: VeriBaglami,
-  baslangicGun: string,
+    baslangicGun: string,
   bitisGun: string,
 ): Promise<Harcama[]> {
   const kayitlar = await tumSayfalariGetir({ baslangic_gun: baslangicGun, bitis_gun: bitisGun });
@@ -136,18 +135,18 @@ export async function harcamaAraligi(
 export type AySpecifiOzeti = { adet: number; toplamKurus: number };
 
 /** `kayitlar.ay_ozet` — "{adet} kayıt · {tutar}" (E-14 ay değiştirici). */
-export async function ayOzeti(_db: VeriBaglami, ay: string): Promise<AySpecifiOzeti> {
+export async function ayOzeti(ay: string): Promise<AySpecifiOzeti> {
   const kayitlar = await tumSayfalariGetir({ baslangic_gun: `${ay}-01`, bitis_gun: `${ay}-31` });
   return { adet: kayitlar.length, toplamKurus: kayitlar.reduce((t, k) => t + k.tutar_kurus, 0) };
 }
 
-export async function gunToplami(_db: VeriBaglami, gun: string): Promise<number> {
+export async function gunToplami(gun: string): Promise<number> {
   const kayitlar = await tumSayfalariGetir({ gun });
   return kayitlar.reduce((t, k) => t + k.tutar_kurus, 0);
 }
 
 /** BE-6c — bir günün ham kayıt listesi (E-10 gün sayfasının satırları). `usePano.ts` kullanır. */
-export async function gununHarcamalari(_db: VeriBaglami, gun: string): Promise<Harcama[]> {
+export async function gununHarcamalari(gun: string): Promise<Harcama[]> {
   const kayitlar = await tumSayfalariGetir({ gun });
   return kayitlar.map(cevir);
 }
@@ -164,7 +163,7 @@ export type KategoriDurumu = {
  * BE-6c — `ayarlar.tsx` (E-19) "ilk kayıt günü" satırı ve silinecek kayıt
  * sayısı diyaloğu. Sunucu ucu K-085 Madde 4/BE-4b ile açıldı.
  */
-export async function ilkKayitGunu(_db: VeriBaglami): Promise<string | null> {
+export async function ilkKayitGunu(): Promise<string | null> {
   return (await enEskiKayitGunuGetirIstegi()).gun;
 }
 
@@ -172,7 +171,7 @@ export async function ilkKayitGunu(_db: VeriBaglami): Promise<string | null> {
  * D-2c-1 · E-19 "Tüm verileri sil" onay diyaloğu — silinecek kayıt sayısı.
  * BE-6b: gerçek sayfalanmış listeleme ucundan `toplam_kayit` okunur.
  */
-export async function tumKayitSayisi(_db: VeriBaglami): Promise<number> {
+export async function tumKayitSayisi(): Promise<number> {
   const yanit = await harcamalariListeleIstegi({ sayfa: 1, sayfa_boyutu: 1 });
   return yanit.toplam_kayit;
 }
@@ -184,7 +183,7 @@ export async function tumKayitSayisi(_db: VeriBaglami): Promise<number> {
  * bayrağı (`kullanici_verisi`) örnek-veri tazelemesiyle ilgiliydi, o akış bu
  * turda kaldırıldığı için artık yazılmıyor (bkz. `db/semasi.ts`).
  */
-export async function tumVeriyiSil(_db: VeriBaglami): Promise<void> {
+export async function tumVeriyiSil(): Promise<void> {
   await tumVerileriSilIstegi();
 }
 
@@ -199,8 +198,7 @@ export type GunToplami = { gun: string; toplamKurus: number; kayitAdedi: number 
  * seri/toplam hesabının tekrarı DEĞİL.
  */
 export async function gunAraligiToplamlari(
-  _db: VeriBaglami,
-  baslangicGun: string,
+    baslangicGun: string,
   bitisGun: string,
 ): Promise<Map<string, GunToplami>> {
   const kayitlar = await tumSayfalariGetir({ baslangic_gun: baslangicGun, bitis_gun: bitisGun });
@@ -214,32 +212,27 @@ export async function gunAraligiToplamlari(
 
 /* ---------------------------------------------------------- ayar (yerel) */
 
-export async function ayarOku(db: VeriBaglami, anahtar: string): Promise<string | null> {
-  void db;
+export async function ayarOku(anahtar: string): Promise<string | null> {
   return SecureStore.getItemAsync(`trinkow.ayar.${anahtar}`);
 }
 
-export async function ayarYaz(db: VeriBaglami, anahtar: string, deger: string): Promise<void> {
-  void db;
+export async function ayarYaz(anahtar: string, deger: string): Promise<void> {
   await SecureStore.setItemAsync(`trinkow.ayar.${anahtar}`, deger);
 }
 
 /**
  * Günlük limit — kuruş integer, tanımsızsa null (`HeroPlain` varyantı).
  * BE-6d (K-087): TEK otorite `kullanici_profilleri.gunluk_limit_kurus`
- * (`GET /kullanici/profil`) — `db/profil.ts#gunlukLimitKurusOku`ya devreder;
- * `db: VeriBaglami` parametresi yalnız dışa verilen imzayı (kayitlar ·
- * limitler · harcama-ekle · ozet · plan ekranlarını değiştirmemek için)
- * korur.
+ * (`GET /kullanici/profil`) — `db/profil.ts#gunlukLimitKurusOku`ya devreder.
  */
-export async function gunlukLimit(_db: VeriBaglami): Promise<number | null> {
+export async function gunlukLimit(): Promise<number | null> {
   return gunlukLimitKurusOku();
 }
 
 /* ------------------------------------------------------------- harcama CRUD */
 
 /** Tek kayıt — E-12 detay ekranı. Bulunamazsa `null` (`detay.bulunamadi.*`). */
-export async function harcamaGetir(_db: VeriBaglami, id: string): Promise<Harcama | null> {
+export async function harcamaGetir(id: string): Promise<Harcama | null> {
   try {
     return cevir(await harcamaGetirIstegi(id));
   } catch {
@@ -253,8 +246,7 @@ export async function harcamaGetir(_db: VeriBaglami, id: string): Promise<Harcam
  * otomatik günceller (README `harcama` uç nokta tablosu).
  */
 export async function harcamaEkle(
-  _db: VeriBaglami,
-  h: Omit<Harcama, 'id'>,
+    h: Omit<Harcama, 'id'>,
 ): Promise<string> {
   const yanit = await harcamaEkleIstegi({
     rutin_id: h.rutinId, adet: h.adet, sabit_gider_kodu: h.sabitGiderKodu, istemci_id: h.istemciId,
@@ -278,8 +270,7 @@ export type HarcamaGuncelleme = Partial<
 
 /** E-12 "Kaydet" — yalnız verilen alanları günceller. Taksitli kayıtta `tutarKurus` gönderilirse sunucu 422 döner. */
 export async function harcamaGuncelle(
-  _db: VeriBaglami,
-  id: string,
+    id: string,
   degisiklik: HarcamaGuncelleme,
 ): Promise<void> {
   const govde: HarcamaGuncellemeGovdesi = {};
@@ -300,12 +291,12 @@ export async function harcamaGuncelle(
  * id'yi saklamıyor (detay ekranı hemen `router.back()` yapıyor, liste ekranları
  * `veriDegisti()` ile yeniden okuyor), bu yüzden id değişimi görünür bir soruna
  * yol açmıyor. */
-export async function harcamaSil(_db: VeriBaglami, id: string): Promise<void> {
+export async function harcamaSil(id: string): Promise<void> {
   await harcamaSilIstegi(id);
 }
 
 /** E-13 — taksit serisini TAMAMEN siler (K-029: onaylıdır, geri alma yoktur). */
-export async function taksitSerisiSil(_db: VeriBaglami, taksitId: string): Promise<void> {
+export async function taksitSerisiSil(taksitId: string): Promise<void> {
   await taksitSerisiSilIstegi(taksitId);
 }
 
@@ -324,54 +315,26 @@ type TaksitSerisiGirdi = {
  * kurulur). Tutar kuruş-hassas dağıtılır: kalan kuruşlar İLK taksitlere
  * eklenir (12 × 833,33 gibi bölünemeyen tutarlarda kuruş kaybolmasın diye).
  *
- * Sunucuda "seri oluştur" ucu YOK (README) — istemci aynı `taksitId` ile
- * taksit sayısı kadar `POST /harcama/` çağırır. KISMİ BAŞARISIZLIK: bir
- * taksit yazılırken ağ koparsa, o ana kadar sunucuya yazılmış taksitler
- * `DELETE /harcama/taksit/{taksitId}` ile GERİ ALINIR ve hata yukarı
- * fırlatılır — kullanıcı yarım bir seriyle KALMAZ, `app/harcama-ekle.tsx`
- * mevcut `catch` bloğuyla "yazılamadı" hatasını gösterir ve baştan dener.
+ * Sunucu bütün taksitleri tek PostgreSQL transaction'ında oluşturur. Aynı
+ * `taksitId` ile tekrar çağrı idempotenttir; ağ kopması yarım seri bırakmaz.
  */
 export async function taksitSerisiOlustur(
-  db: VeriBaglami,
-  girdi: TaksitSerisiGirdi,
+    girdi: TaksitSerisiGirdi,
 ): Promise<{ taksitId: string; ilkId: string }> {
   const { tutarKurusToplam, taksitSayisi, kategori, urunAdi, odeme, notMetni, ilkZaman } = girdi;
   const taksitId = `t${Date.now()}${Math.random().toString(36).slice(2, 8)}`;
-  const taban = Math.floor(tutarKurusToplam / taksitSayisi);
-  const kalan = tutarKurusToplam - taban * taksitSayisi;
-
-  let ilkId = '';
-  try {
-    for (let i = 0; i < taksitSayisi; i += 1) {
-      const tutar = taban + (i < kalan ? 1 : 0);
-      const zaman = ayEkle(ilkZaman, i);
-      const id = await harcamaEkle(db, {
-        tutarKurus: tutar,
-        kategori,
-        urunAdi,
-        zaman: zaman.toISOString(),
-        gun: gunAnahtari(zaman),
-        odeme,
-        notMetni,
-        taksitId,
-        taksitNo: i + 1,
-        taksitToplam: taksitSayisi,
-      });
-      if (i === 0) ilkId = id;
-    }
-  } catch (hata) {
-    // Kısmi seri geride kalmasın — o ana kadar yazılanları geri al.
-    try {
-      await taksitSerisiSilIstegi(taksitId);
-    } catch {
-      // Geri alma da başarısız olursa (ör. ağ hâlâ kopuk) elimizden bir şey
-      // gelmez — orijinal hata zaten yukarı fırlatılıyor, kullanıcı "Yeniden
-      // dene" ile karşılaşır; bir sonraki başarılı denemede AYNI taksitId
-      // kullanılmadığı için (her çağrıda yeni üretiliyor) çakışma olmaz.
-    }
-    throw hata;
-  }
-  return { taksitId, ilkId };
+  const sonuc = await taksitSerisiEkleIstegi({
+    taksit_id: taksitId,
+    toplam_tutar_kurus: Math.round(tutarKurusToplam),
+    taksit_sayisi: taksitSayisi,
+    kategori,
+    urun_adi: urunAdi,
+    ilk_zaman: ilkZaman.toISOString(),
+    ilk_gun: gunAnahtari(ilkZaman),
+    odeme,
+    not_metni: notMetni,
+  });
+  return { taksitId: sonuc.taksit_id, ilkId: sonuc.ilk_id };
 }
 
 export type SikAlinan = {
@@ -386,7 +349,7 @@ export type SikAlinan = {
  * Kategori tahmini için son kayıtlar (en yeni önce). Taksit satırları dışarıda
  * bırakılır: tutarları toplam harcamayı değil taksit payını gösterir.
  */
-export async function tahminGecmisi(_db: VeriBaglami): Promise<GecmisKayit[]> {
+export async function tahminGecmisi(): Promise<GecmisKayit[]> {
   const yanit = await harcamalariListeleIstegi({ sayfa: 1, sayfa_boyutu: AZAMI_SAYFA_BOYUTU });
   return yanit.kayitlar
     .filter((k) => !k.taksit_id)
@@ -414,7 +377,7 @@ const SIK_ALINAN_PENCERE = 200;
  * kullandığı bir ürün bu pencereden düşebilir — tam geçmiş taraması sunucu
  * tarafında bir "distinct" uç noktası gerektirir.
  */
-export async function sikAlinanlar(_db: VeriBaglami, limit = 3): Promise<SikAlinan[]> {
+export async function sikAlinanlar(limit = 3): Promise<SikAlinan[]> {
   const yanit = await istek<{kalemler: {ad:string;kategori:string;tutar_kurus:number;sabitlenmis:boolean}[]}>(`/butce/sik-kullanilanlar?bugun=${gunAnahtari(new Date())}`, {tokenGerekli:true});
   return yanit.kalemler.slice(0, limit).map(k => ({urunAdi:k.ad,kategori:k.kategori,tutarKurus:k.tutar_kurus,sonZaman:'',sabitlenmis:k.sabitlenmis}));
 }
@@ -424,8 +387,8 @@ export async function sikAlinanlar(_db: VeriBaglami, limit = 3): Promise<SikAlin
  * · "Son kullandıkların" grubu). Türkçe normalizasyon iki tarafa da
  * uygulanır. Aynı pencere sınırı `sikAlinanlar`'daki gibi geçerlidir.
  */
-export async function urunAra(_db: VeriBaglami, sorgu: string, limit = 20): Promise<SikAlinan[]> {
-  const hepsi = await sikAlinanlar(_db, SIK_ALINAN_PENCERE);
+export async function urunAra(sorgu: string, limit = 20): Promise<SikAlinan[]> {
+  const hepsi = await sikAlinanlar(SIK_ALINAN_PENCERE);
   const anahtar = turkceNormalize(sorgu);
   return hepsi.filter((s) => turkceNormalize(s.urunAdi).includes(anahtar)).slice(0, limit);
 }
@@ -434,8 +397,7 @@ export async function urunAra(_db: VeriBaglami, sorgu: string, limit = 20): Prom
 
 /** Bir kategorinin bir aydaki TÜM kayıtları, en yeni önce (sunucu varsayılan sıralaması). */
 export async function kategoriAyHarcamalari(
-  _db: VeriBaglami,
-  kategoriKodu: string,
+    kategoriKodu: string,
   ay: string,
 ): Promise<Harcama[]> {
   const kayitlar = await tumSayfalariGetir({
@@ -448,8 +410,7 @@ export async function kategoriAyHarcamalari(
 
 /** Bir kategorinin bir aydaki toplamı + kayıt adedi. */
 export async function kategoriAyOzeti(
-  _db: VeriBaglami,
-  kategoriKodu: string,
+    kategoriKodu: string,
   ay: string,
 ): Promise<AySpecifiOzeti> {
   const kayitlar = await tumSayfalariGetir({
@@ -465,7 +426,7 @@ export async function kategoriAyOzeti(
 export type TaksitAySatiri = { ay: string; toplamKurus: number };
 
 /** Bugünden başlayarak `aySayisiler` ayının taksit toplamı (§7.12 `LoadBar`). */
-export async function taksitAylikYuk(_db: VeriBaglami, aySayisiler: string[]): Promise<TaksitAySatiri[]> {
+export async function taksitAylikYuk(aySayisiler: string[]): Promise<TaksitAySatiri[]> {
   if (aySayisiler.length === 0) return [];
   const ilkAy = [...aySayisiler].sort()[0];
   const sonAy = [...aySayisiler].sort().at(-1) as string;
@@ -480,7 +441,7 @@ export async function taksitAylikYuk(_db: VeriBaglami, aySayisiler: string[]): P
 }
 
 /** Bu ayın taksit toplamı (E-18 kahraman kartı). */
-export async function taksitBuAyToplam(_db: VeriBaglami, buAy: string): Promise<number> {
+export async function taksitBuAyToplam(buAy: string): Promise<number> {
   const kayitlar = await tumSayfalariGetir({ baslangic_gun: `${buAy}-01`, bitis_gun: `${buAy}-31` });
   return kayitlar.filter((k) => k.taksit_id).reduce((t, k) => t + k.tutar_kurus, 0);
 }
@@ -492,7 +453,7 @@ export async function taksitBuAyToplam(_db: VeriBaglami, buAy: string): Promise<
  * (rev3-taksitler.md §5). `buAyBaslangicGunu` yalnız sorgu penceresini
  * daraltır, dışlama ay anahtarı karşılaştırmasıyla yapılır.
  */
-export async function taksitKalanToplamKurus(_db: VeriBaglami, buAyBaslangicGunu: string): Promise<number> {
+export async function taksitKalanToplamKurus(buAyBaslangicGunu: string): Promise<number> {
   const buAy = buAyBaslangicGunu.slice(0, 7);
   const kayitlar = await tumSayfalariGetir({ baslangic_gun: buAyBaslangicGunu });
   return kayitlar
@@ -501,7 +462,7 @@ export async function taksitKalanToplamKurus(_db: VeriBaglami, buAyBaslangicGunu
 }
 
 /** En geç biten serinin son ay anahtarı ("2027-05") — yoksa null. */
-export async function taksitSonAy(_db: VeriBaglami, buAyBaslangicGunu: string): Promise<string | null> {
+export async function taksitSonAy(buAyBaslangicGunu: string): Promise<string | null> {
   const kayitlar = await tumSayfalariGetir({ baslangic_gun: buAyBaslangicGunu });
   const gunler = kayitlar.filter((k) => k.taksit_id).map((k) => k.gun);
   if (gunler.length === 0) return null;
@@ -529,7 +490,7 @@ export type SurenSeri = {
  * kırılımı (rev3-taksitler.md). `urunAdi` ve `kalanKurus` YENİ bir alan/uç
  * DEĞİL: `tumSayfalariGetir({})` zaten çektiği tam geçmişten türetilir.
  */
-export async function surenSeriler(_db: VeriBaglami, buAy: string): Promise<SurenSeri[]> {
+export async function surenSeriler(buAy: string): Promise<SurenSeri[]> {
   const buAyKayitlari = (await tumSayfalariGetir({ baslangic_gun: `${buAy}-01`, bitis_gun: `${buAy}-31` })).filter(
     (k) => k.taksit_id,
   );
@@ -564,8 +525,7 @@ export async function surenSeriler(_db: VeriBaglami, buAy: string): Promise<Sure
 
 /** Geçen ay biten (bu ay artık görünmeyen) tek bir seri — "seri bitti" bilgi şeridi. */
 export async function gecenAyBitenSeri(
-  _db: VeriBaglami,
-  gecenAy: string,
+    gecenAy: string,
 ): Promise<{ kategori: string; urunAdi: string | null; tutarKurus: number } | null> {
   const kayitlar = await tumSayfalariGetir({ baslangic_gun: `${gecenAy}-01`, bitis_gun: `${gecenAy}-31` });
   const biten = kayitlar.find((k) => k.taksit_id && k.taksit_no === k.taksit_toplam);

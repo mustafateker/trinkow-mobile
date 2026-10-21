@@ -1,5 +1,4 @@
 import { router } from 'expo-router';
-import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { LayoutAnimation, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -75,7 +74,6 @@ type Veri = {
  * gösterir.
  */
 export default function TaksitlerEkrani() {
-  const db = useVeriBaglami();
   const insets = useSafeAreaInsets();
   const reduceMotion = useReduceMotion();
 
@@ -100,11 +98,11 @@ export default function TaksitlerEkrani() {
       const aySayisiler = Array.from({ length: GELECEK_AY_SAYISI }, (_, i) => ayAnahtari(ayEkle(bugun, i)));
 
       const [aylar, kalanToplamKurus, sonAy, seriler, bitenSeriKaydi] = await Promise.all([
-        taksitAylikYuk(db, aySayisiler),
-        taksitKalanToplamKurus(db, buAyBaslangicGunu),
-        taksitSonAy(db, buAyBaslangicGunu),
-        surenSeriler(db, buAy),
-        gecenAyBitenSeri(db, gecenAy),
+        taksitAylikYuk(aySayisiler),
+        taksitKalanToplamKurus(buAyBaslangicGunu),
+        taksitSonAy(buAyBaslangicGunu),
+        surenSeriler(buAy),
+        gecenAyBitenSeri(gecenAy),
       ]);
       setVeri({ aylar, kalanToplamKurus, sonAy, seriler, bitenSeri: bitenSeriKaydi });
     } catch {
@@ -112,7 +110,7 @@ export default function TaksitlerEkrani() {
     } finally {
       setYukleniyor(false);
     }
-  }, [db]);
+  }, []);
 
   useEffect(() => {
     void oku();

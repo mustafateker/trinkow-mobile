@@ -1,4 +1,3 @@
-import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useState } from 'react';
 
 import { seriGorunumuGetir, type GunSeriDurumu, type SeriDurumu } from '@/db/seri';
@@ -23,7 +22,6 @@ export type SeriEkraniVerisi = {
  * pencereden FARKLI — bkz. rapor "sapmalar").
  */
 export function useSeriEkrani(): SeriEkraniVerisi & { yenile: () => void } {
-  const db = useVeriBaglami();
   const [veri, setVeri] = useState<SeriEkraniVerisi>({
     yukleniyor: true,
     hata: false,
@@ -34,7 +32,7 @@ export function useSeriEkrani(): SeriEkraniVerisi & { yenile: () => void } {
 
   const oku = useCallback(async () => {
     try {
-      const { durum, izgara: hamIzgara } = await seriGorunumuGetir(db);
+      const { durum, izgara: hamIzgara } = await seriGorunumuGetir();
       const izgara: SeriIzgaraGunu[] = hamIzgara.map((h) => ({
         gun: tarihtenGun(h.gun).getDate(),
         anahtar: h.gun,
@@ -48,7 +46,7 @@ export function useSeriEkrani(): SeriEkraniVerisi & { yenile: () => void } {
     } catch {
       setVeri((o) => ({ ...o, yukleniyor: false, hata: true }));
     }
-  }, [db]);
+  }, []);
 
   useEffect(() => {
     void oku();

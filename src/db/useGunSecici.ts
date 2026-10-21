@@ -1,4 +1,3 @@
-import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useState } from 'react';
 
 import { gunAraligiToplamlari } from '@/db/harcama';
@@ -45,7 +44,6 @@ const BOS_OZET: GunSeciciOzeti = { kayitliGun: 0, limitAltiGun: 0, birikenKurus:
  * sunucudakiyle birebir aynı kuralı uygular.
  */
 export function useGunSecici(ay: string): GunSeciciVerisi & { yenile: () => void } {
-  const db = useVeriBaglami();
   const [veri, setVeri] = useState<GunSeciciVerisi>({
     yukleniyor: true,
     hata: false,
@@ -60,12 +58,12 @@ export function useGunSecici(ay: string): GunSeciciVerisi & { yenile: () => void
     try {
       const bugun = new Date();
       const bugunGun = gunAnahtari(bugun);
-      const [profil, ilkGun] = await Promise.all([kullaniciProfiliGetir(), ilkSinirGunu(db)]);
+      const [profil, ilkGun] = await Promise.all([kullaniciProfiliGetir(), ilkSinirGunu()]);
       const limitKurus = profil.gunluk_limit_kurus;
       const gunSayisi = ayGunSayisi(ay);
       const ilkTarih = tarihtenGun(`${ay}-01`);
       const sonTarih = gunEkle(ilkTarih, gunSayisi - 1);
-      const toplamlar = await gunAraligiToplamlari(db, gunAnahtari(ilkTarih), gunAnahtari(sonTarih));
+      const toplamlar = await gunAraligiToplamlari(gunAnahtari(ilkTarih), gunAnahtari(sonTarih));
 
       const gunler: GunSeciciGunu[] = [];
       let kayitliGun = 0;
@@ -109,7 +107,7 @@ export function useGunSecici(ay: string): GunSeciciVerisi & { yenile: () => void
     } catch {
       setVeri((o) => ({ ...o, yukleniyor: false, hata: true }));
     }
-  }, [db, ay]);
+  }, [ay]);
 
   useEffect(() => {
     void oku();

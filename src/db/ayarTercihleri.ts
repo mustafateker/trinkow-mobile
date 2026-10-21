@@ -1,4 +1,3 @@
-import type { VeriBaglami } from '@/db/baglam';
 
 import { ODEME_VARSAYILAN, type OdemeTipi } from '@/db/harcama';
 import { tercihleriGetir, tercihleriGuncelle, type TercihlerYaniti } from '@/lib/api';
@@ -14,9 +13,7 @@ import type { Dil, ParaBirimi, YerellestirmeTercihi } from '@/lib/yerellestirme'
  * dosyanın yolu kesildi). Her fonksiyon "Kaydet yok" ilkesine göre ANINDA
  * yazar (bkz. not-kutusu: "Her anahtar dokunulduğu anda geçerlidir").
  *
- * `db: VeriBaglami` parametreleri yalnız dışa verilen imzayı — bu
- * modülü çağıran `app/ayarlar.tsx` ve `app/_layout.tsx`'i DEĞİŞTİRMEMEK
- * için korunur; gövdede kullanılmazlar.
+ * Çağrılar doğrudan API ve güvenli cihaz deposu katmanlarına gider.
  */
 
 export type GunSiniriSaat = 0 | 3 | 6;
@@ -39,32 +36,32 @@ async function tercihleriGetirTekil(): Promise<TercihlerYaniti> {
   return ucustakiIstek;
 }
 
-export async function bildirimAksamOzetOku(_db: VeriBaglami): Promise<boolean> {
+export async function bildirimAksamOzetOku(): Promise<boolean> {
   // Sunucu varsayılanı zaten `true` (kullanici_model.py) — cevaplanmamışsa
   // da açık gösterilir, eski yerel davranışla birebir.
   return (await tercihleriGetirTekil()).bildirim_aksam_ozet;
 }
 
 /** Anahtarın kendisi + E-20'nin "cevaplandı mı" kontrolü aynı çağrıda güncellenir (sunucu tarafında). */
-export async function bildirimAksamOzetKaydet(_db: VeriBaglami, acik: boolean): Promise<void> {
+export async function bildirimAksamOzetKaydet(acik: boolean): Promise<void> {
   await tercihleriGuncelle({ bildirim_aksam_ozet: acik });
 }
 
 /** E-20 `prof.bildirim` sorusunun "zaten cevaplandı" kontrolü — varsayılan değerle karışmasın diye ayrı bayrak. */
-export async function bildirimTercihBelirlendiMi(_db: VeriBaglami): Promise<boolean> {
+export async function bildirimTercihBelirlendiMi(): Promise<boolean> {
   return (await tercihleriGetirTekil()).bildirim_tercih_belirlendi;
 }
 
-export async function bildirimSaatiOku(_db: VeriBaglami): Promise<string> {
+export async function bildirimSaatiOku(): Promise<string> {
   const t = await tercihleriGetirTekil();
   return t.bildirim_saati || BILDIRIM_SAATI_VARSAYILAN;
 }
 
-export async function bildirimSaatiKaydet(_db: VeriBaglami, saat: string): Promise<void> {
+export async function bildirimSaatiKaydet(saat: string): Promise<void> {
   await tercihleriGuncelle({ bildirim_saati: saat });
 }
 
-export async function gunSiniriOku(_db: VeriBaglami): Promise<GunSiniriSaat> {
+export async function gunSiniriOku(): Promise<GunSiniriSaat> {
   const t = await tercihleriGetirTekil();
   return t.gun_siniri ?? GUN_SINIRI_VARSAYILAN;
 }
@@ -75,31 +72,31 @@ export async function gunSiniriOku(_db: VeriBaglami): Promise<GunSiniriSaat> {
  * açmayı beklemez). `tarih.ts`'in senkron sözleşmesi BOZULMADI: önbellek
  * hâlâ senkron okunuyor, yalnız onu BESLEYEN yer artık sunucu.
  */
-export async function gunSiniriKaydet(_db: VeriBaglami, saat: GunSiniriSaat): Promise<void> {
+export async function gunSiniriKaydet(saat: GunSiniriSaat): Promise<void> {
   await tercihleriGuncelle({ gun_siniri: saat });
   gunSiniriSaatiniAyarla(saat);
 }
 
-export async function varsayilanOdemeOku(_db: VeriBaglami): Promise<OdemeTipi> {
+export async function varsayilanOdemeOku(): Promise<OdemeTipi> {
   const t = await tercihleriGetirTekil();
   return t.varsayilan_odeme === 'nakit' ? 'nakit' : t.varsayilan_odeme === 'kart' ? 'kart' : ODEME_VARSAYILAN;
 }
 
 /** NOT: yalnız tercihi saklar; `app/harcama-ekle.tsx` bu turda DEĞİŞMEDİ (bkz. rapor). */
-export async function varsayilanOdemeKaydet(_db: VeriBaglami, odeme: OdemeTipi): Promise<void> {
+export async function varsayilanOdemeKaydet(odeme: OdemeTipi): Promise<void> {
   await tercihleriGuncelle({ varsayilan_odeme: odeme });
 }
 
-export async function yerellestirmeOku(_db: VeriBaglami): Promise<YerellestirmeTercihi> {
+export async function yerellestirmeOku(): Promise<YerellestirmeTercihi> {
   const tercih = await tercihleriGetirTekil();
   return { dil: tercih.dil ?? 'en', paraBirimi: tercih.para_birimi ?? 'TRY' };
 }
 
-export async function dilKaydet(_db: VeriBaglami, dil: Dil): Promise<void> {
+export async function dilKaydet(dil: Dil): Promise<void> {
   await tercihleriGuncelle({ dil });
 }
 
-export async function paraBirimiKaydet(_db: VeriBaglami, paraBirimi: ParaBirimi): Promise<void> {
+export async function paraBirimiKaydet(paraBirimi: ParaBirimi): Promise<void> {
   await tercihleriGuncelle({ para_birimi: paraBirimi });
 }
 
@@ -108,7 +105,7 @@ export async function paraBirimiKaydet(_db: VeriBaglami, paraBirimi: ParaBirimi)
  * TEK otoritedir (K-068). Yerel `ayar.kurulum_gunu` bir daha YAZILMAZ/OKUNMAZ
  * (`db/semasi.ts` ve `db/profilleme.ts`nin eski okumaları kaldırıldı).
  */
-export async function kurulumGunuOku(_db: VeriBaglami): Promise<string> {
+export async function kurulumGunuOku(): Promise<string> {
   const t = await tercihleriGetirTekil();
   return t.kurulum_gunu ?? gunAnahtari(new Date());
 }
@@ -119,6 +116,8 @@ export async function kurulumGunuOku(_db: VeriBaglami): Promise<string> {
  * zaten varsa gönderilen tarih sessizce yok sayılır, ikinci bir "zaten
  * var mı" kontrolüne gerek YOK (K-084/2, `app/_layout.tsx` açılışta çağırır).
  */
-export async function kurulumGunuBaslat(_db: VeriBaglami): Promise<void> {
+export async function kurulumGunuBaslat(): Promise<void> {
+  const mevcut = await tercihleriGetirTekil();
+  if (mevcut.kurulum_gunu) return;
   await tercihleriGuncelle({ kurulum_gunu: gunAnahtari(new Date()) });
 }

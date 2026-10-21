@@ -1,4 +1,3 @@
-import { useVeriBaglami } from '@/db/baglam';
 import { Fragment, useCallback, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Circle, Defs, G, Line, LinearGradient, Path, Stop } from 'react-native-svg';
@@ -40,12 +39,11 @@ const DONEM_METNI: Record<AnalizDonemi, keyof typeof t> = {
 };
 
 export default function AnalizlerEkrani() {
-  const db = useVeriBaglami();
   const [donem, setDonem] = useState<AnalizDonemi>('hafta');
   const veri = useRevLoad(useCallback(async (): Promise<AnalizVerisi> => {
     const secim = analizAraligi(donem);
     const [harcamalar, butce] = await Promise.all([
-      harcamaAraligi(db, gunAnahtari(secim.baslangic), gunAnahtari(secim.bitis)),
+      harcamaAraligi(gunAnahtari(secim.baslangic), gunAnahtari(secim.bitis)),
       budgetGet(),
     ]);
     const gider = harcamalar.reduce((toplam, harcama) => toplam + harcama.tutarKurus, 0);
@@ -66,7 +64,7 @@ export default function AnalizlerEkrani() {
       kategoriler,
       noktalar: grafikNoktalariOlustur(harcamalar, donem, secim.baslangic, secim.bitis),
     };
-  }, [db, donem]));
+  }, [donem]));
 
   const header = <View style={stil.header}>
     <View style={stil.esnek}>

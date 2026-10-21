@@ -1,5 +1,4 @@
 import { useLocalSearchParams } from 'expo-router';
-import { useVeriBaglami } from '@/db/baglam';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   FlatList,
@@ -28,7 +27,6 @@ import { color } from '@/theme/tokens';
  * o günün sayfasına gider.
  */
 export default function GunlukEkrani() {
-  const db = useVeriBaglami();
   const { gun } = useLocalSearchParams<{ gun?: string }>();
   const hedefGunFarki = gun !== undefined ? Number.parseInt(gun, 10) || 0 : 0;
   const insets = useSafeAreaInsets();
@@ -92,7 +90,7 @@ export default function GunlukEkrani() {
 
   async function kutlamaGosterildi() {
     if (seriOzet.durum?.kutlanacakMilestone != null) {
-      await milestoneGosterildiIsaretle(db, seriOzet.durum.kutlanacakMilestone);
+      await milestoneGosterildiIsaretle(seriOzet.durum.kutlanacakMilestone);
       seriOzet.yenile();
     }
   }

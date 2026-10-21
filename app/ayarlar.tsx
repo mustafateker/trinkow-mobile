@@ -1,6 +1,5 @@
 import { islemHatasiniGoster } from '@/lib/islemHatasi';
 import { router, useFocusEffect } from 'expo-router';
-import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, Share, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -76,7 +75,6 @@ import { useYerellestirme } from '@/lib/useYerellestirme';
 const MAAS_GUNLERI = Array.from({ length: 31 }, (_, i) => i + 1);
 
 export default function AyarlarEkrani() {
-  const db = useVeriBaglami();
   const insets = useSafeAreaInsets();
   useYerellestirme();
 
@@ -110,13 +108,13 @@ export default function AyarlarEkrani() {
     setHata(false);
     try {
       const sonuclar = await Promise.allSettled([
-        gunSiniriOku(db),
-        varsayilanOdemeOku(db),
-        yerellestirmeOku(db),
-        profilOku(db),
-        profilDetayOku(db),
-        tumKayitSayisi(db),
-        ilkKayitGunu(db),
+        gunSiniriOku(),
+        varsayilanOdemeOku(),
+        yerellestirmeOku(),
+        profilOku(),
+        profilDetayOku(),
+        tumKayitSayisi(),
+        ilkKayitGunu(),
         oturumOku(),
       ]);
       const [sinir, odemeD, yerellestirme, profil, detay, adet, ilkGun, oturumKaydi] = sonuclar;
@@ -143,7 +141,7 @@ export default function AyarlarEkrani() {
       setYukleniyor(false);
       setTercihlerHazir(true);
     }
-  }, [db]);
+  }, []);
 
   useEffect(() => {
     if (!tercihlerHazir) return;
@@ -168,28 +166,28 @@ export default function AyarlarEkrani() {
   async function gunSiniriSec(deger: `${GunSiniriSaat}`) {
     const saat = Number(deger) as GunSiniriSaat;
     setGunSiniri(saat);
-    await gunSiniriKaydet(db, saat);
+    await gunSiniriKaydet(saat);
   }
 
   async function odemeSec(deger: OdemeTipi) {
     setOdeme(deger);
-    await varsayilanOdemeKaydet(db, deger);
+    await varsayilanOdemeKaydet(deger);
   }
 
   async function dilSec(deger: Dil) {
     setDil(deger);
-    await dilKaydet(db, deger);
+    await dilKaydet(deger);
   }
 
   async function paraBirimiSec(deger: ParaBirimi) {
     setParaBirimi(deger);
-    await paraBirimiKaydet(db, deger);
+    await paraBirimiKaydet(deger);
   }
 
   async function kipSec(id: Niyet) {
     setNiyet(id);
     setKipSheetAcik(false);
-    await niyetKaydet(db, id);
+    await niyetKaydet(id);
     veriDegisti();
   }
 
@@ -203,7 +201,7 @@ export default function AyarlarEkrani() {
     const yeni = kurus > 0 ? kurus : null;
     setGelirKurus(yeni);
     setGelirDuzenleAcik(false);
-    await gelirKaydet(db, yeni);
+    await gelirKaydet(yeni);
     veriDegisti();
   }
 
@@ -211,7 +209,7 @@ export default function AyarlarEkrani() {
     setMaasGunu(gun);
     setMaasDuzensiz(false);
     setMaasDuzenleAcik(false);
-    await maasGunuKaydet(db, gun, false);
+    await maasGunuKaydet(gun, false);
     veriDegisti();
   }
 
@@ -219,14 +217,14 @@ export default function AyarlarEkrani() {
     setMaasGunu(null);
     setMaasDuzensiz(true);
     setMaasDuzenleAcik(false);
-    await maasGunuKaydet(db, null, true);
+    await maasGunuKaydet(null, true);
     veriDegisti();
   }
 
   async function veriyiSil() {
     setVeriSiliniyor(true);
     try {
-      await tumVeriyiSil(db);
+      await tumVeriyiSil();
       setVeriSilAcik(false);
       veriDegisti();
       router.replace('/onboarding');

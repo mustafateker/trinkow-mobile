@@ -1,7 +1,7 @@
 {
   "name": "trinkow",
   "main": "expo-router/entry",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "scripts": {
     "dev": "python3 ../dev.py",
@@ -10,6 +10,8 @@
     "ios": "expo run:ios",
     "android": "expo run:android",
     "typecheck": "tsc --noEmit",
+    "lint": "eslint app src tests --max-warnings=0",
+    "check": "npm run typecheck && npm run lint && npm test",
     "release:setup": "node scripts/release-setup.mjs",
     "release": "node scripts/release.mjs"
   },
@@ -23,6 +25,7 @@
   "dependencies": {
     "@expo-google-fonts/plus-jakarta-sans": "^0.4.2",
     "@fortawesome/free-brands-svg-icons": "^7.3.1",
+    "@tanstack/react-query": "^5.104.5",
     "expo": "~57.0.30",
     "expo-constants": "~57.0.22",
     "expo-font": "~57.0.4",
@@ -49,6 +52,8 @@
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
+    "eslint": "^9.39.5",
+    "eslint-config-expo": "^58.0.4",
     "typescript": "~6.0.3"
   }
 }

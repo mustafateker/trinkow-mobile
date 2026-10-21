@@ -1,4 +1,3 @@
-import { useVeriBaglami } from '@/db/baglam';
 import { useEffect, useState } from 'react';
 
 import { ilkSinirGunu } from '@/db/seri';
@@ -10,14 +9,13 @@ import { veriDegisimineAbone } from '@/lib/veriBus';
  * günü). `app/index.tsx` bunu bir kez okuyup sayfalama dizisini kurar.
  */
 export function useGunlukSinir(): { enEskiGunFarki: number; hazir: boolean } {
-  const db = useVeriBaglami();
   const [durum, setDurum] = useState({ enEskiGunFarki: 0, hazir: false });
 
   useEffect(() => {
     let canli = true;
     async function oku() {
       try {
-        const ilkGun = await ilkSinirGunu(db);
+        const ilkGun = await ilkSinirGunu();
         const fark = Math.min(gunFarkiHesapla(tarihtenGun(ilkGun), new Date()), 0);
         if (canli) setDurum({ enEskiGunFarki: fark, hazir: true });
       } catch {
@@ -28,7 +26,7 @@ export function useGunlukSinir(): { enEskiGunFarki: number; hazir: boolean } {
     void oku();
     const ayril = veriDegisimineAbone(() => void oku());
     return () => { canli = false; ayril(); };
-  }, [db]);
+  }, []);
 
   return durum;
 }

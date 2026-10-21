@@ -1,5 +1,4 @@
 import { router } from 'expo-router';
-import { useVeriBaglami } from '@/db/baglam';
 import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 
@@ -72,8 +71,7 @@ export function GunlukSayfa({
   /** İçteki yatay sık harcama listesi sürüklenirken dış gün pager'ını kilitler. */
   onIcYatayKaydirmaDegisti?: (kaydiriliyor: boolean) => void;
 }) {
-  const db = useVeriBaglami();
-  const veri = usePano(gunFarki);
+  const veri = usePano(gunFarki, aktifMi);
   const bugunMu = gunFarki === 0;
   const bos = veri.harcamalar.length === 0;
 
@@ -84,10 +82,10 @@ export function GunlukSayfa({
 
   // "Sık kullanılanlar" — yalnız Bugün sayfasında; harcama eklenip silindikçe tazelenir.
   useEffect(() => {
-    if (!bugunMu) return;
+    if (!aktifMi || !bugunMu) return;
     let canli = true;
     const yukle = () => {
-      void sikAlinanlar(db, 6).then((l) => canli && setSikKullanilanlar(l)).catch(() => {});
+      void sikAlinanlar(6).then((l) => canli && setSikKullanilanlar(l)).catch(() => {});
     };
     yukle();
     const iptal = veriDegisimineAbone(yukle);
@@ -95,19 +93,19 @@ export function GunlukSayfa({
       canli = false;
       iptal();
     };
-  }, [db, bugunMu]);
+  }, [aktifMi, bugunMu]);
 
   const [ipucuKapatildi, setIpucuKapatildi] = useState(true);
   useEffect(() => {
-    if (!bugunMu) return;
+    if (!aktifMi || !bugunMu) return;
     let canli = true;
-    void ayarOku(db, 'gunluk_ipucu_kapatildi').then((v) => {
+    void ayarOku('gunluk_ipucu_kapatildi').then((v) => {
       if (canli) setIpucuKapatildi(v === '1');
     });
     return () => {
       canli = false;
     };
-  }, [db, bugunMu]);
+  }, [aktifMi, bugunMu]);
 
   useEffect(() => {
     if (bugunMu) onBugunBosDegisti?.(bos && !veri.yukleniyor);
@@ -115,11 +113,11 @@ export function GunlukSayfa({
 
   function ipucuKapat() {
     setIpucuKapatildi(true);
-    void ayarYaz(db, 'gunluk_ipucu_kapatildi', '1');
+    void ayarYaz('gunluk_ipucu_kapatildi', '1');
   }
 
   async function harcamasizIsaretle() {
-    await gunHarcamasizIsaretle(db, gunAnahtari(veri.tarih));
+    await gunHarcamasizIsaretle(gunAnahtari(veri.tarih));
     veriDegisti();
   }
 
@@ -356,6 +354,7 @@ export function GunlukSayfa({
         ) : null}
 
         <RoutineQuickSection
+          aktifMi={aktifMi}
           gapUstu={rhythm.section}
           tarih={veri.tarih}
           gunAnahtariDeger={gunAnahtari(veri.tarih)}

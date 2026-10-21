@@ -1,4 +1,3 @@
-import type { VeriBaglami } from '@/db/baglam';
 
 import { t, toastTekrarlandi } from '@/content/metinler';
 import { harcamaEkle, harcamaSil, taksitSerisiSil, type Harcama } from '@/db/harcama';
@@ -12,15 +11,15 @@ import { veriDegisti } from '@/lib/veriBus';
  * E-12 (detay ekranı "Sil") ve E-10/E-14 satır kaydırması (Akış D) bu
  * TEK fonksiyonu paylaşır — mantık iki yerde yazılmaz.
  */
-export async function harcamaTekilSilVeGeriAlSun(db: VeriBaglami, yedek: Harcama): Promise<void> {
-  await harcamaSil(db, yedek.id);
+export async function harcamaTekilSilVeGeriAlSun(yedek: Harcama): Promise<void> {
+  await harcamaSil(yedek.id);
   veriDegisti();
   toastGoster({
     tur: 'undo',
     metin: t['toast.silindi'],
     eylemEtiketi: t['toast.geri_al'],
     onEylem: async () => {
-      await harcamaEkle(db, {
+      await harcamaEkle({
         tutarKurus: yedek.tutarKurus,
         kategori: yedek.kategori,
         urunAdi: yedek.urunAdi,
@@ -39,8 +38,8 @@ export async function harcamaTekilSilVeGeriAlSun(db: VeriBaglami, yedek: Harcama
 }
 
 /** E-13 — taksit serisi silme: onaylı (Dialog çağıranın sorumluluğunda), geri alma yok. */
-export async function taksitSerisiSilVeToastGoster(db: VeriBaglami, taksitId: string): Promise<void> {
-  await taksitSerisiSil(db, taksitId);
+export async function taksitSerisiSilVeToastGoster(taksitId: string): Promise<void> {
+  await taksitSerisiSil(taksitId);
   veriDegisti();
   toastGoster({ tur: 'info', metin: t['toast.taksit_silindi'] });
 }
@@ -50,9 +49,9 @@ export async function taksitSerisiSilVeToastGoster(db: VeriBaglami, taksitId: st
  * taksitsiz tek kayıt. Not taşınmaz (yeni an, yeni bağlam); taksitli bir
  * kaynaktan tekrarlansa bile sonuç her zaman tek harcamadır. 6 sn geri al.
  */
-export async function harcamaTekrarla(db: VeriBaglami, kaynak: Harcama): Promise<void> {
+export async function harcamaTekrarla(kaynak: Harcama): Promise<void> {
   const simdi = new Date();
-  const yeniId = await harcamaEkle(db, {
+  const yeniId = await harcamaEkle({
     tutarKurus: kaynak.tutarKurus,
     kategori: kaynak.kategori,
     urunAdi: kaynak.urunAdi,
@@ -70,7 +69,7 @@ export async function harcamaTekrarla(db: VeriBaglami, kaynak: Harcama): Promise
     metin: toastTekrarlandi(paraYaz(kaynak.tutarKurus)),
     eylemEtiketi: t['toast.geri_al'],
     onEylem: async () => {
-      await harcamaSil(db, yeniId);
+      await harcamaSil(yeniId);
       veriDegisti();
       toastGoster({ tur: 'info', metin: t['toast.geri_alindi'] });
     },

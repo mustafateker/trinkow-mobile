@@ -1,4 +1,3 @@
-import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useState } from 'react';
 
 import { gununHarcamalari, type Harcama, type KategoriDurumu } from '@/db/harcama';
@@ -38,8 +37,8 @@ const BOS_SERI: GunSeriBilgisi = {
 
 /**
  * Bir günün panosu (E-10 Günlük — K-049 sayfalama). `gunFarki` bugüne göre
- * kaydırma; 0 = bugün, negatif = geçmiş. Her sayfa kendi kancasını çağırır
- * (`FlatList` yalnız görünür sayfaları monte eder, bkz. `app/index.tsx`).
+ * kaydırma; 0 = bugün, negatif = geçmiş. Komşu FlatList sayfaları monte
+ * edilse bile yalnız `aktifMi` olan sayfa ağ isteği başlatır.
  *
  * BE-6c: toplam/limit durumu/kategori kırılımı/ay aşımı/seri/`ilkGunMu` artık
  * TEK bir `GET /ozet/pano` isteğiyle sunucudan gelir (K-068 — istemci bir
@@ -47,8 +46,7 @@ const BOS_SERI: GunSeriBilgisi = {
  * ayrıca `gununHarcamalari` ile çekilir — `ozet/pano` yanıtı bir liste
  * DÖNMEZ, yalnız aggregate alanlar döner (backend/README.md "ozet" bölümü).
  */
-export function usePano(gunFarki = 0): PanoVerisi & { yenile: () => void } {
-  const db = useVeriBaglami();
+export function usePano(gunFarki = 0, aktifMi = true): PanoVerisi & { yenile: () => void } {
   const tarih = gunEkle(new Date(), gunFarki);
   const gun = gunAnahtari(tarih);
   const bugunMu = gunFarki === 0;
@@ -70,7 +68,7 @@ export function usePano(gunFarki = 0): PanoVerisi & { yenile: () => void } {
 
   const oku = useCallback(async () => {
     try {
-      const [pano, harcamalar] = await Promise.all([ozetPanoGetir(gun), gununHarcamalari(db, gun)]);
+      const [pano, harcamalar] = await Promise.all([ozetPanoGetir(gun), gununHarcamalari(gun)]);
       setVeri({
         yukleniyor: false,
         hata: false,
@@ -102,14 +100,18 @@ export function usePano(gunFarki = 0): PanoVerisi & { yenile: () => void } {
       setVeri((o) => ({ ...o, yukleniyor: false, hata: true }));
     }
     // `tarih` her render'da yeni nesne olduğu için bağımlılık `gun`
-  }, [db, gun, bugunMu, gunFarki]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [gun, bugunMu, gunFarki]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
+    if (!aktifMi) return;
     void oku();
-  }, [oku]);
+  }, [aktifMi, oku]);
 
   // Harcama ekle/sil/güncelle başka ekranda olsa da bu sayfa güncel kalsın.
-  useEffect(() => veriDegisimineAbone(() => void oku()), [oku]);
+  useEffect(() => {
+    if (!aktifMi) return;
+    return veriDegisimineAbone(() => void oku());
+  }, [aktifMi, oku]);
 
   return { ...veri, yenile: () => void oku() };
 }

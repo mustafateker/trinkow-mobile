@@ -1,4 +1,3 @@
-import type { VeriBaglami } from '@/db/baglam';
 
 import { ayarOku, ayarYaz } from '@/db/harcama';
 import {
@@ -35,7 +34,7 @@ import { ayAnahtari, ayBasligi, gunAnahtari, tarihtenGun } from '@/lib/tarih';
 export const MILESTONES = [3, 7, 14, 30, 60, 100, 180, 365] as const;
 
 /** K-048 hile kapısı (b) — `PUT /harcama/gun-durumu` (BE-6c). */
-export async function gunHarcamasizIsaretle(_db: VeriBaglami, gun: string): Promise<void> {
+export async function gunHarcamasizIsaretle(gun: string): Promise<void> {
   await gunDurumuYazIstegi(gun, true);
 }
 
@@ -47,7 +46,7 @@ export async function gunHarcamasizIsaretle(_db: VeriBaglami, gun: string): Prom
  * `app/index.tsx#useGunlukSinir` (Günlük sekmesi sayfalaması) ve
  * `useGunSecici.ts` (ay ızgarası) bunu paylaşır.
  */
-export async function ilkSinirGunu(_db: VeriBaglami): Promise<string> {
+export async function ilkSinirGunu(): Promise<string> {
   const bugunGun = gunAnahtari(new Date());
   const [tercihler, enEski] = await Promise.all([tercihleriGetir(), enEskiKayitGunuGetirIstegi()]);
   const kurulum = tercihler.kurulum_gunu ?? bugunGun;
@@ -107,16 +106,16 @@ export type SeriIzgaraHucresi = { gun: string; durum: GunSeriDurumu };
 
 export type SeriGorunumu = { durum: SeriDurumu; izgara: SeriIzgaraHucresi[] };
 
-async function kutlanacakMilestoneBul(db: VeriBaglami, mevcutSeri: number): Promise<number | null> {
-  const gosterilenDonum = Number((await ayarOku(db, 'seri_en_yuksek_gosterilen_donum')) ?? '0');
+async function kutlanacakMilestoneBul(mevcutSeri: number): Promise<number | null> {
+  const gosterilenDonum = Number((await ayarOku('seri_en_yuksek_gosterilen_donum')) ?? '0');
   return (MILESTONES as readonly number[]).includes(mevcutSeri) && mevcutSeri > gosterilenDonum ? mevcutSeri : null;
 }
 
 /** Kutlama gösterildikten sonra kalıcı işaretle — uygulama yeniden açılınca tekrar oynamaz. */
-export async function milestoneGosterildiIsaretle(db: VeriBaglami, milestone: number): Promise<void> {
-  const mevcut = Number((await ayarOku(db, 'seri_en_yuksek_gosterilen_donum')) ?? '0');
+export async function milestoneGosterildiIsaretle(milestone: number): Promise<void> {
+  const mevcut = Number((await ayarOku('seri_en_yuksek_gosterilen_donum')) ?? '0');
   if (milestone <= mevcut) return;
-  await ayarYaz(db, 'seri_en_yuksek_gosterilen_donum', String(milestone));
+  await ayarYaz('seri_en_yuksek_gosterilen_donum', String(milestone));
 }
 
 function yanitiSeriDurumunaCevir(y: OzetSeriYaniti, kutlanacakMilestone: number | null): SeriDurumu {
@@ -135,11 +134,11 @@ function yanitiSeriDurumunaCevir(y: OzetSeriYaniti, kutlanacakMilestone: number 
 }
 
 /** E-21 — seri durumu + son 30 günün ızgarası, TEK ağ isteğiyle (`useSeriEkrani.ts`). */
-export async function seriGorunumuGetir(db: VeriBaglami): Promise<SeriGorunumu> {
+export async function seriGorunumuGetir(): Promise<SeriGorunumu> {
   // K-087 — sunucuya "bugün"ü YEREL gün sınırı hesabıyla gönderiyoruz (UTC'ye düşerse
   // gece 00:00-03:00 arası eklenen harcama yanlış güne sayılabilir).
   const yanit = await ozetSeriGetir(gunAnahtari(new Date()));
-  const kutlanacak = await kutlanacakMilestoneBul(db, yanit.mevcut_seri);
+  const kutlanacak = await kutlanacakMilestoneBul(yanit.mevcut_seri);
   return {
     durum: yanitiSeriDurumunaCevir(yanit, kutlanacak),
     izgara: yanit.izgara.map((h) => ({ gun: h.gun, durum: h.durum })),
@@ -147,6 +146,6 @@ export async function seriGorunumuGetir(db: VeriBaglami): Promise<SeriGorunumu> 
 }
 
 /** E-10 başlığındaki seri özeti + milestone tetiği (`useSeriOzet.ts`) — ızgarayı kullanmaz, aynı yanıtı atar. */
-export async function seriDurumuHesapla(db: VeriBaglami): Promise<SeriDurumu> {
-  return (await seriGorunumuGetir(db)).durum;
+export async function seriDurumuHesapla(): Promise<SeriDurumu> {
+  return (await seriGorunumuGetir()).durum;
 }

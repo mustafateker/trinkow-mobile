@@ -1,7 +1,6 @@
 import { ErrorState } from '@/components/ErrorState';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useVeriBaglami } from '@/db/baglam';
 import { useEffect, useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -48,7 +47,6 @@ export default function HarcamaDetayEkrani() {
   // ve NaN üretirdi (sözleşme uyuşmazlığı, PM'e bildirildi). Route parametresi
   // zaten string, doğrudan kullanılır.
   const harcamaId = id ?? '';
-  const db = useVeriBaglami();
   const insets = useSafeAreaInsets();
 
   const [harcama, setHarcama] = useState<Harcama | null>(null);
@@ -80,7 +78,7 @@ export default function HarcamaDetayEkrani() {
     let canli = true;
     setYukleniyor(true);
     setOkumaHata(false);
-    void harcamaGetir(db, harcamaId).then((h) => {
+    void harcamaGetir(harcamaId).then((h) => {
       if (!canli) return;
       if (!h) {
         setBulunamadi(true);
@@ -98,7 +96,7 @@ export default function HarcamaDetayEkrani() {
     return () => {
       canli = false;
     };
-  }, [db, harcamaId, yenidenDene]);
+  }, [harcamaId, yenidenDene]);
 
   useEffect(() => {
     if (!yukleniyor) {
@@ -130,7 +128,7 @@ export default function HarcamaDetayEkrani() {
     setKaydediliyor(true);
     setYazmaHata(undefined);
     try {
-      await harcamaGuncelle(db, harcama.id, {
+      await harcamaGuncelle(harcama.id, {
         kategori: kategoriKodu,
         odeme,
         notMetni: notMetni.trim() || null,
@@ -148,7 +146,7 @@ export default function HarcamaDetayEkrani() {
   async function silTekHarcama() {
     if (!harcama) return;
     try {
-      await harcamaTekilSilVeGeriAlSun(db, harcama);
+      await harcamaTekilSilVeGeriAlSun(harcama);
       router.back();
     } catch {
       setYazmaHata(t['hata.yazma']);
@@ -159,7 +157,7 @@ export default function HarcamaDetayEkrani() {
     if (!harcama?.taksitId) return;
     setSilSiliniyor(true);
     try {
-      await taksitSerisiSilVeToastGoster(db, harcama.taksitId);
+      await taksitSerisiSilVeToastGoster(harcama.taksitId);
       router.back();
     } catch {
       setYazmaHata(t['hata.yazma']);

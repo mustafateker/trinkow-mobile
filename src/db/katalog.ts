@@ -1,4 +1,3 @@
-import type { VeriBaglami } from '@/db/baglam';
 
 import { ayarOku, ayarYaz } from '@/db/harcama';
 import { katalogGuncelle, type KatalogOgesi } from '@/content/urunKatalogu';
@@ -16,9 +15,9 @@ const SURUM_ANAHTARI = 'katalog_surumu';
  *    TETİKLEMEZ, arama çevrimdışı çalışmaya devam eder (görev notu #4).
  *  · yalnız sürüm GERÇEKTEN değiştiyse `aktifKatalogu()`nun içeriği değişir.
  */
-export async function katalogTazele(db: VeriBaglami): Promise<void> {
+export async function katalogTazele(): Promise<void> {
   try {
-    const bilinenSurum = await ayarOku(db, SURUM_ANAHTARI);
+    const bilinenSurum = await ayarOku(SURUM_ANAHTARI);
     const sonuc = await katalogGetir(bilinenSurum);
     if (!sonuc.degisti) return;
     const yeni: KatalogOgesi[] = sonuc.katalog.ogeler.map((o) => ({
@@ -27,7 +26,7 @@ export async function katalogTazele(db: VeriBaglami): Promise<void> {
       kategori: o.kategori as KategoriKodu,
     }));
     katalogGuncelle(yeni);
-    await ayarYaz(db, SURUM_ANAHTARI, sonuc.katalog.surum);
+    await ayarYaz(SURUM_ANAHTARI, sonuc.katalog.surum);
   } catch {
     // bkz. üstteki not — sessiz kalınır, gömülü katalog kullanılmaya devam eder.
   }

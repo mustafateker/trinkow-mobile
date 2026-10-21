@@ -1,5 +1,4 @@
 import { router } from 'expo-router';
-import { useVeriBaglami } from '@/db/baglam';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
@@ -64,6 +63,7 @@ const AYAR_ACIK_ANAHTARI = 'gunluk_rutin_bolum_acik';
  * tasarrufa dahil edilmez.
  */
 export function RoutineQuickSection({
+  aktifMi,
   gapUstu,
   gapAlti = 0,
   tarih,
@@ -71,6 +71,7 @@ export function RoutineQuickSection({
   bugunMu,
   harcamalar,
 }: {
+  aktifMi: boolean;
   /** Bir önceki bloğa göre üst boşluk (§2.2) — bileşenin İÇİNDE, ki rutin
    * yokken (§5/1) hiçbir iz (boş boşluk dahil) kalmasın. */
   gapUstu: number;
@@ -81,7 +82,6 @@ export function RoutineQuickSection({
   bugunMu: boolean;
   harcamalar: Harcama[];
 }) {
-  const db = useVeriBaglami();
 
   const [rutinler, setRutinler] = useState<Routine[] | null>(null);
   const [abonelikTakvimi, setAbonelikTakvimi] = useState<SubscriptionSchedule | null>(null);
@@ -111,25 +111,30 @@ export function RoutineQuickSection({
   }, [bugunMu, gunAnahtariDeger]);
 
   useEffect(() => {
+    if (!aktifMi) return;
     void oku();
-  }, [oku]);
-  useEffect(() => veriDegisimineAbone(() => void oku()), [oku]);
+  }, [aktifMi, oku]);
+  useEffect(() => {
+    if (!aktifMi) return;
+    return veriDegisimineAbone(() => void oku());
+  }, [aktifMi, oku]);
 
   // §3 "Hafıza" — ilk kurulumda açık, sonrasında cihazın son bıraktığı hâl.
   const [acik, setAcik] = useState(true);
   useEffect(() => {
+    if (!aktifMi) return;
     let canli = true;
-    void ayarOku(db, AYAR_ACIK_ANAHTARI).then((v) => {
+    void ayarOku(AYAR_ACIK_ANAHTARI).then((v) => {
       if (canli && v !== null) setAcik(v === '1');
     });
     return () => {
       canli = false;
     };
-  }, [db]);
+  }, [aktifMi]);
   function acikDegistir() {
     setAcik((onceki) => {
       const yeni = !onceki;
-      void ayarYaz(db, AYAR_ACIK_ANAHTARI, yeni ? '1' : '0');
+      void ayarYaz(AYAR_ACIK_ANAHTARI, yeni ? '1' : '0');
       return yeni;
     });
   }
@@ -185,7 +190,7 @@ export function RoutineQuickSection({
       // Her dokunuş bir gerçekleşme ekler. Aynı güne ayrı kayıt yazmak,
       // hızlı işlemi adet sınırından bağımsız ve geri alınabilir tutar.
       const tutarKurus = rutin.birim_fiyat_kurus;
-      const id = await harcamaEkle(db, {
+      const id = await harcamaEkle({
         istemciId: yeniId(),
         rutinId: rutin.id,
         adet: 1,
@@ -207,7 +212,7 @@ export function RoutineQuickSection({
         metin: gunlukRutinToastAldim(rutin.ad, paraYaz(tutarKurus)),
         eylemEtiketi: t['gunlukRutin.toast.geriAl'],
         onEylem: async () => {
-          await harcamaSil(db, id);
+          await harcamaSil(id);
           veriDegisti();
         },
       });
