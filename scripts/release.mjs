@@ -18,6 +18,18 @@ const keystoreYolu = resolve(kok, '.release-secrets/android-upload-keystore.jks'
 const keystoreAyarYolu = resolve(kok, '.release-secrets/android-keystore.properties');
 const PAKET_ADI = 'com.triworkster.trinkow';
 const SERVIS_HESABI = 'trinkow-oto-release@trinkow.iam.gserviceaccount.com';
+const YAYIN_HEDEFLERI = {
+  internal: {
+    ad: 'internal test',
+    fastlaneLane: 'internal',
+    komut: 'npm run release:internal',
+  },
+  closed: {
+    ad: 'kapalı test',
+    fastlaneLane: 'closed',
+    komut: 'npm run release:closed',
+  },
+};
 
 function calistir(komut, args, secenekler = {}) {
   const sonuc = spawnSync(komut, args, {
@@ -31,17 +43,26 @@ function calistir(komut, args, secenekler = {}) {
   if (sonuc.status !== 0) throw new Error(`${komut} komutu ${sonuc.status ?? 1} koduyla başarısız oldu.`);
 }
 
-function sonrakiSurum(mevcut, istek = 'patch') {
+function sonrakiSurum(mevcut, istek = 'patch', kullanimKomutu = 'npm run release:internal') {
   if (/^\d+\.\d+\.\d+$/.test(istek)) return istek;
   const parcalar = mevcut.match(/^(\d+)\.(\d+)\.(\d+)$/)?.slice(1).map(Number);
   if (!parcalar || !['patch', 'minor', 'major'].includes(istek)) {
-    throw new Error('Kullanım: npm run release -- [patch|minor|major|1.2.3]');
+    throw new Error(`Kullanım: ${kullanimKomutu} -- [patch|minor|major|1.2.3]`);
   }
   let [major, minor, patch] = parcalar;
   if (istek === 'major') [major, minor, patch] = [major + 1, 0, 0];
   if (istek === 'minor') [minor, patch] = [minor + 1, 0];
   if (istek === 'patch') patch += 1;
   return `${major}.${minor}.${patch}`;
+}
+
+const hedefKodu = process.argv[2];
+const hedef = YAYIN_HEDEFLERI[hedefKodu];
+if (!hedef) {
+  console.error('\nYayın hedefi belirtilmedi. Güvenli ve açık komutlardan birini kullanın:');
+  console.error('  npm run release:internal -- [patch|minor|major|1.2.3]');
+  console.error('  npm run release:closed -- [patch|minor|major|1.2.3]');
+  process.exit(1);
 }
 
 const gerekliDosyalar = [servisAnahtariYolu, keystoreYolu, keystoreAyarYolu, gradlewYolu, gradleYolu];
@@ -74,13 +95,13 @@ if (paket.version !== app.expo.version) {
 const kodEslesmesi = oncekiGradle.match(/versionCode\s+(\d+)/);
 if (!kodEslesmesi) throw new Error('android/app/build.gradle içinde versionCode bulunamadı.');
 const yeniKod = Number(kodEslesmesi[1]) + 1;
-const yeniSurum = sonrakiSurum(paket.version, process.argv[2]);
+const yeniSurum = sonrakiSurum(paket.version, process.argv[3], hedef.komut);
 const eskiSayilar = paket.version.split('.').map(Number);
 const yeniSayilar = yeniSurum.split('.').map(Number);
 const dahaYeni = yeniSayilar.some((deger, i) => deger > eskiSayilar[i] && yeniSayilar.slice(0, i).every((x, j) => x === eskiSayilar[j]));
 if (!dahaYeni) throw new Error(`Yeni sürüm ${paket.version} sürümünden büyük olmalı.`);
 
-console.log(`\nTrinkow ${paket.version} (${kodEslesmesi[1]}) → ${yeniSurum} (${yeniKod}) native kapalı test yayını`);
+console.log(`\nTrinkow ${paket.version} (${kodEslesmesi[1]}) → ${yeniSurum} (${yeniKod}) native ${hedef.ad} yayını`);
 console.log('1/4 Testler ve tip kontrolü çalışıyor…');
 calistir('npm', ['test']);
 calistir('npm', ['run', 'typecheck']);
@@ -113,8 +134,8 @@ try {
   calistir(gradlewYolu, [':app:bundleRelease'], { cwd: androidKoku });
   if (!existsSync(aabYolu) || statSync(aabYolu).size === 0) throw new Error('Release AAB üretilemedi.');
 
-  console.log('4/4 AAB Google Play kapalı test kanalına yükleniyor…');
-  calistir('fastlane', ['android', 'release'], {
+  console.log(`4/4 AAB Google Play ${hedef.ad} kanalına yükleniyor…`);
+  calistir('fastlane', ['android', hedef.fastlaneLane], {
     env: {
       GOOGLE_PLAY_JSON_KEY: servisAnahtariYolu,
       ANDROID_AAB_PATH: aabYolu,
@@ -130,5 +151,5 @@ try {
   throw hata;
 }
 
-console.log(`\nTrinkow ${yeniSurum} (${yeniKod}) Google Play kapalı test kanalına gönderildi.`);
+console.log(`\nTrinkow ${yeniSurum} (${yeniKod}) Google Play ${hedef.ad} kanalına gönderildi.`);
 console.log(`AAB: ${aabYolu}`);

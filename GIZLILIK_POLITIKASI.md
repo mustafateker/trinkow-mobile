@@ -2,8 +2,8 @@
 
 **Veri sorumlusu:** Triworkster  
 **İletişim:** trinkow@gmail.com  
-**Yürürlük tarihi:** 17 Ekim 2026  
-**Sürüm:** 1.0
+**Yürürlük tarihi:** 22 Ekim 2026
+**Sürüm:** 1.1
 
 Bu Gizlilik Politikası, Triworkster tarafından sunulan Trinkow mobil uygulamasında kişisel verilerin nasıl toplandığını, kullanıldığını, saklandığını ve silindiğini açıklar.
 
@@ -18,11 +18,15 @@ Trinkow aşağıdaki veri kategorilerini işleyebilir:
 - **Tercih ve alışkanlık verileri:** Uygulama tercihleri, onboarding cevapları, bildirim tercihi ve zamanı ile kullanıcının isteğe bağlı olarak girdiği kahve, sigara, alkol ve dışarıda yeme gibi rutinler.
 - **Güvenlik ve teknik veriler:** Oturum tokenları, parola sıfırlama ve kötüye kullanımı önleme kayıtları ile sunucu erişim kayıtlarında bulunabilecek IP adresi, istek zamanı ve temel cihaz/ağ bilgileri.
 
-Trinkow banka veya kredi kartı numarası, banka giriş bilgisi, kesin konum, rehber, kamera, mikrofon, fotoğraf ya da reklam kimliği toplamaz.
+Sesli harcama özelliğini seçtiğinizde mikrofon yalnız konuşmanızı cihazın iOS veya Android konuşma tanıma hizmetiyle metne dönüştürmek için kullanılır. Trinkow ham ses kaydını saklamaz veya kendi sunucularına göndermez. Cihazınızdaki konuşma tanıma hizmeti, işletim sistemi ve cihaz ayarlarına bağlı olarak sesi cihazda ya da kendi hizmet altyapısında işleyebilir.
+
+Trinkow banka veya kredi kartı numarası, banka giriş bilgisi, kesin konum, rehber, kamera, ham mikrofon kaydı, fotoğraf ya da reklam kimliği toplamaz.
 
 ## 2. Verilerin toplanması ve saklanması
 
 Veriler doğrudan uygulamada yaptığınız girişlerden, hesap işlemlerinden ve Google ile giriş sırasında Google tarafından sağlanan kimlik bilgilerinden elektronik ortamda elde edilir.
+
+Sesli girişte oluşan metin cihazda harcama taslağına dönüştürülür. Yalnız alanları kontrol edip **Kaydet** dediğinizde oluşan harcama alanları Trinkow backend hizmetine gönderilir.
 
 Finansal ve profil verileri Trinkow backend hizmetindeki MongoDB veritabanında tutulur. Uygulama bu veriler için yerel SQLite veritabanı kullanmaz.
 

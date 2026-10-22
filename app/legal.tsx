@@ -22,8 +22,8 @@ type Belge = {
 
 const VERI_SORUMLUSU = 'Triworkster';
 const ILETISIM = 'trinkow@gmail.com';
-const YURURLUK_TARIHI = '17 Ekim 2026';
-const YURURLUK_TARIHI_EN = 'October 17, 2026';
+const YURURLUK_TARIHI = '22 Ekim 2026';
+const YURURLUK_TARIHI_EN = 'October 22, 2026';
 
 const gizlilikBolumleri: Bolum[] = [
   {
@@ -40,13 +40,15 @@ const gizlilikBolumleri: Bolum[] = [
       'Kullanıcının girdiği finans ve planlama verileri: gelir ve maaş günü, bütçe, sabit giderler, borçlar, tasarruf hedefleri ve hareketleri, harcama tutarı, kategori, ürün adı, not, tarih/saat, ödeme türü, taksitler, abonelikler, rutinler, favoriler, kategori limitleri ve harcamasız gün kayıtları.',
       'Tercih ve alışkanlık verileri: uygulama tercihleri, onboarding cevapları, bildirim tercihi ve zamanı ile kullanıcının isteğe bağlı olarak girdiği kahve, sigara, alkol, dışarıda yeme gibi rutinler.',
       'Güvenlik ve teknik veriler: oturum tokenları, parola sıfırlama ve kötüye kullanımı önleme kayıtları ile sunucu erişim kayıtlarında bulunabilecek IP adresi, istek zamanı ve temel cihaz/ağ bilgileri.',
-      'Trinkow banka/kredi kartı numarası, banka giriş bilgisi, kesin konum, rehber, kamera, mikrofon, fotoğraf veya reklam kimliği toplamaz.',
+      'Sesli harcama özelliğini seçtiğinde mikrofon yalnız konuşmanı cihazın iOS veya Android konuşma tanıma hizmetiyle metne dönüştürmek için kullanılır. Trinkow ham ses kaydını saklamaz veya kendi sunucularına göndermez. Cihazındaki konuşma tanıma hizmeti, işletim sistemi ve cihaz ayarlarına bağlı olarak sesi cihazda ya da kendi hizmet altyapısında işleyebilir.',
+      'Trinkow banka/kredi kartı numarası, banka giriş bilgisi, kesin konum, rehber, kamera, ham mikrofon kaydı, fotoğraf veya reklam kimliği toplamaz.',
     ],
   },
   {
     baslik: '3. Verilerin toplanması ve saklanması',
     paragraflar: [
       'Veriler doğrudan uygulamada yaptığın girişlerden, hesap işlemlerinden ve Google ile giriş sırasında Google tarafından sağlanan kimlik bilgilerinden elektronik ortamda elde edilir.',
+      'Sesli girişte oluşan metin cihazda harcama taslağına dönüştürülür. Yalnız sen alanları kontrol edip Kaydet dediğinde oluşan harcama alanları Trinkow backend hizmetine gönderilir.',
       'Finansal ve profil verileri Trinkow backend hizmetindeki MongoDB veritabanında tutulur; uygulama bu veriler için yerel SQLite veritabanı kullanmaz. “Beni hatırla” seçildiğinde oturum tokenları ve hesap e-postası iOS Keychain veya Android Keystore tabanlı güvenli cihaz deposunda saklanır. Seçilmediğinde oturum bilgileri uygulama belleğiyle sınırlıdır.',
     ],
   },
@@ -192,13 +194,15 @@ const gizlilikBolumleriEn: Bolum[] = [
       'Financial and planning data you enter: income and payday, budget, fixed expenses, debt, savings goals and activity, expense amount, category, item name, note, date/time, payment type, installments, subscriptions, routines, favorites, category limits, and no-spend-day records.',
       'Preference and habit data: app preferences, onboarding answers, notification preference and time, and optional routines you enter, such as coffee, smoking, alcohol, or eating out.',
       'Security and technical data: session tokens, password reset and abuse-prevention records, and server access logs that may include IP address, request time, and basic device/network information.',
-      'Trinkow does not collect bank or credit card numbers, bank login credentials, precise location, contacts, camera, microphone, photos, or advertising identifiers.',
+      'When you choose voice expense entry, the microphone is used only to turn your speech into text through the iOS or Android speech-recognition service on your device. Trinkow does not store raw audio or send it to its own servers. Depending on your operating-system and device settings, the device speech-recognition service may process audio on-device or through its own service infrastructure.',
+      'Trinkow does not collect bank or credit card numbers, bank login credentials, precise location, contacts, camera data, raw microphone recordings, photos, or advertising identifiers.',
     ],
   },
   {
     baslik: '3. Collection and storage',
     paragraflar: [
       'Data is collected electronically from information you enter in the app, account actions, and identity information Google provides when you choose Google sign-in.',
+      'For voice entry, the recognized text is converted into an expense draft on the device. Expense fields are sent to Trinkow backend services only after you review them and tap Save.',
       'Financial and profile data is stored in the MongoDB database used by Trinkow backend services; the app does not use a local SQLite database for this data. If you select “Remember me,” session tokens and your account email are stored in the secure device storage backed by iOS Keychain or Android Keystore. Otherwise, session information remains in app memory.',
     ],
   },

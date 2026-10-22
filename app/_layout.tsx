@@ -31,6 +31,7 @@ import { color } from '@/theme/tokens';
 import { sunucuYerellestirmesiniUygula, yerellestirmeyiBaslat } from '@/lib/yerellestirmeDeposu';
 import { useYerellestirme } from '@/lib/useYerellestirme';
 import { oturumOnbelleginiTemizle, queryClient } from '@/lib/queryClient';
+import { initializeVoiceExpenseWidget } from '@/widgets/VoiceExpenseWidget';
 
 // Android gesture navigation is transparent in edge-to-edge mode. The native
 // root behind it must therefore match our dock instead of falling back to
@@ -173,6 +174,10 @@ export default function RootLayout() {
       if (etkin) setYerellestirmeHazir(true);
     });
     return () => { etkin = false; };
+  }, []);
+
+  useEffect(() => {
+    initializeVoiceExpenseWidget();
   }, []);
 
   if ((!fontHazir && !fontHatasi) || !yerellestirmeHazir) return null;

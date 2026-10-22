@@ -30,6 +30,12 @@ export const icons = {
     p('M16 18v4'),
   ],
   plus: [p('M5 12h14'), p('M12 5v14')],
+  mic: [
+    { t: 'r', x: 9, y: 2, w: 6, h: 12, rx: 3 } as Sekil,
+    p('M5 10v1a7 7 0 0 0 14 0v-1'),
+    p('M12 18v4'),
+    p('M8 22h8'),
+  ],
   x: [p('M18 6 6 18'), p('m6 6 12 12')],
   info: [{ t: 'c', cx: 12, cy: 12, r: 10 } as Sekil, p('M12 16v-4'), p('M12 8h.01')],
   /** sekme: Bugün */

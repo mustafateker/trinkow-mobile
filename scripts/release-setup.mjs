@@ -107,5 +107,7 @@ calistir('keytool', [
   '-storepass', ayarlar.storePassword,
 ]);
 
-console.log('\nNative Android release hazırlığı tamamlandı. Bundan sonra: npm run release');
+console.log('\nNative Android release hazırlığı tamamlandı.');
+console.log('Internal testing: npm run release:internal');
+console.log('Kapalı testing:   npm run release:closed');
 console.log('UYARI: .release-secrets klasörünü güvenli bir yerde yedekleyin; upload keystore kaybedilmemeli.');

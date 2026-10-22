@@ -47,19 +47,23 @@ test('Android release reklam kimliği istemez', () => {
   );
 });
 
-test('npm release native Gradle build ve Google Play kapalı test yayını kullanır', () => {
+test('internal ve kapalı test release komutları doğru Google Play kanallarını kullanır', () => {
   const paket = oku('package.json');
   const betik = readFileSync(join(kok, 'scripts/release.mjs'), 'utf8');
   const fastfile = readFileSync(join(kok, 'fastlane/Fastfile'), 'utf8');
 
   assert.equal(paket.scripts.release, 'node scripts/release.mjs');
+  assert.equal(paket.scripts['release:internal'], 'node scripts/release.mjs internal');
+  assert.equal(paket.scripts['release:closed'], 'node scripts/release.mjs closed');
   assert.match(betik, /:app:bundleRelease/);
   assert.doesNotMatch(betik, /\['clean',\s*':app:bundleRelease'\]/);
   assert.match(betik, /rmSync\(androidAppBuildYolu/);
   assert.match(betik, /rmSync\(androidAppCxxYolu/);
-  assert.match(betik, /fastlane', \['android', 'release'\]/);
-  assert.match(fastfile, /track: "alpha"/);
-  assert.match(fastfile, /release_status: "draft"/);
+  assert.match(betik, /fastlane', \['android', hedef\.fastlaneLane\]/);
+  assert.match(fastfile, /lane :internal/);
+  assert.match(fastfile, /track: "internal", release_status: "completed"/);
+  assert.match(fastfile, /lane :closed/);
+  assert.match(fastfile, /track: "alpha", release_status: "draft"/);
   assert.match(fastfile, /in_app_update_priority: 5/);
   assert.equal(existsSync(join(kok, 'eas.json')), false);
 });

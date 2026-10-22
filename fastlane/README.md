@@ -15,13 +15,21 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## Android
 
-### android release
+### android internal
 
 ```sh
-[bundle exec] fastlane android release
+[bundle exec] fastlane android internal
 ```
 
-Native AAB'yi Google Play kapalı test kanalına gönderir
+Native AAB'yi Google Play internal testing kanalında yayınlar
+
+### android closed
+
+```sh
+[bundle exec] fastlane android closed
+```
+
+Native AAB'yi Google Play kapalı test kanalına taslak olarak gönderir
 
 ----
 

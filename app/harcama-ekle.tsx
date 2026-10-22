@@ -18,6 +18,7 @@ import { SearchResultSkeleton } from '@/components/SearchResultSkeleton';
 import { SegmentedControl } from '@/components/SegmentedControl';
 import { TextField } from '@/components/TextField';
 import { Txt } from '@/components/Txt';
+import { VoiceExpenseInput } from '@/components/VoiceExpenseInput';
 import { aktifKatalogu, type KatalogOgesi } from '@/content/urunKatalogu';
 import {
   a11yEkleGun,
@@ -57,6 +58,7 @@ import { tahminEt, type GecmisKayit, type KategoriTahmini } from '@/lib/kategori
 import { gunSeciciAbone } from '@/lib/gunSeciciBus';
 import { toastGoster } from '@/lib/toastBus';
 import { veriDegisti } from '@/lib/veriBus';
+import type { SesliHarcamaTaslagi } from '@/lib/sesliHarcama';
 import { color, layout, radius, rhythm } from '@/theme/tokens';
 
 /**
@@ -78,7 +80,8 @@ type TutarAltMetinTuru = 'gecmisten' | 'katalogdan' | 'kategori' | null;
 
 export default function HarcamaEkleEkrani() {
   const insets = useSafeAreaInsets();
-  const params = useLocalSearchParams<{ gunFarki?: string; kategori?: string; ad?: string; tutarKurus?: string; rutinId?: string }>();
+  const params = useLocalSearchParams<{ gunFarki?: string; kategori?: string; ad?: string; tutarKurus?: string; rutinId?: string; sesli?: string }>();
+  const [sesliTetik, setSesliTetik] = useState(params.sesli === '1' ? 1 : 0);
 
   // v4 K-049 — Günlük'ün geçmiş sayfasından açılınca tarih o güne SABİTLENİR
   // (0/-1 dışındaki bir gün farkı geldiyse Bugün/Dün seçici gizlenir).
@@ -337,6 +340,33 @@ export default function HarcamaEkleEkrani() {
     setOneriTutarKurus(null);
   }
 
+  function sesliTaslagiUygula(taslak: SesliHarcamaTaslagi) {
+    setRutinId(null);
+    if (taslak.tutarKurus !== null) {
+      setBuffer(kurustanTutarGirisi(taslak.tutarKurus));
+      setTutarHata(undefined);
+    }
+    if (taslak.urunAdi) {
+      setUrunAdi(taslak.urunAdi);
+      setAramaMetni('');
+      setKategoriKilitli(false);
+      setTahmin(null);
+    }
+    if (taslak.gunFarki !== null && !sabitGunFarki) setSecilenGunFarki(taslak.gunFarki);
+    if (taslak.odeme) odemeSec(taslak.odeme);
+    if (taslak.taksitSayisi !== null) {
+      setOdeme('kart');
+      setTaksitliAcik(true);
+      setTaksitSayisi(taslak.taksitSayisi);
+      setDetaylarAcik(true);
+    }
+    if (taslak.notMetni) {
+      setNotMetni(taslak.notMetni);
+      setNotAcik(true);
+      setDetaylarAcik(true);
+    }
+  }
+
   async function kaydet() {
     if (gonderiliyor.current) return;
     if (tutarKurus <= 0) {
@@ -403,6 +433,14 @@ export default function HarcamaEkleEkrani() {
           <Txt role="h1" tone="#FFFFFF">{t['ekle.baslik']}</Txt>
         </View>
         <IconButton
+          icon="mic"
+          accessibilityLabel={t['a11y.ekle.sesli']}
+          tone="#FFFFFF"
+          background={color.navGlassBg}
+          pressedBackground={color.navGlassBgPressed}
+          onPress={() => setSesliTetik((n) => n + 1)}
+        />
+        <IconButton
           icon="x"
           accessibilityLabel={t['eylem.kapat']}
           tone="#FFFFFF"
@@ -418,6 +456,8 @@ export default function HarcamaEkleEkrani() {
         keyboardShouldPersistTaps="handled">
         <View style={stil.panel}>
         <View style={stil.pad}>
+          <VoiceExpenseInput baslatTetik={sesliTetik} onTaslak={sesliTaslagiUygula} />
+          <View style={{ height: rhythm.section }} />
           <AmountWell
             tutarGosterim={tutarGosterim}
             value={buffer}

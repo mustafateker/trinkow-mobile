@@ -94,3 +94,29 @@ yerelde backend posta kutusuna, canlı ayarda SMTP'ye gönderilir. Hatırlanan o
 SecureStore'da tutulur; hatırlanmayan oturum uygulama belleğiyle sınırlıdır.
 Google girişi aktiftir. Apple girişi ve gerçek telefon bildirimleri henüz bağlı
 değildir; Apple düğmesi iOS'ta pasif gösterilir.
+
+## Google Play test yayınları
+
+İlk bilgisayar kurulumunda servis hesabını ve upload anahtarını bir kez hazırla:
+
+```bash
+npm run release:setup -- /tam/yol/google-play-service-account.json
+```
+
+Internal testing için hızlı yayın:
+
+```bash
+npm run release:internal
+```
+
+Kapalı testing (`alpha`) kanalına taslak göndermek için:
+
+```bash
+npm run release:closed
+```
+
+İki komut da testleri çalıştırır, sürümü ve Android `versionCode` değerini artırır,
+release AAB üretir ve yalnız seçilen kanala yükler. Varsayılan artış `patch`tir;
+örneğin `npm run release:internal -- minor` veya
+`npm run release:closed -- 0.2.0` kullanılabilir. Hedefsiz `npm run release`
+bilerek yayın yapmaz ve doğru komutları gösterir.

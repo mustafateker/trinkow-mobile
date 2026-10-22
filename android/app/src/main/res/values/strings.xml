@@ -1,5 +1,6 @@
 <resources>
   <string name="app_name">Trinkow</string>
   <string name="expo_system_ui_user_interface_style" translatable="false">light</string>
+  <string name="widget_voiceexpense_description" translatable="false">Trinkow\'da sesle hızlı harcama ekle</string>
   <string name="expo_splash_screen_resize_mode" translatable="false">contain</string>
 </resources>
