@@ -78,6 +78,13 @@ export function ayAnahtari(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
+/** Bir ay anahtarının geçerli son günü: "2026-02" → "2026-02-28". */
+export function aySonGunu(ayAnahtariDeger: string): string {
+  const [yil, ay] = ayAnahtariDeger.split('-').map(Number);
+  const sonGun = new Date(yil, ay, 0).getDate();
+  return `${ayAnahtariDeger}-${String(sonGun).padStart(2, '0')}`;
+}
+
 /** "08.20" — prototipteki saat düzeni (iki nokta değil nokta) */
 export function saatYaz(isoDamga: string): string {
   const d = new Date(isoDamga);

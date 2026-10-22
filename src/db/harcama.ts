@@ -17,7 +17,7 @@ import {
   type HarcamaYaniti,
 } from '@/lib/api';
 import type { GecmisKayit } from '@/lib/kategoriTahmin';
-import { gunAnahtari } from '@/lib/tarih';
+import { aySonGunu, gunAnahtari } from '@/lib/tarih';
 import { turkceNormalize } from '@/lib/urunArama';
 
 /**
@@ -119,7 +119,7 @@ export async function tumSayfalariGetir(suzgec: HarcamaListeSuzgeci): Promise<Ha
 
 /** Bir ayın TÜM kayıtları — E-14 gün gruplama burada, `src/lib/gruplama.ts` ile. */
 export async function ayHarcamalari(ay: string): Promise<Harcama[]> {
-  const kayitlar = await tumSayfalariGetir({ baslangic_gun: `${ay}-01`, bitis_gun: `${ay}-31` });
+  const kayitlar = await tumSayfalariGetir({ baslangic_gun: `${ay}-01`, bitis_gun: aySonGunu(ay) });
   return kayitlar.map(cevir);
 }
 
@@ -136,7 +136,7 @@ export type AySpecifiOzeti = { adet: number; toplamKurus: number };
 
 /** `kayitlar.ay_ozet` — "{adet} kayıt · {tutar}" (E-14 ay değiştirici). */
 export async function ayOzeti(ay: string): Promise<AySpecifiOzeti> {
-  const kayitlar = await tumSayfalariGetir({ baslangic_gun: `${ay}-01`, bitis_gun: `${ay}-31` });
+  const kayitlar = await tumSayfalariGetir({ baslangic_gun: `${ay}-01`, bitis_gun: aySonGunu(ay) });
   return { adet: kayitlar.length, toplamKurus: kayitlar.reduce((t, k) => t + k.tutar_kurus, 0) };
 }
 
@@ -403,7 +403,7 @@ export async function kategoriAyHarcamalari(
   const kayitlar = await tumSayfalariGetir({
     kategori: kategoriKodu,
     baslangic_gun: `${ay}-01`,
-    bitis_gun: `${ay}-31`,
+    bitis_gun: aySonGunu(ay),
   });
   return kayitlar.map(cevir);
 }
@@ -416,7 +416,7 @@ export async function kategoriAyOzeti(
   const kayitlar = await tumSayfalariGetir({
     kategori: kategoriKodu,
     baslangic_gun: `${ay}-01`,
-    bitis_gun: `${ay}-31`,
+    bitis_gun: aySonGunu(ay),
   });
   return { adet: kayitlar.length, toplamKurus: kayitlar.reduce((t, k) => t + k.tutar_kurus, 0) };
 }
@@ -430,7 +430,7 @@ export async function taksitAylikYuk(aySayisiler: string[]): Promise<TaksitAySat
   if (aySayisiler.length === 0) return [];
   const ilkAy = [...aySayisiler].sort()[0];
   const sonAy = [...aySayisiler].sort().at(-1) as string;
-  const kayitlar = await tumSayfalariGetir({ baslangic_gun: `${ilkAy}-01`, bitis_gun: `${sonAy}-31` });
+  const kayitlar = await tumSayfalariGetir({ baslangic_gun: `${ilkAy}-01`, bitis_gun: aySonGunu(sonAy) });
   const eslesme = new Map<string, number>();
   for (const k of kayitlar) {
     if (!k.taksit_id) continue;
@@ -442,7 +442,7 @@ export async function taksitAylikYuk(aySayisiler: string[]): Promise<TaksitAySat
 
 /** Bu ayın taksit toplamı (E-18 kahraman kartı). */
 export async function taksitBuAyToplam(buAy: string): Promise<number> {
-  const kayitlar = await tumSayfalariGetir({ baslangic_gun: `${buAy}-01`, bitis_gun: `${buAy}-31` });
+  const kayitlar = await tumSayfalariGetir({ baslangic_gun: `${buAy}-01`, bitis_gun: aySonGunu(buAy) });
   return kayitlar.filter((k) => k.taksit_id).reduce((t, k) => t + k.tutar_kurus, 0);
 }
 
@@ -491,7 +491,7 @@ export type SurenSeri = {
  * DEĞİL: `tumSayfalariGetir({})` zaten çektiği tam geçmişten türetilir.
  */
 export async function surenSeriler(buAy: string): Promise<SurenSeri[]> {
-  const buAyKayitlari = (await tumSayfalariGetir({ baslangic_gun: `${buAy}-01`, bitis_gun: `${buAy}-31` })).filter(
+  const buAyKayitlari = (await tumSayfalariGetir({ baslangic_gun: `${buAy}-01`, bitis_gun: aySonGunu(buAy) })).filter(
     (k) => k.taksit_id,
   );
   if (buAyKayitlari.length === 0) return [];
@@ -527,7 +527,7 @@ export async function surenSeriler(buAy: string): Promise<SurenSeri[]> {
 export async function gecenAyBitenSeri(
     gecenAy: string,
 ): Promise<{ kategori: string; urunAdi: string | null; tutarKurus: number } | null> {
-  const kayitlar = await tumSayfalariGetir({ baslangic_gun: `${gecenAy}-01`, bitis_gun: `${gecenAy}-31` });
+  const kayitlar = await tumSayfalariGetir({ baslangic_gun: `${gecenAy}-01`, bitis_gun: aySonGunu(gecenAy) });
   const biten = kayitlar.find((k) => k.taksit_id && k.taksit_no === k.taksit_toplam);
   return biten ? { kategori: biten.kategori, urunAdi: biten.urun_adi, tutarKurus: biten.tutar_kurus } : null;
 }

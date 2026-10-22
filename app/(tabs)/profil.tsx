@@ -6,7 +6,6 @@ import type { IconName } from '@/components/Icon';
 import { AppFooter } from '@/components/AppFooter';
 import { IconButton } from '@/components/IconButton';
 import { IdentityPanel } from '@/components/IdentityPanel';
-import { InfoStrip } from '@/components/InfoStrip';
 import { RevScreen, useRevLoad } from '@/components/RevScreen';
 import { GrupBasligi, SettingGroup, SettingRow, type MenuIconTone } from '@/components/SettingRow';
 import { Skeleton } from '@/components/Skeleton';
@@ -44,7 +43,6 @@ type AyarVerisi = {
   taksitSeriSayisi: number;
   taksitBuAyToplamKurus: number;
   seri: { mevcutSeri: number; enUzunSeri: number };
-  eksik: boolean;
 };
 
 /**
@@ -87,7 +85,6 @@ export default function ProfilEkrani() {
         taksitSeriSayisi: taksitler.length,
         taksitBuAyToplamKurus: taksitToplam,
         seri,
-        eksik: sonuclar.some((sonuc) => sonuc.status === 'rejected'),
       };
     }, []),
   );
@@ -122,12 +119,6 @@ export default function ProfilEkrani() {
       <Kimlik panelYukleniyor={panelYukleniyor} oturum={oturum} seri={seri} />
 
       <View style={{ height: rhythm.section }} />
-      {ayarVerisi.data?.eksik ? (
-        <>
-          <InfoStrip variant="warning" icon="refresh-cw" metin={t['ui.profile.plan_load_error']} />
-          <View style={{ height: rhythm.group }} />
-        </>
-      ) : null}
           <GrupBasligi metin={t['ui.profile.plan']} />
           <SettingGroup>
             <AyarSatiri icon="banknote" iconTone="green" baslik={t['profil.satir.butce']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? (ayarVerisi.data.gelirKurus != null ? profilSatirButceDeger(paraYaz(ayarVerisi.data.gelirKurus), ayarVerisi.data.sabitGiderSayisi) : t['tasarruf.gelirYok.baslik']) : t['profil.satir.butceBos']} onPress={() => router.push('/butce')} />
