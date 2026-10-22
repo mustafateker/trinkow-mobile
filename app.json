@@ -2,7 +2,7 @@
   "expo": {
     "name": "Trinkow",
     "slug": "trinkow",
-    "version": "0.1.5",
+    "version": "0.1.6",
     "orientation": "default",
     "scheme": "trinkow",
     "userInterfaceStyle": "light",
@@ -17,7 +17,7 @@
     },
     "android": {
       "package": "com.triworkster.trinkow",
-      "versionCode": 6,
+      "versionCode": 7,
       "blockedPermissions": [
         "com.google.android.gms.permission.AD_ID"
       ],
@@ -69,7 +69,10 @@
               "ios": {
                 "supportedFamilies": [
                   "systemSmall",
-                  "systemMedium"
+                  "systemMedium",
+                  "accessoryCircular",
+                  "accessoryRectangular",
+                  "accessoryInline"
                 ]
               }
             }

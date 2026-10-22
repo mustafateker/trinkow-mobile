@@ -1,0 +1,15 @@
+plugins {
+  id 'com.android.library'
+  id 'expo-module-gradle-plugin'
+}
+
+group = 'com.trinkow'
+version = '1.0.0'
+
+android {
+  namespace 'expo.modules.trinkowquickaccess'
+  defaultConfig {
+    versionCode 1
+    versionName '1.0.0'
+  }
+}

@@ -34,7 +34,7 @@ export async function yerellestirmeyiBaslat(): Promise<void> {
       // Bozuk yerel tercih cihaz varsayılanına düşer.
     }
   }
-  yerellestirmeAyarla({ dil: 'en', paraBirimi: 'TRY' });
+  yerellestirmeAyarla({ dil: 'tr', paraBirimi: 'TRY' });
 }
 
 export async function yerellestirmeyiSakla(dil: Dil, paraBirimi: ParaBirimi): Promise<void> {

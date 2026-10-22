@@ -1,7 +1,7 @@
 import { islemHatasiniGoster } from '@/lib/islemHatasi';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ScrollView, Share, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AccountSection } from '@/components/AccountSection';
@@ -61,6 +61,11 @@ import { color, layout, radius, rhythm, v4 } from '@/theme/tokens';
 import type { Dil, ParaBirimi } from '@/lib/yerellestirme';
 import { yerellestirmeyiSakla } from '@/lib/yerellestirmeDeposu';
 import { useYerellestirme } from '@/lib/useYerellestirme';
+import {
+  anaEkranWidgetiIste,
+  hizliAyarKutusunuIste,
+  type HizliErisimSonucu,
+} from '@/lib/hizliErisim';
 
 /**
  * D-2c-1 · E-19 Ayarlar. Referans: prototip-v4/11-ayarlar.html (4 yüzey).
@@ -82,7 +87,7 @@ export default function AyarlarEkrani() {
   const [hata, setHata] = useState(false);
   const [gunSiniri, setGunSiniri] = useState<GunSiniriSaat>(0);
   const [odeme, setOdeme] = useState<OdemeTipi>('kart');
-  const [dil, setDil] = useState<Dil>('en');
+  const [dil, setDil] = useState<Dil>('tr');
   const [paraBirimi, setParaBirimi] = useState<ParaBirimi>('TRY');
   const [tercihlerHazir, setTercihlerHazir] = useState(false);
   const [niyet, setNiyet] = useState<Niyet>('takip');
@@ -102,6 +107,8 @@ export default function AyarlarEkrani() {
   const [hesapSilAcik, setHesapSilAcik] = useState(false);
   const [hesapSiliniyor, setHesapSiliniyor] = useState(false);
   const [oturum, setOturum] = useState<Oturum | null>(null);
+  const [widgetYardimiAcik, setWidgetYardimiAcik] = useState(false);
+  const [hizliErisimIslemi, setHizliErisimIslemi] = useState<'widget' | 'tile' | null>(null);
 
   const oku = useCallback(async () => {
     setYukleniyor(true);
@@ -268,6 +275,50 @@ export default function AyarlarEkrani() {
     }
   }
 
+  function hizliErisimSonucunuGoster(sonuc: HizliErisimSonucu) {
+    if (sonuc === 'requested') {
+      toastGoster({ tur: 'info', metin: t['ui.settings.quick_requested'] });
+    } else if (sonuc === 'added') {
+      toastGoster({ tur: 'info', metin: t['ui.settings.quick_added'] });
+    } else if (sonuc === 'already_added') {
+      toastGoster({ tur: 'info', metin: t['ui.settings.quick_already_added'] });
+    } else if (sonuc === 'dismissed') {
+      toastGoster({ tur: 'info', metin: t['ui.settings.quick_dismissed'] });
+    } else if (sonuc === 'manual_opened') {
+      toastGoster({ tur: 'info', metin: t['ui.settings.quick_manual'] });
+    } else if (sonuc === 'manual_required') {
+      toastGoster({ tur: 'info', metin: t['ui.settings.quick_manual_required'] });
+    } else {
+      toastGoster({ tur: 'warning', metin: t['ui.settings.quick_unavailable'] });
+    }
+  }
+
+  async function anaEkranWidgetiEkle() {
+    if (Platform.OS === 'ios') {
+      setWidgetYardimiAcik(true);
+      return;
+    }
+    setHizliErisimIslemi('widget');
+    try {
+      hizliErisimSonucunuGoster(await anaEkranWidgetiIste());
+    } catch {
+      hizliErisimSonucunuGoster('unavailable');
+    } finally {
+      setHizliErisimIslemi(null);
+    }
+  }
+
+  async function hizliAyarKutusunuEkle() {
+    setHizliErisimIslemi('tile');
+    try {
+      hizliErisimSonucunuGoster(await hizliAyarKutusunuIste());
+    } catch {
+      hizliErisimSonucunuGoster('unavailable');
+    } finally {
+      setHizliErisimIslemi(null);
+    }
+  }
+
   const maasGunuDegeri = maasDuzensiz ? t['ob.maas.duzensiz'] : maasGunu !== null ? obOzetMaasGunu(gunIyelikEki(maasGunu)) : t['tan.girilmedi'];
   const katman2Deger = katman2Kalan === 8 ? ayarPlanBekliyor(8) : ayarPlanKalan(katman2Kalan);
   const saglayiciEtiketi: Record<string, string> = {
@@ -344,6 +395,33 @@ export default function AyarlarEkrani() {
           <View style={{ height: rhythm.blockInCard }} />
           <SegmentedControl secenekler={odemeSecenekleri} deger={odeme} onChange={(v) => void odemeSec(v).catch(yazmaBasarisiz)} />
         </View>
+
+        <View style={{ height: rhythm.section }} />
+
+        <Txt role="h2">{t['ui.settings.quick_access']}</Txt>
+        <View style={{ height: rhythm.blockInCard }} />
+        <SettingGroup>
+          <SettingRow
+            icon="mic"
+            iconTone="pink"
+            baslik={t['ui.settings.widget_title']}
+            aciklama={Platform.OS === 'ios' ? t['ui.settings.widget_description.ios'] : t['ui.settings.widget_description.android']}
+            disabled={hizliErisimIslemi !== null}
+            onPress={() => void anaEkranWidgetiEkle()}
+          />
+          {Platform.OS === 'android' ? (
+            <SettingRow
+              icon="bell"
+              iconTone="primary"
+              baslik={t['ui.settings.quick_tile_title']}
+              aciklama={t['ui.settings.quick_tile_description']}
+              disabled={hizliErisimIslemi !== null}
+              onPress={() => void hizliAyarKutusunuEkle()}
+            />
+          ) : null}
+        </SettingGroup>
+        <View style={{ height: rhythm.group }} />
+        <InfoStrip variant="info" icon="mic" metin={t['ui.settings.quick_access_note']} />
 
         <View style={{ height: rhythm.section }} />
 
@@ -459,6 +537,23 @@ export default function AyarlarEkrani() {
         </Txt>
         </View>
       </ScrollView>
+
+      <BottomSheet visible={widgetYardimiAcik} onClose={() => setWidgetYardimiAcik(false)}>
+        <Txt role="h2">{t['ui.settings.widget_help_title']}</Txt>
+        <View style={{ height: rhythm.blockInCard }} />
+        <InfoStrip variant="info" icon="mic" metin={t['ui.settings.widget_help_body']} />
+        <View style={{ height: rhythm.pad }} />
+        <Button
+          label={t['ui.settings.widget_help_action']}
+          icon="mic"
+          variant="primary"
+          onPress={() => {
+            setWidgetYardimiAcik(false);
+            router.push('/harcama-ekle?sesli=1');
+          }}
+        />
+        <View style={{ height: rhythm.pad }} />
+      </BottomSheet>
 
       {/* Kip sheet */}
       <BottomSheet visible={kipSheetAcik} onClose={() => setKipSheetAcik(false)}>

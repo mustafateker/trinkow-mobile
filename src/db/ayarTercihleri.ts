@@ -89,7 +89,7 @@ export async function varsayilanOdemeKaydet(odeme: OdemeTipi): Promise<void> {
 
 export async function yerellestirmeOku(): Promise<YerellestirmeTercihi> {
   const tercih = await tercihleriGetirTekil();
-  return { dil: tercih.dil ?? 'en', paraBirimi: tercih.para_birimi ?? 'TRY' };
+  return { dil: tercih.dil ?? 'tr', paraBirimi: tercih.para_birimi ?? 'TRY' };
 }
 
 export async function dilKaydet(dil: Dil): Promise<void> {

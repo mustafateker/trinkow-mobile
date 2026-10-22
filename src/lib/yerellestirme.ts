@@ -6,7 +6,7 @@ export type YerellestirmeTercihi = {
   paraBirimi: ParaBirimi;
 };
 
-let tercih: YerellestirmeTercihi = { dil: 'en', paraBirimi: 'TRY' };
+let tercih: YerellestirmeTercihi = { dil: 'tr', paraBirimi: 'TRY' };
 const dinleyiciler = new Set<() => void>();
 
 export function yerellestirmeTercihi(): YerellestirmeTercihi {

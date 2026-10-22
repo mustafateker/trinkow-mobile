@@ -1,0 +1,5 @@
+int drawable ic_trinkow_mic 0x0
+int string quick_access_voice_expense 0x0
+int string quick_access_voice_expense_disabled 0x0
+int string quick_access_voice_expense_short 0x0
+int xml trinkow_shortcuts 0x0

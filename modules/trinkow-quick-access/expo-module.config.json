@@ -1,0 +1,10 @@
+{
+  "platforms": ["apple", "android"],
+  "apple": {
+    "modules": ["TrinkowQuickAccessModule"],
+    "appDelegateSubscribers": ["TrinkowQuickAccessAppDelegateSubscriber"]
+  },
+  "android": {
+    "modules": ["expo.modules.trinkowquickaccess.TrinkowQuickAccessModule"]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "trinkow-quick-access",
+  "version": "1.0.0",
+  "description": "Trinkow native quick-access integrations",
+  "main": "index.js",
+  "license": "MIT",
+  "author": "Trinkow"
+}

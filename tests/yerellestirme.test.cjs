@@ -4,8 +4,8 @@ const { yukle } = require('./yukle.cjs');
 
 const yerellestirme = yukle('src/lib/yerellestirme.ts');
 
-test('varsayılan uygulama dili İngilizcedir', () => {
-  assert.equal(yerellestirme.dilKodu(), 'en');
+test('varsayılan uygulama dili Türkçedir', () => {
+  assert.equal(yerellestirme.dilKodu(), 'tr');
 });
 
 test('dil değişikliği abonelere anında bildirilir', () => {
@@ -14,8 +14,8 @@ test('dil değişikliği abonelere anında bildirilir', () => {
     bildirimSayisi += 1;
   });
 
-  yerellestirme.yerellestirmeAyarla({ dil: 'tr' });
-  assert.equal(yerellestirme.dilKodu(), 'tr');
+  yerellestirme.yerellestirmeAyarla({ dil: 'en' });
+  assert.equal(yerellestirme.dilKodu(), 'en');
   assert.equal(bildirimSayisi, 1);
   aboneliktenCik();
 });

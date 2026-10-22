@@ -25,6 +25,22 @@ test('para eksi değerleri tek işaretle biçimler', () => {
   assert.equal(para.paraYaz(-12345, true), '-123,45 ₺');
 });
 
+test('iOS Hermes formatToParts olmadan Türkçe parayı biçimler', () => {
+  const NumberFormat = function NumberFormat(locale, options) {
+    const formatter = new Intl.NumberFormat(locale, options);
+    return { format: (value) => formatter.format(value) };
+  };
+  const hermesPara = yukle('src/lib/para.ts', {
+    '@/lib/yerellestirme': {
+      localeKodu: () => 'tr-TR',
+      paraBirimi: () => 'TRY',
+    },
+  }, { Intl: { NumberFormat } });
+
+  assert.equal(hermesPara.paraYaz(123456, true), '1.234,56 ₺');
+  assert.equal(hermesPara.paraYaz(-12345, true), '-123,45 ₺');
+});
+
 test('para seçimi aktif para birimini ve locale ayıracını uygular', () => {
   tercih.locale = 'en-US';
   tercih.currency = 'USD';

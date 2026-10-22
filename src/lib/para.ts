@@ -44,24 +44,25 @@ export function sayiyaCevir(kurusDeger: number, kurus = false): string {
 /** Kuruş integer → `1.250 ₺` (liste/kahraman: kuruşsuz) */
 export function paraYaz(kurusDeger: number, kurus = false): string {
   const locale = localeKodu();
+  const sayiSecenekleri: Intl.NumberFormatOptions = {
+    minimumFractionDigits: kurus ? 2 : 0,
+    maximumFractionDigits: kurus ? 2 : 0,
+  };
+  const tutar = Math.round(kurusDeger) / 100;
+  if (locale === 'tr-TR') {
+    // Hermes'in bazı iOS sürümlerinde `formatToParts` bulunmuyor. Türkçe
+    // gösterimde simgeyi zaten sonda kullandığımız için sayıyı doğrudan
+    // biçimlendirip eklemek hem aynı sonucu verir hem de bu API'ye bağımlılığı
+    // ortadan kaldırır.
+    const sayi = new Intl.NumberFormat(locale, sayiSecenekleri).format(tutar);
+    return `${sayi} ${PARA_SIMGE[paraBirimi()]}`;
+  }
   const formatter = new Intl.NumberFormat(locale, {
+    ...sayiSecenekleri,
     style: 'currency',
     currency: paraBirimi(),
     currencyDisplay: 'narrowSymbol',
-    minimumFractionDigits: kurus ? 2 : 0,
-    maximumFractionDigits: kurus ? 2 : 0,
   });
-  const tutar = Math.round(kurusDeger) / 100;
-  if (locale === 'tr-TR') {
-    const parcalar = formatter.formatToParts(tutar);
-    const isaret = parcalar.find((parca) => parca.type === 'minusSign' || parca.type === 'plusSign')?.value ?? '';
-    const sayi = parcalar
-      .filter((parca) => ['integer', 'group', 'decimal', 'fraction'].includes(parca.type))
-      .map((parca) => parca.value)
-      .join('');
-    const simge = parcalar.find((parca) => parca.type === 'currency')?.value ?? PARA_SIMGE[paraBirimi()];
-    return `${isaret}${sayi} ${simge}`;
-  }
   return formatter.format(tutar);
 }
 

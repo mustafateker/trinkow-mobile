@@ -17,6 +17,47 @@ type VoiceExpenseWidgetProps = {
 function VoiceExpenseWidget(props: VoiceExpenseWidgetProps, environment: WidgetEnvironment) {
   'widget';
   const compact = environment.widgetFamily === 'systemSmall';
+  const circular = environment.widgetFamily === 'accessoryCircular';
+  const inline = environment.widgetFamily === 'accessoryInline';
+  const rectangular = environment.widgetFamily === 'accessoryRectangular';
+
+  if (circular) {
+    return (
+      <VStack
+        alignment="center"
+        spacing={2}
+        modifiers={[widgetURL('trinkow://harcama-ekle?sesli=1'), accessibilityLabel('Sesli harcama ekle')]}>
+        <Image systemName="mic.fill" size={23} />
+        <Text modifiers={[font({ size: 9, weight: 'bold' })]}>EKLE</Text>
+      </VStack>
+    );
+  }
+
+  if (inline) {
+    return (
+      <HStack
+        spacing={4}
+        modifiers={[widgetURL('trinkow://harcama-ekle?sesli=1'), accessibilityLabel('Sesli harcama ekle')]}>
+        <Image systemName="mic.fill" size={13} />
+        <Text modifiers={[font({ size: 12, weight: 'semibold' })]}>{props.title}</Text>
+      </HStack>
+    );
+  }
+
+  if (rectangular) {
+    return (
+      <HStack
+        spacing={8}
+        modifiers={[widgetURL('trinkow://harcama-ekle?sesli=1'), accessibilityLabel('Sesli harcama ekle')]}>
+        <Image systemName="mic.fill" size={22} />
+        <VStack alignment="leading" spacing={2}>
+          <Text modifiers={[font({ size: 14, weight: 'bold' })]}>{props.title}</Text>
+          <Text modifiers={[font({ size: 10, weight: 'medium' })]}>{props.subtitle}</Text>
+        </VStack>
+      </HStack>
+    );
+  }
+
   return (
     <VStack
       alignment="leading"
