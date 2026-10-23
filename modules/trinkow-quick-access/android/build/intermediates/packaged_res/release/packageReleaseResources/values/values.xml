@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="quick_access_voice_expense">Voice expense</string>
+    <string name="quick_access_voice_expense_disabled">Open Trinkow and sign in first</string>
+    <string name="quick_access_voice_expense_short">Voice expense</string>
+</resources>
