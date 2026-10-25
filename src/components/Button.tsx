@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon, type IconName } from '@/components/Icon';
 import { Txt, type TypeRole } from '@/components/Txt';
+import { t } from '@/content/metinler';
 import { a11y, clay, color, radius, rhythm, size } from '@/theme/tokens';
 
 /** §7.1 — üç varyant. Ekran başına birincil buton en fazla 1. */
@@ -44,7 +45,7 @@ export function Button({
 }: Props) {
   const pasif = disabled || loading;
   // §7.1 loading: metin "Kaydediliyor" + disabled. Spinner yalnız buton içinde.
-  const metin = loading ? (loadingLabel ?? 'Kaydediliyor') : label;
+  const metin = loading ? (loadingLabel ?? t['birikimSheet.kaydediliyor']) : label;
 
   return (
     <Pressable

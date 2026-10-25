@@ -16,8 +16,10 @@ import { kategori as kategoriGetir, type KategoriKodu } from '@/lib/kategoriler'
 import { tutarGirisindenKurus } from '@/lib/para';
 import { favoriteDelete, favoritePut, favoritesGet, yeniId } from '@/lib/revApi';
 import { rhythm } from '@/theme/tokens';
+import { useDil } from '@/i18n/useDil';
 
 export default function Favoriler() {
+  useDil();
   const load = useRevLoad(favoritesGet);
   const [ad, setAd] = useState('');
   const [amount, setAmount] = useState('');

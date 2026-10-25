@@ -19,8 +19,10 @@ import { aileRenkleri, kategori } from '@/lib/kategoriler';
 import { paraYaz } from '@/lib/para';
 import { budgetGet } from '@/lib/revApi';
 import { gunAnahtari } from '@/lib/tarih';
+import { localeKodu } from '@/lib/yerellestirme';
 import { color, layout, radius, rhythm } from '@/theme/tokens';
 import { analizGiderPay, analizGelirPay, analizHalkaA11y, t } from '@/content/metinler';
+import { useDil } from '@/i18n/useDil';
 
 type KategoriOzeti = { kod: string; tutar: number; renk: string; pay: number; gelirYuku: number };
 type AnalizVerisi = {
@@ -39,6 +41,7 @@ const DONEM_METNI: Record<AnalizDonemi, keyof typeof t> = {
 };
 
 export default function AnalizlerEkrani() {
+  useDil();
   const [donem, setDonem] = useState<AnalizDonemi>('hafta');
   const veri = useRevLoad(useCallback(async (): Promise<AnalizVerisi> => {
     const secim = analizAraligi(donem);
@@ -110,7 +113,7 @@ function AnalizIcerigi({ veri }: { veri: AnalizVerisi }) {
           <View key={kategoriOzeti.kod} style={stil.lejantSatiri}>
             <View style={[stil.nokta, { backgroundColor: kategoriOzeti.renk }]} />
             <Txt role="caption" style={stil.esnek} numberOfLines={1}>{kategori(kategoriOzeti.kod).ad}</Txt>
-            <Txt role="label">%{Math.round(kategoriOzeti.pay * 100)}</Txt>
+            <Txt role="label">{new Intl.NumberFormat(localeKodu(), { style: 'percent', maximumFractionDigits: 0 }).format(kategoriOzeti.pay)}</Txt>
           </View>
         ))}
       </View>

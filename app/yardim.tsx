@@ -1,7 +1,9 @@
 import { SettingsPage } from '@/components/SettingsPage';
 import { Txt } from '@/components/Txt';
 import { t } from '@/content/metinler';
+import { useDil } from '@/i18n/useDil';
 export default function Yardim() {
+  useDil();
   return <SettingsPage baslik={t['ui.settings.help_title']}>
     <Txt role="h2">{t['ui.help.expense_question']}</Txt>
     <Txt role="body">{t['ui.help.expense_answer']}</Txt>

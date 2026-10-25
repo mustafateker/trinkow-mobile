@@ -1,6 +1,6 @@
 import { islemHatasiniGoster } from '@/lib/islemHatasi';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -11,6 +11,7 @@ import { Chip } from '@/components/Chip';
 import { MoneyInput } from '@/components/MoneyInput';
 import { DayBox } from '@/components/DayBox';
 import { Dialog } from '@/components/Dialog';
+import { DilSecimSheet, dilA11yEtiketi, dilAdi } from '@/components/DilSecici';
 import { InfoStrip } from '@/components/InfoStrip';
 import { OptionCard } from '@/components/OptionCard';
 import { PushHeader } from '@/components/PushHeader';
@@ -58,7 +59,8 @@ import { paraYaz, tutarGirisindenKurus, kurustanTutarGirisi } from '@/lib/para';
 import { ayAnahtari, ayBasligi, gunIyelikEki, tarihtenGun } from '@/lib/tarih';
 import { veriDegisti } from '@/lib/veriBus';
 import { color, layout, radius, rhythm, v4 } from '@/theme/tokens';
-import type { Dil, ParaBirimi } from '@/lib/yerellestirme';
+import { useDil } from '@/i18n/useDil';
+import type { ParaBirimi } from '@/lib/yerellestirme';
 import { yerellestirmeyiSakla } from '@/lib/yerellestirmeDeposu';
 import { useYerellestirme } from '@/lib/useYerellestirme';
 import {
@@ -82,12 +84,14 @@ const MAAS_GUNLERI = Array.from({ length: 31 }, (_, i) => i + 1);
 export default function AyarlarEkrani() {
   const insets = useSafeAreaInsets();
   useYerellestirme();
+  // Ekrandaki dil cihazdaki seçimdir (11 dil); sunucudan okunmaz.
+  const dil = useDil();
 
   const [yukleniyor, setYukleniyor] = useState(true);
   const [hata, setHata] = useState(false);
   const [gunSiniri, setGunSiniri] = useState<GunSiniriSaat>(0);
   const [odeme, setOdeme] = useState<OdemeTipi>('kart');
-  const [dil, setDil] = useState<Dil>('tr');
+  const [dilSheetAcik, setDilSheetAcik] = useState(false);
   const [paraBirimi, setParaBirimi] = useState<ParaBirimi>('TRY');
   const [tercihlerHazir, setTercihlerHazir] = useState(false);
   const [niyet, setNiyet] = useState<Niyet>('takip');
@@ -127,10 +131,8 @@ export default function AyarlarEkrani() {
       const [sinir, odemeD, yerellestirme, profil, detay, adet, ilkGun, oturumKaydi] = sonuclar;
       if (sinir.status === 'fulfilled') setGunSiniri(sinir.value);
       if (odemeD.status === 'fulfilled') setOdeme(odemeD.value);
-      if (yerellestirme.status === 'fulfilled') {
-        setDil(yerellestirme.value.dil);
-        setParaBirimi(yerellestirme.value.paraBirimi);
-      }
+      // Sunucunun dil alanı yalnız tr/en tutar ve uygulanmaz; buradan yalnız para birimi alınır.
+      if (yerellestirme.status === 'fulfilled') setParaBirimi(yerellestirme.value.paraBirimi);
       if (profil.status === 'fulfilled') {
         setNiyet(profil.value.niyet ?? 'takip');
         setGelirKurus(profil.value.gelirKurus);
@@ -154,6 +156,14 @@ export default function AyarlarEkrani() {
     if (!tercihlerHazir) return;
     void yerellestirmeyiSakla(dil, paraBirimi).catch(islemHatasiniGoster);
   }, [dil, paraBirimi, tercihlerHazir]);
+
+  // Dil seçim sayfasında dil değişince sunucuya da yazılır (sunucu yalnız tr/en tutar, bkz. `dilKaydet`).
+  const sunucuyaYazilanDil = useRef(dil);
+  useEffect(() => {
+    if (!tercihlerHazir || dil === sunucuyaYazilanDil.current) return;
+    sunucuyaYazilanDil.current = dil;
+    void dilKaydet(dil).catch(yerellestirmeYazmaBasarisiz);
+  }, [dil, tercihlerHazir]);
 
   useFocusEffect(
     useCallback(() => {
@@ -179,11 +189,6 @@ export default function AyarlarEkrani() {
   async function odemeSec(deger: OdemeTipi) {
     setOdeme(deger);
     await varsayilanOdemeKaydet(deger);
-  }
-
-  async function dilSec(deger: Dil) {
-    setDil(deger);
-    await dilKaydet(deger);
   }
 
   async function paraBirimiSec(deger: ParaBirimi) {
@@ -375,7 +380,13 @@ export default function AyarlarEkrani() {
           <View style={{ height: rhythm.sameObject }} />
           <Txt role="caption" tone={color.text2}>{t['ayar.dil_aciklama']}</Txt>
           <View style={{ height: rhythm.blockInCard }} />
-          <SegmentedControl secenekler={[{ value: 'tr' as Dil, label: 'Türkçe' }, { value: 'en' as Dil, label: 'English' }]} deger={dil} onChange={(v) => void dilSec(v).catch(yerellestirmeYazmaBasarisiz)} />
+          <SettingRow
+            icon="globe"
+            iconTone="primary"
+            baslik={dilAdi(dil)}
+            onPress={() => setDilSheetAcik(true)}
+            accessibilityLabel={dilA11yEtiketi(dil)}
+          />
           <View style={stil.bolumAyraci} />
           <Txt role="bodyStrong">{t['ayar.para_birimi']}</Txt>
           <View style={{ height: rhythm.sameObject }} />
@@ -554,6 +565,9 @@ export default function AyarlarEkrani() {
         />
         <View style={{ height: rhythm.pad }} />
       </BottomSheet>
+
+      {/* Dil — 11 dil; seçim anında uygulanır ve cihazda saklanır. */}
+      <DilSecimSheet visible={dilSheetAcik} onClose={() => setDilSheetAcik(false)} />
 
       {/* Kip sheet */}
       <BottomSheet visible={kipSheetAcik} onClose={() => setKipSheetAcik(false)}>

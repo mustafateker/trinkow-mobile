@@ -22,12 +22,11 @@ export type SeriEkraniVerisi = {
  * pencereden FARKLI — bkz. rapor "sapmalar").
  */
 export function useSeriEkrani(): SeriEkraniVerisi & { yenile: () => void } {
-  const [veri, setVeri] = useState<SeriEkraniVerisi>({
+  const [veri, setVeri] = useState<Omit<SeriEkraniVerisi, 'pencereEtiketi'>>({
     yukleniyor: true,
     hata: false,
     durum: null,
     izgara: [],
-    pencereEtiketi: '',
   });
 
   const oku = useCallback(async () => {
@@ -38,11 +37,7 @@ export function useSeriEkrani(): SeriEkraniVerisi & { yenile: () => void } {
         anahtar: h.gun,
         durum: h.durum,
       }));
-      const pencereEtiketi =
-        izgara.length > 0
-          ? haftaAraligi(tarihtenGun(izgara[0].anahtar), tarihtenGun(izgara[izgara.length - 1].anahtar))
-          : '';
-      setVeri({ yukleniyor: false, hata: false, durum, izgara, pencereEtiketi });
+      setVeri({ yukleniyor: false, hata: false, durum, izgara });
     } catch {
       setVeri((o) => ({ ...o, yukleniyor: false, hata: true }));
     }
@@ -53,5 +48,10 @@ export function useSeriEkrani(): SeriEkraniVerisi & { yenile: () => void } {
   }, [oku]);
   useEffect(() => veriDegisimineAbone(() => void oku()), [oku]);
 
-  return { ...veri, yenile: () => void oku() };
+  // Tarih aralığı metni state'e yazılmaz, her render'da aktif dilde biçimlenir (dil değişimi).
+  const { izgara } = veri;
+  const pencereEtiketi =
+    izgara.length > 0 ? haftaAraligi(tarihtenGun(izgara[0].anahtar), tarihtenGun(izgara[izgara.length - 1].anahtar)) : '';
+
+  return { ...veri, pencereEtiketi, yenile: () => void oku() };
 }

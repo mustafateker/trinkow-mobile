@@ -14,12 +14,14 @@ import { Txt } from '@/components/Txt';
 import { seriAktifGovde, seriDurakKalan, seriDurakSonraki, seriPencereBaslik, t } from '@/content/metinler';
 import { useSeriEkrani } from '@/db/useSeriEkrani';
 import { clay, color, layout, radius, rhythm } from '@/theme/tokens';
+import { useDil } from '@/i18n/useDil';
 
 /**
  * E-21 · Seri. Referans: prototip-v4/13-seri.html (5 durum).
  * Rozet/puan/seviye/lig YOK (K-048) — bu ekran bir çetele, kupa vitrini değil.
  */
 export default function SeriEkrani() {
+  useDil();
   const insets = useSafeAreaInsets();
   const veri = useSeriEkrani();
 

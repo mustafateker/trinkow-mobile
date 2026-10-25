@@ -25,6 +25,7 @@ import {
   yarinTekAbonelikUyarisi,
   t,
 } from '@/content/metinler';
+import { metin } from '@/i18n/cekirdek';
 import { ayarOku, ayarYaz, harcamaEkle, harcamaSil, ODEME_VARSAYILAN, type Harcama } from '@/db/harcama';
 import {
   GUNLUK_RUTIN_GORUNEN_LIMIT,
@@ -237,7 +238,7 @@ export function RoutineQuickSection({
       veriDegisti();
       toastGoster({
         tur: 'undoInfo',
-        metin: `${abonelik.ad} ${paraYaz(abonelik.tutar_kurus)} gider olarak işlendi.`,
+        metin: metin('cumle.abonelikGiderIslendi', { ad: abonelik.ad, tutar: paraYaz(abonelik.tutar_kurus) }),
         eylemEtiketi: t['gunlukRutin.toast.geriAl'],
         onEylem: async () => {
           await subscriptionPaymentPut(abonelik.id, null);
@@ -265,10 +266,10 @@ export function RoutineQuickSection({
   const kaydedilenRutin = rutinler?.filter((r) => !!harcamaKaydi(r.id)).length ?? 0;
   const kaydedilen = kaydedilenRutin + bugunAbonelikler.filter((abonelik) => abonelik.odendi).length;
   const ozet = hataMi
-    ? `${toplam} kayıt · yüklenemedi`
+    ? metin('cumle.rutinOzetYuklenemedi', { toplam })
     : bugunAbonelikler.length > 0
-      ? `${rutinSayisi} rutin · ${bugunAbonelikler.length} abonelik`
-      : `${rutinSayisi} rutin · ${kaydedilen} kaydedildi`;
+      ? metin('cumle.rutinOzetAbonelikli', { rutin: rutinSayisi, abonelik: bugunAbonelikler.length })
+      : metin('cumle.rutinOzetKaydedilen', { rutin: rutinSayisi, kaydedilen });
 
   const icerikVar = toplam > 0;
   const uyariVar = yarinAbonelikler.length > 0;

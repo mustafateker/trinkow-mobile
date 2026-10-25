@@ -59,6 +59,6 @@ test('analiz tarih aralıkları ve grafik etiketleri İngilizce locale kullanır
   assert.equal(yillik.baslik, '2026 · January – December');
   const aylar = grafikNoktalariOlustur([], 'yil', yillik.baslangic, yillik.bitis);
   assert.equal(aylar[0].etiket, 'Jan');
-  assert.equal(aylar[0].erisilebilirEtiket, 'Month 1');
+  assert.equal(aylar[0].erisilebilirEtiket, 'January');
   locale.value = 'tr-TR';
 });

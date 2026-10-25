@@ -5,7 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconButton } from '@/components/IconButton';
 import { StepIndicator } from '@/components/StepIndicator';
 import { Txt } from '@/components/Txt';
-import { t } from '@/content/metinler';
+import { obSayac, t } from '@/content/metinler';
 import { color, layout, radius, rhythm, size } from '@/theme/tokens';
 
 export type SetupShellHandle = { scrollToTop: () => void };
@@ -56,7 +56,7 @@ export const SetupShell = forwardRef<
             <View style={stil.denge} />
           )}
           <Txt role="micro" tone={color.navMuted}>
-            {`${adim}/${toplam}`}
+            {obSayac(adim, toplam)}
           </Txt>
           <View style={stil.denge} />
         </View>

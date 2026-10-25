@@ -256,6 +256,8 @@ export const icons = {
     p('m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7'),
     p('m16 19 2 2 4-4'),
   ],
+  /** Dil seçici — Ayarlar satırı ve giriş ekranlarının üst barı (Lucide "globe"). */
+  globe: [{ t: 'c', cx: 12, cy: 12, r: 10 } as Sekil, p('M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20'), p('M2 12h20')],
   /** D-2c-1b K-072 — E-16 başlığı, Ayarlar'a giriş (Lucide "settings"). */
   ayarlar: [
     p(

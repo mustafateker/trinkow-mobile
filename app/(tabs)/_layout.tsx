@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { t } from '@/content/metinler';
+import { useDil } from '@/i18n/useDil';
 
 /**
  * Dört ana ekranın kalıcı navigator'ı. Ekranlar ilk ziyaretlerinden sonra
@@ -8,6 +9,7 @@ import { t } from '@/content/metinler';
  * kendi `TabDock` bileşenidir, native tab bar bu yüzden gizlidir.
  */
 export default function AnaSekmelerLayout() {
+  useDil();
   return (
     <Tabs
       backBehavior="none"

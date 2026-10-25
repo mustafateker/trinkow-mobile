@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { Icon, type IconName } from '@/components/Icon';
 import { IconButton } from '@/components/IconButton';
 import { Txt } from '@/components/Txt';
+import { t } from '@/content/metinler';
 import { clay, color, radius, rhythm } from '@/theme/tokens';
 
 /**
@@ -50,7 +51,7 @@ export function InfoStrip({
       {onKapat ? (
         <>
           <View style={{ width: rhythm.blockInCard }} />
-          <IconButton icon="x" accessibilityLabel={kapatEtiketi ?? 'Kapat'} onPress={onKapat} tone={ikonTonu[variant]} />
+          <IconButton icon="x" accessibilityLabel={kapatEtiketi ?? t['eylem.kapat']} onPress={onKapat} tone={ikonTonu[variant]} />
         </>
       ) : null}
     </View>

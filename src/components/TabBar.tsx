@@ -6,6 +6,7 @@ import { Icon, type IconName } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
 import { clay, color, radius, rhythm, size } from '@/theme/tokens';
 import { t } from '@/content/metinler';
+import { metin } from '@/i18n/cekirdek';
 
 /**
  * Tasarım kiti §6.J — koyu lacivert (`ink-950`) sabit dock. Dört ana sekme
@@ -40,7 +41,7 @@ export function TabBar({
             key={s.key}
             onPress={() => onSelect?.(s.key)}
             accessibilityRole="tab"
-            accessibilityLabel={`${s.ad} sekmesi`}
+            accessibilityLabel={metin('bilesen.tabbar.a11y', { sekme: s.ad })}
             accessibilityState={{ selected: aktif }}
             style={stil.sekme}>
             <View style={[stil.ikonKab, aktif && stil.ikonKabAktif]}>
@@ -72,7 +73,7 @@ export function TabBar({
           key={s.key}
           onPress={() => onSelect?.(s.key)}
           accessibilityRole="tab"
-          accessibilityLabel={`${s.ad} sekmesi`}
+          accessibilityLabel={metin('bilesen.tabbar.a11y', { sekme: s.ad })}
           accessibilityState={{ selected: aktif }}
           style={stil.sekme}>
           <View style={[stil.ikonKab, aktif && stil.ikonKabAktif]}>

@@ -33,6 +33,7 @@ import {
   seriCipEtiketi,
   t,
 } from '@/content/metinler';
+import { metin } from '@/i18n/cekirdek';
 import { ayarOku, ayarYaz, sikAlinanlar, type SikAlinan } from '@/db/harcama';
 import { gunHarcamasizIsaretle } from '@/db/seri';
 import type { SeriDurumu } from '@/db/seri';
@@ -231,7 +232,7 @@ export function GunlukSayfa({
           <View style={{ height: rhythm.section }} />
           <View style={stil.pad}>
             <Button
-              label={bugunMu ? t['gunluk.harcama_ekle'] : 'Bu güne harcama ekle'}
+              label={bugunMu ? t['gunluk.harcama_ekle'] : t['ui.common.add_expense_for_day']}
               variant="primary"
               icon="plus"
               onPress={() => harcamaEkleyeGit()}
@@ -299,7 +300,7 @@ export function GunlukSayfa({
                 <>
                   <View style={{ height: rhythm.group }} />
                   <Button
-                    label={tumHareketler ? 'Daha az göster' : `${t['gunluk.tumunu_gor']} (${hareketSayisi})`}
+                    label={tumHareketler ? t['ui.common.lower_limit'] : `${t['gunluk.tumunu_gor']} (${hareketSayisi})`}
                     variant="secondary"
                     auto
                     onPress={() => setTumHareketler((a) => !a)}
@@ -338,7 +339,7 @@ export function GunlukSayfa({
                     onPress={() => sikKullanilanaGit(k)}
                     borderRadius={radius.tile}
                     style={stil.sikKart}
-                    accessibilityLabel={`${k.urunAdi}, ${paraYaz(k.tutarKurus)}, ${kat.ad}. Harcama olarak ekle`}>
+                    accessibilityLabel={metin('cumle.sikKullanilanEkleA11y', { ad: k.urunAdi, tutar: paraYaz(k.tutarKurus), kategori: kat.ad })}>
                     <CategoryIconBox kategori={kat} />
                     <View style={stil.sikKartMetin}>
                       <Txt role="bodyStrong" numberOfLines={1}>{k.urunAdi}</Txt>

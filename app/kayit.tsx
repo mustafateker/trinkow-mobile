@@ -16,6 +16,7 @@ import { ApiAgHatasi, ApiHatasi, benKimim, kayitOl } from '@/lib/api';
 import { kayitGonderPasifMi, sifreTekrarHatasi } from '@/lib/kayitKurallari';
 import { oturumYaz } from '@/lib/oturumDeposu';
 import { color, rhythm } from '@/theme/tokens';
+import { useDil } from '@/i18n/useDil';
 
 const EPOSTA_BICIMI = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const SIFRE_MIN_UZUNLUK = 8;
@@ -30,6 +31,7 @@ const SIFRE_MIN_UZUNLUK = 8;
  * durur, iki `Checkbox` `error` olur.
  */
 export default function KayitEkrani() {
+  useDil();
   const [eposta, setEposta] = useState('');
   const [sifre, setSifre] = useState('');
   const [sifreTekrar, setSifreTekrar] = useState('');

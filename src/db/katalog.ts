@@ -1,6 +1,6 @@
 
 import { ayarOku, ayarYaz } from '@/db/harcama';
-import { katalogGuncelle, type KatalogOgesi } from '@/content/urunKatalogu';
+import { katalogGuncelle, katalogOgesi, type KatalogOgesi } from '@/content/urunKatalogu';
 import { katalogGetir } from '@/lib/api';
 import type { KategoriKodu } from '@/lib/kategoriler';
 
@@ -20,11 +20,8 @@ export async function katalogTazele(): Promise<void> {
     const bilinenSurum = await ayarOku(SURUM_ANAHTARI);
     const sonuc = await katalogGetir(bilinenSurum);
     if (!sonuc.degisti) return;
-    const yeni: KatalogOgesi[] = sonuc.katalog.ogeler.map((o) => ({
-      id: o.kod,
-      ad: o.ad,
-      kategori: o.kategori as KategoriKodu,
-    }));
+    // Ad dil paketinden kimlikle okunur; sunucunun (Türkçe) adı yalnız pakette olmayan yeni kalemde görünür.
+    const yeni: KatalogOgesi[] = sonuc.katalog.ogeler.map((o) => katalogOgesi(o.kod, o.kategori as KategoriKodu, o.ad));
     katalogGuncelle(yeni);
     await ayarYaz(SURUM_ANAHTARI, sonuc.katalog.surum);
   } catch {

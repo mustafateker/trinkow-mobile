@@ -2,12 +2,13 @@ import type { ReactNode } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { DilDugmesi } from '@/components/DilSecici';
 import { IconButton } from '@/components/IconButton';
 import { Txt } from '@/components/Txt';
-import { color, layout, radius, rhythm } from '@/theme/tokens';
 import { t } from '@/content/metinler';
+import { color, layout, radius, rhythm } from '@/theme/tokens';
 
-/** Kimlik ekranlarının ortak koyu başlık + açık form paneli. */
+/** Kimlik ekranlarının ortak koyu başlık + açık form paneli. Sağ üstte dil seçici. */
 export function AuthShell({
   title,
   subtitle,
@@ -27,7 +28,7 @@ export function AuthShell({
         <View style={stil.ustSatir}>
           {onBack ? <IconButton icon="chevron-left" accessibilityLabel={t['ui.common.back']} tone="#FFFFFF" background={color.navGlassBg} pressedBackground={color.navGlassBgPressed} onPress={onBack} /> : <View style={stil.denge} />}
           <Txt role="label" tone={color.navMuted}>TRINKOW</Txt>
-          <View style={stil.denge} />
+          <DilDugmesi />
         </View>
         <View style={{ height: rhythm.pad }} />
         <Txt role="h1" tone="#FFFFFF">{title}</Txt>

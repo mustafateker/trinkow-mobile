@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 import { IconButton } from '@/components/IconButton';
 import type { IconName } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
+import { t } from '@/content/metinler';
 import { layout, rhythm } from '@/theme/tokens';
 
 /**
@@ -15,7 +16,7 @@ export function ScreenHeader({
   ustSatir,
   baslik,
   actionIcon = 'limitler',
-  actionLabel = 'Limitleri aç',
+  actionLabel = t['bilesen.screenheader.a11y.limitleri_ac'],
   onActionPress,
   ikinciActionIcon,
   ikinciActionLabel,

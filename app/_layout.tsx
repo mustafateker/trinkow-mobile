@@ -1,3 +1,5 @@
+// Dil paketleri HER ŞEYDEN ÖNCE kaydedilir (ActivationKing `LocalizationService.Register`).
+import '@/i18n/kaynaklar';
 // Tasarım kiti §4 — birincil font Plus Jakarta Sans, TOPLAM 3 AĞIRLIK.
 // Paket kökünden (barrel) import edilirse Google Fonts paketinin BÜTÜN
 // ağırlıkları paketlenir; bu yüzden yalnız ilgili alt yollar import edilir.
@@ -26,6 +28,7 @@ import { ApiHatasi } from '@/lib/api';
 import { oturumDegisimineAbone, oturumOku, oturumSil } from '@/lib/oturumDeposu';
 import { gunSiniriSaatiniAyarla } from '@/lib/tarih';
 import { t } from '@/content/metinler';
+import { dilBaslat } from '@/i18n/dilDeposu';
 import { toastGoster } from '@/lib/toastBus';
 import { color } from '@/theme/tokens';
 import { sunucuYerellestirmesiniUygula, yerellestirmeyiBaslat } from '@/lib/yerellestirmeDeposu';
@@ -160,6 +163,9 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 });
 
 export default function RootLayout() {
+  // Kayıtlı dil ya da (ilk açılışta) telefonun dili — ilk çizimden ÖNCE, senkron (bkz. `src/i18n/dilDeposu.ts`).
+  useState(dilBaslat);
+  // Dil ya da para birimi değişince kök yeniden çizilir; para birimi aşağıda cihazdan yüklenir.
   useYerellestirme();
   const [yerellestirmeHazir, setYerellestirmeHazir] = useState(false);
   const [fontHazir, fontHatasi] = useFonts({

@@ -17,6 +17,7 @@ import { milestoneGosterildiIsaretle } from '@/db/seri';
 import { useGunlukSinir } from '@/db/useGunlukSinir';
 import { useSeriOzet } from '@/db/useSeriOzet';
 import { color } from '@/theme/tokens';
+import { useDil } from '@/i18n/useDil';
 
 /**
  * E-10 · Günlük — yatay tarih sayfalama (K-049/K-055). Günler kronolojik
@@ -27,6 +28,7 @@ import { color } from '@/theme/tokens';
  * o günün sayfasına gider.
  */
 export default function GunlukEkrani() {
+  useDil();
   const { gun } = useLocalSearchParams<{ gun?: string }>();
   const hedefGunFarki = gun !== undefined ? Number.parseInt(gun, 10) || 0 : 0;
   const insets = useSafeAreaInsets();

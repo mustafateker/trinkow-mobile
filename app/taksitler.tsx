@@ -56,6 +56,7 @@ import {
 import { ayAdiTek, ayAnahtari, ayBasligi, ayEkle } from '@/lib/tarih';
 import { veriDegisimineAbone } from '@/lib/veriBus';
 import { clay, color, layout, motion, radius, rhythm } from '@/theme/tokens';
+import { useDil } from '@/i18n/useDil';
 
 const GELECEK_AY_SAYISI = 6;
 
@@ -74,6 +75,7 @@ type Veri = {
  * gösterir.
  */
 export default function TaksitlerEkrani() {
+  useDil();
   const insets = useSafeAreaInsets();
   const reduceMotion = useReduceMotion();
 

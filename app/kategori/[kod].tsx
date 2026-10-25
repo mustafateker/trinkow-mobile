@@ -27,12 +27,14 @@ import { paraSimgesi, paraYaz, sayiyaCevir } from '@/lib/para';
 import { ayBasligi, ayAnahtari, ayEkle } from '@/lib/tarih';
 import { veriDegisimineAbone } from '@/lib/veriBus';
 import { clay, color, layout, radius, rhythm, size } from '@/theme/tokens';
+import { useDil } from '@/i18n/useDil';
 
 /**
  * E-15 · Kategori detayı. Referans: prototip-v3/08-kategori-detay.html.
  * Mood: "karne" — ölçüm nesnesi kategori çubuğu, sol sütun `DayBox`.
  */
 export default function KategoriDetayEkrani() {
+  useDil();
   const { kod } = useLocalSearchParams<{ kod: string }>();
   const kat = kategori(kod ?? 'market');
   const renk = aileRenkleri(kat.aile);

@@ -5,6 +5,7 @@ import { Icon } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
 import { a11y, clay, color, fontFamily, radius, rhythm, size } from '@/theme/tokens';
 import { t } from '@/content/metinler';
+import { metin } from '@/i18n/cekirdek';
 
 /**
  * tokens.md §7.4 — metin girişi (`.giris`). Yükseklik 56, radius 16,
@@ -110,7 +111,7 @@ export function TextField({
         <>
           <View style={{ height: rhythm.sameObject }} />
           <Txt role="micro" tone={color.text2} style={stil.sagHiza}>
-            {kalan} {t['ui.common.remaining']}</Txt>
+            {metin('bilesen.textfield.kaldi', { kalan })}</Txt>
         </>
       ) : null}
     </View>

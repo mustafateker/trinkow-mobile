@@ -15,6 +15,7 @@ import { MonthNav } from '@/components/streak/MonthNav';
 import { Txt } from '@/components/Txt';
 import { gunsecAltAcikGun, gunsecAltKayitli, gunsecOzetBasligi, gunsecSinirBaslangic, t } from '@/content/metinler';
 import { useGunSecici, type GunSeciciGunu } from '@/db/useGunSecici';
+import { useDil } from '@/i18n/useDil';
 import { gunSecildi } from '@/lib/gunSeciciBus';
 import { paraYaz } from '@/lib/para';
 import {
@@ -46,6 +47,7 @@ import { color, layout, radius, rhythm, size } from '@/theme/tokens';
  * açılan orijinal akış) davranış AYNEN korunur.
  */
 export default function GunSeciciEkrani() {
+  useDil();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ acikGun?: string; kip?: string }>();
   const secimKipiMi = params.kip === 'sec';

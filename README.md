@@ -120,3 +120,37 @@ release AAB üretir ve yalnız seçilen kanala yükler. Varsayılan artış `pat
 örneğin `npm run release:internal -- minor` veya
 `npm run release:closed -- 0.2.0` kullanılabilir. Hedefsiz `npm run release`
 bilerek yayın yapmaz ve doğru komutları gösterir.
+
+## Çoklu dil
+
+Uygulama 11 dilde çalışır: İngilizce (yedek dil), Türkçe, Almanca, Fransızca,
+İspanyolca, İtalyanca, Portekizce, Rumence, Lehçe, Rusça, Çekçe. Kurgu
+ActivationKing'deki `LocalizationService` ile aynıdır:
+
+- Metinler `src/i18n/kaynaklar/<dil>.ts` dosyalarındadır. Kaynak dil Türkçe:
+  anahtar listesinin tek kaynağı `tr.ts`, diğer paketler aynı anahtarları
+  taşımak zorundadır (eksik/fazla anahtar derleme hatası verir).
+- İlk açılışta telefonun dili desteklenen dile eşlenir (desteklenmiyorsa
+  İngilizce) ve cihazda saklanır (`src/i18n/dilDeposu.ts`). Dil, Ayarlar → Dil
+  satırından ve giriş ekranlarındaki küre düğmesinden değiştirilir; uygulama
+  yeniden başlamadan anında yenilenir.
+- Her API isteğinde `Accept-Language` başlığı seçili dili taşır. Sunucu hata
+  metni değil `hata_kodu` döner; metni uygulama kendi dilinde seçer.
+- Para birimi (TRY/USD/EUR) dilden bağımsızdır: Ayarlar'dan seçilir, sunucuyla
+  eşitlenir ve `src/lib/yerellestirme.ts`te tutulur. Aynı dosyadaki
+  `localeKodu()` aktif dilin etiketini (`de-DE` gibi) döner; tarih ve sayı
+  biçimleri ona göre kurulur.
+
+Yeni metin eklerken:
+
+1. Anahtarı `tr.ts`'e ekle, sonra diğer 10 pakete çevirisini yaz.
+2. Ekranda `t['anahtar']` ya da parametreliyse `metin('anahtar', { tutar })`
+   kullan. Kullanıcıya görünen metin koda yazılmaz.
+3. Şablon sözdizimi: `{ad}` yer tutucu, `{n, plural, one {# gün} other {# gün}}`
+   çoğul, `{durum, select, acik {açık} other {kapalı}}` seçim.
+4. Her ekran gövdesinin başında `useDil()` çağırır; dil değişince yeniden
+   çizilir. Metni modül seviyesindeki bir sabite kopyalama (dil değişince
+   güncellenmez); gerekiyorsa getter ya da fonksiyon kullan.
+
+`npm test` her dil paketini denetler: anahtar kümesi, yer tutucular, çoğul
+dalları, takvim ve katalog.

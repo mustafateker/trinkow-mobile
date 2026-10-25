@@ -6,7 +6,7 @@ import { color, radius, type } from '@/theme/tokens';
 import { t } from '@/content/metinler';
 
 /** Native focus/selection/paste; money stays a decimal string until submission. */
-export function MoneyInput({ value, onChangeText, label = 'Tutar', autoFocus = false, style, integerOnly = false, hideLabel = false, onFocus, onBlur }: {
+export function MoneyInput({ value, onChangeText, label = t['ui.common.amount'], autoFocus = false, style, integerOnly = false, hideLabel = false, onFocus, onBlur }: {
   value: string; onChangeText: (value: string) => void; label?: string;
   autoFocus?: boolean; style?: StyleProp<TextStyle>; integerOnly?: boolean; hideLabel?: boolean;
   /** `MoneyField`/`MoneyRow` (rev2) — kuyunun odak halkasını sürmek için. */

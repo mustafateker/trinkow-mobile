@@ -2,7 +2,7 @@
 import { ODEME_VARSAYILAN, type OdemeTipi } from '@/db/harcama';
 import { tercihleriGetir, tercihleriGuncelle, type TercihlerYaniti } from '@/lib/api';
 import { gunAnahtari, gunSiniriSaatiniAyarla } from '@/lib/tarih';
-import type { Dil, ParaBirimi, YerellestirmeTercihi } from '@/lib/yerellestirme';
+import { sunucuDili, type Dil, type ParaBirimi, type YerellestirmeTercihi } from '@/lib/yerellestirme';
 
 /**
  * D-2c-1 · E-19 Ayarlar — arka oda tercihleri. BE-6a ile `GET/PATCH
@@ -92,8 +92,9 @@ export async function yerellestirmeOku(): Promise<YerellestirmeTercihi> {
   return { dil: tercih.dil ?? 'tr', paraBirimi: tercih.para_birimi ?? 'TRY' };
 }
 
+/** Sunucu yalnız tr/en tutar (e-posta vb. sunucu metinleri): Türkçe dışındaki diller `en` yazılır. */
 export async function dilKaydet(dil: Dil): Promise<void> {
-  await tercihleriGuncelle({ dil });
+  await tercihleriGuncelle({ dil: sunucuDili(dil) });
 }
 
 export async function paraBirimiKaydet(paraBirimi: ParaBirimi): Promise<void> {
