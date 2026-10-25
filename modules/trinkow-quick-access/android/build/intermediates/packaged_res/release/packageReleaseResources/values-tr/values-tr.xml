@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="quick_access_voice_expense">Sesli harcama</string>
-    <string name="quick_access_voice_expense_disabled">Önce Trinkow\'u açıp giriş yap</string>
-    <string name="quick_access_voice_expense_short">Sesli harcama</string>
-</resources>

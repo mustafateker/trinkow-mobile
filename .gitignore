@@ -11,6 +11,8 @@ expo-env.d.ts
 
 # Native
 .kotlin/
+# Local Expo module Gradle outputs (some paths exceed Windows' 260-char limit)
+modules/*/android/build/
 *.orig.*
 *.jks
 *.p8

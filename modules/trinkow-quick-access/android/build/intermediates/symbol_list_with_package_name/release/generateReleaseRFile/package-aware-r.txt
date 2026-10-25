@@ -1,6 +1,0 @@
-expo.modules.trinkowquickaccess
-drawable ic_trinkow_mic
-string quick_access_voice_expense
-string quick_access_voice_expense_disabled
-string quick_access_voice_expense_short
-xml trinkow_shortcuts
