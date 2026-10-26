@@ -2,7 +2,7 @@
   "expo": {
     "name": "Trinkow",
     "slug": "trinkow",
-    "version": "0.1.7",
+    "version": "0.1.9",
     "orientation": "default",
     "scheme": "trinkow",
     "userInterfaceStyle": "light",
@@ -17,7 +17,7 @@
     },
     "android": {
       "package": "com.triworkster.trinkow",
-      "versionCode": 8,
+      "versionCode": 10,
       "blockedPermissions": [
         "com.google.android.gms.permission.AD_ID"
       ],
@@ -99,7 +99,19 @@
       [
         "expo-localization",
         {
-          "supportedLocales": ["en", "tr", "de", "fr", "es", "it", "pt", "ro", "pl", "ru", "cs"]
+          "supportedLocales": [
+            "en",
+            "tr",
+            "de",
+            "fr",
+            "es",
+            "it",
+            "pt",
+            "ro",
+            "pl",
+            "ru",
+            "cs"
+          ]
         }
       ]
     ],
