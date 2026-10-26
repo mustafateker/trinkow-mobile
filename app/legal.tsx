@@ -5,6 +5,7 @@ import { Button } from '@/components/Button';
 import { InfoStrip } from '@/components/InfoStrip';
 import { SettingsPage } from '@/components/SettingsPage';
 import { Txt } from '@/components/Txt';
+import { t } from '@/content/metinler';
 import { useYerellestirme } from '@/lib/useYerellestirme';
 import { rhythm } from '@/theme/tokens';
 
@@ -336,11 +337,12 @@ const belgelerEn: Record<string, Belge> = {
 export default function Legal() {
   const { dil } = useYerellestirme();
   const { belge } = useLocalSearchParams<{ belge?: string }>();
-  const belgelerAktif = dil === 'en' ? belgelerEn : belgeler;
+  // Yasal belgeler yalnız Türkçe ve İngilizce yazıldı: Türkçe dışındaki her dil İngilizce metni görür.
+  const belgelerAktif = dil === 'tr' ? belgeler : belgelerEn;
   const secili = belge ? belgelerAktif[belge] : null;
 
   return (
-    <SettingsPage baslik={secili?.baslik ?? (dil === 'en' ? 'Legal documents' : 'Yasal belgeler')}>
+    <SettingsPage baslik={secili?.baslik ?? t['legal.baslik']}>
       {secili ? (
         <>
           <InfoStrip

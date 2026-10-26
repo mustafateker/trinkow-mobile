@@ -1,3 +1,4 @@
+import { katalogAdi } from '@/i18n/cekirdek';
 import type { KategoriKodu } from '@/lib/kategoriler';
 
 /**
@@ -28,100 +29,118 @@ export type KatalogOgesi = {
   kategori: KategoriKodu;
 };
 
-export const URUN_KATALOGU: readonly KatalogOgesi[] = [
+/**
+ * Katalog kalemi. `ad` aktif dilin paketinden kimlikle okunur
+ * (`src/i18n/kaynaklar/<dil>.ts#katalog`); pakette olmayan (sunucudan yeni
+ * gelmiş) kalemde `yedekAd` — sunucunun verdiği ad — gösterilir.
+ */
+export function katalogOgesi(id: string, kategori: KategoriKodu, yedekAd: string = id): KatalogOgesi {
+  return {
+    id,
+    kategori,
+    get ad() {
+      return katalogAdi(id) ?? yedekAd;
+    },
+  };
+}
+
+/** Gömülü 80 kalem: [kimlik, kategori]. Adlar dil paketlerinde. */
+const GOMULU_KATALOG: readonly (readonly [string, KategoriKodu])[] = [
   // Kafe
-  { id: 'filtre-kahve', ad: 'Filtre kahve', kategori: 'kafe' },
-  { id: 'turk-kahvesi', ad: 'Türk kahvesi', kategori: 'kafe' },
-  { id: 'latte', ad: 'Latte', kategori: 'kafe' },
-  { id: 'sutlu-kahve', ad: 'Sütlü kahve', kategori: 'kafe' },
-  { id: 'soguk-kahve', ad: 'Soğuk kahve', kategori: 'kafe' },
-  { id: 'cay', ad: 'Çay', kategori: 'kafe' },
-  { id: 'simit', ad: 'Simit', kategori: 'kafe' },
-  { id: 'pogaca', ad: 'Poğaça', kategori: 'kafe' },
-  { id: 'tatli', ad: 'Tatlı', kategori: 'kafe' },
+  ['filtre-kahve', 'kafe'],
+  ['turk-kahvesi', 'kafe'],
+  ['latte', 'kafe'],
+  ['sutlu-kahve', 'kafe'],
+  ['soguk-kahve', 'kafe'],
+  ['cay', 'kafe'],
+  ['simit', 'kafe'],
+  ['pogaca', 'kafe'],
+  ['tatli', 'kafe'],
   // Restoran
-  { id: 'doner', ad: 'Döner', kategori: 'restoran' },
-  { id: 'lahmacun', ad: 'Lahmacun', kategori: 'restoran' },
-  { id: 'pide', ad: 'Pide', kategori: 'restoran' },
-  { id: 'kebap', ad: 'Kebap', kategori: 'restoran' },
-  { id: 'tost', ad: 'Tost', kategori: 'restoran' },
-  { id: 'hamburger', ad: 'Hamburger', kategori: 'restoran' },
-  { id: 'pizza', ad: 'Pizza', kategori: 'restoran' },
-  { id: 'ogle-yemegi', ad: 'Öğle yemeği', kategori: 'restoran' },
-  { id: 'kahvalti-tabagi', ad: 'Kahvaltı tabağı', kategori: 'restoran' },
-  { id: 'yemek-siparisi', ad: 'Yemek siparişi', kategori: 'restoran' },
+  ['doner', 'restoran'],
+  ['lahmacun', 'restoran'],
+  ['pide', 'restoran'],
+  ['kebap', 'restoran'],
+  ['tost', 'restoran'],
+  ['hamburger', 'restoran'],
+  ['pizza', 'restoran'],
+  ['ogle-yemegi', 'restoran'],
+  ['kahvalti-tabagi', 'restoran'],
+  ['yemek-siparisi', 'restoran'],
   // Market
-  { id: 'haftalik-market', ad: 'Haftalık market', kategori: 'market' },
-  { id: 'ekmek', ad: 'Ekmek', kategori: 'market' },
-  { id: 'sut', ad: 'Süt', kategori: 'market' },
-  { id: 'yumurta', ad: 'Yumurta', kategori: 'market' },
-  { id: 'peynir', ad: 'Peynir', kategori: 'market' },
-  { id: 'meyve-sebze', ad: 'Meyve ve sebze', kategori: 'market' },
-  { id: 'et-tavuk', ad: 'Et ve tavuk', kategori: 'market' },
-  { id: 'su-damacanasi', ad: 'Su damacanası', kategori: 'market' },
-  { id: 'temizlik-malzemesi', ad: 'Temizlik malzemesi', kategori: 'market' },
-  { id: 'kisisel-bakim', ad: 'Kişisel bakım', kategori: 'market' },
-  { id: 'atistirmalik', ad: 'Atıştırmalık', kategori: 'market' },
+  ['haftalik-market', 'market'],
+  ['ekmek', 'market'],
+  ['sut', 'market'],
+  ['yumurta', 'market'],
+  ['peynir', 'market'],
+  ['meyve-sebze', 'market'],
+  ['et-tavuk', 'market'],
+  ['su-damacanasi', 'market'],
+  ['temizlik-malzemesi', 'market'],
+  ['kisisel-bakim', 'market'],
+  ['atistirmalik', 'market'],
   // Ulaşım
-  { id: 'toplu-tasima-yuklemesi', ad: 'Toplu taşıma yüklemesi', kategori: 'ulasim' },
-  { id: 'sehirlerarasi-otobus-bileti', ad: 'Şehirlerarası otobüs bileti', kategori: 'ulasim' },
-  { id: 'taksi', ad: 'Taksi', kategori: 'ulasim' },
-  { id: 'otopark', ad: 'Otopark', kategori: 'ulasim' },
-  { id: 'kopru-otoyol-gecisi', ad: 'Köprü ve otoyol geçişi', kategori: 'ulasim' },
-  { id: 'ucak-bileti', ad: 'Uçak bileti', kategori: 'ulasim' },
-  { id: 'kargo', ad: 'Kargo', kategori: 'ulasim' },
-  { id: 'arac-bakimi', ad: 'Araç bakımı', kategori: 'ulasim' },
+  ['toplu-tasima-yuklemesi', 'ulasim'],
+  ['sehirlerarasi-otobus-bileti', 'ulasim'],
+  ['taksi', 'ulasim'],
+  ['otopark', 'ulasim'],
+  ['kopru-otoyol-gecisi', 'ulasim'],
+  ['ucak-bileti', 'ulasim'],
+  ['kargo', 'ulasim'],
+  ['arac-bakimi', 'ulasim'],
   // Akaryakıt
-  { id: 'benzin', ad: 'Benzin', kategori: 'akaryakit' },
-  { id: 'motorin', ad: 'Motorin', kategori: 'akaryakit' },
-  { id: 'lpg', ad: 'LPG', kategori: 'akaryakit' },
+  ['benzin', 'akaryakit'],
+  ['motorin', 'akaryakit'],
+  ['lpg', 'akaryakit'],
   // Fatura
-  { id: 'elektrik-faturasi', ad: 'Elektrik faturası', kategori: 'fatura' },
-  { id: 'su-faturasi', ad: 'Su faturası', kategori: 'fatura' },
-  { id: 'dogalgaz-faturasi', ad: 'Doğalgaz faturası', kategori: 'fatura' },
-  { id: 'internet-faturasi', ad: 'İnternet faturası', kategori: 'fatura' },
-  { id: 'telefon-faturasi', ad: 'Telefon faturası', kategori: 'fatura' },
-  { id: 'aidat', ad: 'Aidat', kategori: 'fatura' },
-  { id: 'motorlu-tasitlar-vergisi', ad: 'Motorlu taşıtlar vergisi', kategori: 'fatura' },
+  ['elektrik-faturasi', 'fatura'],
+  ['su-faturasi', 'fatura'],
+  ['dogalgaz-faturasi', 'fatura'],
+  ['internet-faturasi', 'fatura'],
+  ['telefon-faturasi', 'fatura'],
+  ['aidat', 'fatura'],
+  ['motorlu-tasitlar-vergisi', 'fatura'],
   // Kira ve ev
-  { id: 'kira', ad: 'Kira', kategori: 'kiraev' },
-  { id: 'ev-esyasi', ad: 'Ev eşyası', kategori: 'kiraev' },
-  { id: 'mobilya', ad: 'Mobilya', kategori: 'kiraev' },
-  { id: 'tadilat-usta', ad: 'Tadilat ve usta', kategori: 'kiraev' },
-  { id: 'ev-tekstili', ad: 'Ev tekstili', kategori: 'kiraev' },
+  ['kira', 'kiraev'],
+  ['ev-esyasi', 'kiraev'],
+  ['mobilya', 'kiraev'],
+  ['tadilat-usta', 'kiraev'],
+  ['ev-tekstili', 'kiraev'],
   // Abonelik
-  { id: 'muzik-aboneligi', ad: 'Müzik aboneliği', kategori: 'abonelik' },
-  { id: 'dizi-film-aboneligi', ad: 'Dizi ve film aboneliği', kategori: 'abonelik' },
-  { id: 'spor-salonu-uyeligi', ad: 'Spor salonu üyeliği', kategori: 'abonelik' },
-  { id: 'bulut-depolama', ad: 'Bulut depolama', kategori: 'abonelik' },
-  { id: 'oyun-aboneligi', ad: 'Oyun aboneliği', kategori: 'abonelik' },
-  { id: 'yazilim-aboneligi', ad: 'Yazılım aboneliği', kategori: 'abonelik' },
+  ['muzik-aboneligi', 'abonelik'],
+  ['dizi-film-aboneligi', 'abonelik'],
+  ['spor-salonu-uyeligi', 'abonelik'],
+  ['bulut-depolama', 'abonelik'],
+  ['oyun-aboneligi', 'abonelik'],
+  ['yazilim-aboneligi', 'abonelik'],
   // Eğlence
-  { id: 'sinema-bileti', ad: 'Sinema bileti', kategori: 'eglence' },
-  { id: 'konser-bileti', ad: 'Konser bileti', kategori: 'eglence' },
-  { id: 'mac-bileti', ad: 'Maç bileti', kategori: 'eglence' },
-  { id: 'oyun-ici-satin-alma', ad: 'Oyun içi satın alma', kategori: 'eglence' },
-  { id: 'kitap', ad: 'Kitap', kategori: 'eglence' },
-  { id: 'muze-sergi', ad: 'Müze ve sergi', kategori: 'eglence' },
+  ['sinema-bileti', 'eglence'],
+  ['konser-bileti', 'eglence'],
+  ['mac-bileti', 'eglence'],
+  ['oyun-ici-satin-alma', 'eglence'],
+  ['kitap', 'eglence'],
+  ['muze-sergi', 'eglence'],
   // Giyim
-  { id: 'ust-giyim', ad: 'Üst giyim', kategori: 'giyim' },
-  { id: 'pantolon', ad: 'Pantolon', kategori: 'giyim' },
-  { id: 'ayakkabi', ad: 'Ayakkabı', kategori: 'giyim' },
-  { id: 'dis-giyim', ad: 'Dış giyim', kategori: 'giyim' },
+  ['ust-giyim', 'giyim'],
+  ['pantolon', 'giyim'],
+  ['ayakkabi', 'giyim'],
+  ['dis-giyim', 'giyim'],
   // Sağlık
-  { id: 'eczane', ad: 'Eczane', kategori: 'saglik' },
-  { id: 'doktor-muayenesi', ad: 'Doktor muayenesi', kategori: 'saglik' },
-  { id: 'dis-hekimi', ad: 'Diş hekimi', kategori: 'saglik' },
-  { id: 'gozluk-lens', ad: 'Gözlük ve lens', kategori: 'saglik' },
-  { id: 'tahlil-goruntuleme', ad: 'Tahlil ve görüntüleme', kategori: 'saglik' },
-  { id: 'vitamin-takviye', ad: 'Vitamin ve takviye', kategori: 'saglik' },
+  ['eczane', 'saglik'],
+  ['doktor-muayenesi', 'saglik'],
+  ['dis-hekimi', 'saglik'],
+  ['gozluk-lens', 'saglik'],
+  ['tahlil-goruntuleme', 'saglik'],
+  ['vitamin-takviye', 'saglik'],
   // Alışkanlıklar
-  { id: 'sigara-paketi', ad: 'Sigara paketi', kategori: 'aliskanliklar' },
-  { id: 'sarma-tutun', ad: 'Sarma tütün', kategori: 'aliskanliklar' },
-  { id: 'nargile', ad: 'Nargile', kategori: 'aliskanliklar' },
-  { id: 'bira', ad: 'Bira', kategori: 'aliskanliklar' },
-  { id: 'sans-oyunu', ad: 'Şans oyunu', kategori: 'aliskanliklar' },
-] as const;
+  ['sigara-paketi', 'aliskanliklar'],
+  ['sarma-tutun', 'aliskanliklar'],
+  ['nargile', 'aliskanliklar'],
+  ['bira', 'aliskanliklar'],
+  ['sans-oyunu', 'aliskanliklar'],
+];
+
+export const URUN_KATALOGU: readonly KatalogOgesi[] = GOMULU_KATALOG.map(([id, kategori]) => katalogOgesi(id, kategori));
 
 /**
  * BE-6c Madde 4 — açılışta `GET /katalog/` ETag ile kontrol edilir

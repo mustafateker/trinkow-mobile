@@ -7,7 +7,9 @@ import { InfoStrip } from '@/components/InfoStrip';
 import { Txt } from '@/components/Txt';
 import { hesabiSil } from '@/lib/hesapEylemleri';
 import { t } from '@/content/metinler';
+import { useDil } from '@/i18n/useDil';
 export default function HesapSil() {
+  useDil();
   const [onay, setOnay] = useState(false);
   const [mesgul, setMesgul] = useState(false);
   const [hata, setHata] = useState(false);

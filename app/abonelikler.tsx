@@ -19,8 +19,11 @@ import { bugun, subscriptionDelete, subscriptionPut, subscriptionsGet, type Subs
 import { veriDegisti } from '@/lib/veriBus';
 import { color, radius, rhythm, size } from '@/theme/tokens';
 import { abonelikSilGovde, abonelikSatiriA11y, t } from '@/content/metinler';
+import { metin } from '@/i18n/cekirdek';
+import { useDil } from '@/i18n/useDil';
 
 export default function AboneliklerEkrani() {
+  useDil();
   const load = useRevLoad(subscriptionsGet);
   const [sheetAcik, setSheetAcik] = useState(false);
   const [secili, setSecili] = useState<Subscription | null>(null);
@@ -153,7 +156,7 @@ export default function AboneliklerEkrani() {
       <Dialog
         visible={silinecek !== null}
         baslik={t['ui.subscriptions.delete_title']}
-        govde={abonelikSilGovde(silinecek?.ad ?? 'Bu abonelik')}
+        govde={abonelikSilGovde(silinecek?.ad ?? '')}
         silEtiketi={t['ui.subscription.delete']}
         vazgecEtiketi={t['ui.common.cancel']}
         siliniyor={busy}
@@ -186,7 +189,7 @@ function AbonelikSatiri({ abonelik, ayrac, onPress }: { abonelik: Subscription; 
             <Txt role="amount">{paraYaz(abonelik.tutar_kurus)}</Txt>
           </View>
           <View style={{ height: rhythm.sameObject }} />
-          <Txt role="caption" tone={color.text2}>{abonelik.odeme === 'kart' ? t['ui.subscriptions.pay_by_card'] : t['ui.subscriptions.pay_by_cash']} {t['ui.subscriptions.every_month_prefix']}{abonelik.yenilenme_gunu}{t['ui.subscriptions.renewal_day_suffix']}</Txt>
+          <Txt role="caption" tone={color.text2}>{abonelik.odeme === 'kart' ? t['ui.subscriptions.pay_by_card'] : t['ui.subscriptions.pay_by_cash']} {metin('ui.subscriptions.renewal_day', { gun: abonelik.yenilenme_gunu })}</Txt>
           <View style={{ height: rhythm.group }} />
           <View style={[stil.durum, { backgroundColor: zemin }]}><Txt role="micro" tone={ton}>{durum}</Txt></View>
         </View>

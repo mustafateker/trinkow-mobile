@@ -17,8 +17,10 @@ import { budgetBody, budgetGet, budgetPut } from '@/lib/revApi';
 import { rhythm } from '@/theme/tokens';
 import { veriDegisti } from '@/lib/veriBus';
 import { kategoriLimitKaldirA11y, t } from '@/content/metinler';
+import { useDil } from '@/i18n/useDil';
 
 export default function Limitler() {
+  useDil();
   const load = useRevLoad(budgetGet);
   const [mode, setMode] = useState<'otomatik' | 'manuel'>('otomatik');
   const [amount, setAmount] = useState('');
@@ -91,7 +93,7 @@ export default function Limitler() {
             {mode === 'manuel' ? (
               <MoneyInput label={t['ui.limits.daily_limit']} value={amount} onChangeText={setAmount} />
             ) : (
-              <Txt role="body">{t['ui.limits.income_share']}{money(b.gunluk_gelir_payi_kurus)}</Txt>
+              <Txt role="body">{t['ui.limits.income_share']} {money(b.gunluk_gelir_payi_kurus)}</Txt>
             )}
           </View>
 

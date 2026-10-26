@@ -8,10 +8,11 @@ import { ErrorState } from '@/components/ErrorState';
 import { PushHeader } from '@/components/PushHeader';
 import { Skeleton } from '@/components/Skeleton';
 import { Txt } from '@/components/Txt';
-import { t, tasarrufHareketBosAltGecmisAy } from '@/content/metinler';
+import { ayLokatif, t, tasarrufHareketBosAltGecmisAy } from '@/content/metinler';
+import { useDil } from '@/i18n/useDil';
 import { movementsGet, movementsPeriodGet, bugun, type Movement } from '@/lib/revApi';
 import { useRevLoad } from '@/components/RevScreen';
-import { ayAdiTek, ayAnahtari, tarihtenGun } from '@/lib/tarih';
+import { ayKisaAdi, tarihtenGun } from '@/lib/tarih';
 import { paraYaz } from '@/lib/para';
 import { color, layout, radius, rhythm } from '@/theme/tokens';
 
@@ -25,6 +26,7 @@ export default function TumHareketlerEkrani() {
   const { ay, baslangic, bitis } = useLocalSearchParams<{ ay?: string; baslangic?: string; bitis?: string; donem?: string }>();
   const gosterilenAy = ay ?? bugun().slice(0, 7);
   const insets = useSafeAreaInsets();
+  const dil = useDil();
   const load = useRevLoad(useCallback(
     () => baslangic && bitis ? movementsPeriodGet(baslangic, bitis) : movementsGet(gosterilenAy),
     [baslangic, bitis, gosterilenAy],
@@ -52,13 +54,18 @@ export default function TumHareketlerEkrani() {
           <FlatList
             data={load.data?.hareketler ?? []}
             keyExtractor={(m) => m.id}
+            extraData={dil}
             contentContainerStyle={stil.liste}
             renderItem={({ item }) => <Satir movement={item} />}
             ListEmptyComponent={
               <EmptyState
                 icon="banknote"
                 baslik={t['tasarruf.hareket.bos.baslik']}
-                govde={baslangic && bitis ? 'Bu dönemde birikim hareketi yok.' : guncelAyMi ? t['tasarruf.hareket.bos.alt.buAy'] : tasarrufHareketBosAltGecmisAy(ayAdiTek(gosterilenAy))}
+                govde={baslangic && bitis
+                  ? t['ui.savings.movements_empty']
+                  : guncelAyMi
+                    ? t['tasarruf.hareket.bos.alt.buAy']
+                    : tasarrufHareketBosAltGecmisAy(ayLokatif(Number(gosterilenAy.split('-')[1])))}
               />
             }
           />
@@ -76,7 +83,7 @@ function Satir({ movement }: { movement: Movement }) {
       <View style={stil.gunKutu}>
         <Txt role="label">{tarih.getDate()}</Txt>
         <Txt role="micro" tone={color.text2}>
-          {ayAdiTek(ayAnahtari(tarih)).slice(0, 3)}
+          {ayKisaAdi(tarih)}
         </Txt>
       </View>
       <View style={{ width: rhythm.blockInCard }} />

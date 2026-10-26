@@ -12,6 +12,7 @@ import { budgetBody, budgetGet, budgetPut, type BudgetInput } from '@/lib/revApi
 import { rhythm } from '@/theme/tokens';
 import { veriDegisti } from '@/lib/veriBus';
 import { t } from '@/content/metinler';
+import { useDil } from '@/i18n/useDil';
 
 type Alan = 'gelir' | 'kira' | 'fatura' | 'ulasim' | 'kredi' | 'hedef' | 'borc';
 const alanlar: [Alan, keyof typeof t][] = [
@@ -25,6 +26,7 @@ const alanlar: [Alan, keyof typeof t][] = [
 ];
 
 export default function Butce() {
+  useDil();
   const load = useRevLoad(budgetGet);
   const [fields, setFields] = useState<Record<Alan, string>>({ gelir: '', kira: '', fatura: '', ulasim: '', kredi: '', hedef: '', borc: '' });
   const [busy, setBusy] = useState(false);
@@ -100,7 +102,7 @@ export default function Butce() {
             {b?.butce_acigi_kurus ? (
               <>
                 <View style={{ height: rhythm.sameObject }} />
-                <Txt role="body">{t['ui.budget.monthly_shortfall']}{money(b.butce_acigi_kurus)}</Txt>
+                <Txt role="body">{t['ui.budget.monthly_shortfall']} {money(b.butce_acigi_kurus)}</Txt>
               </>
             ) : null}
             <View style={{ height: rhythm.sameObject }} />

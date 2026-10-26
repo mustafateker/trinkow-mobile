@@ -29,6 +29,7 @@ import { oturumOku } from '@/lib/oturumDeposu';
 import { paraYaz } from '@/lib/para';
 import { budgetGet, bugun, favoritesGet, routinesGet, savingsGet } from '@/lib/revApi';
 import { color, layout, rhythm } from '@/theme/tokens';
+import { useDil } from '@/i18n/useDil';
 
 const SURUM = '1.0.0';
 
@@ -52,6 +53,7 @@ type AyarVerisi = {
  * yalnız Ayarlar'dan değişir (§26.3), tek eylem hiyerarşisi §7/5 gereği.
  */
 export default function ProfilEkrani() {
+  useDil();
   const oturum = useRevLoad(useCallback(oturumOku, []));
 
   const ayarVerisi = useRevLoad(

@@ -79,7 +79,7 @@ export function grafikNoktalariOlustur(
         anahtar: ayAnahtari,
         etiket,
         eksenEtiketi: etiket,
-        erisilebilirEtiket: localeKodu() === 'tr-TR' ? `${ay + 1}. ay` : `Month ${ay + 1}`,
+        erisilebilirEtiket: new Intl.DateTimeFormat(localeKodu(), { month: 'long' }).format(new Date(bitis.getFullYear(), ay, 1)),
         gider,
         gelecek: ay > bitis.getMonth(),
       };

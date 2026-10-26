@@ -21,6 +21,7 @@ import { paraSimgesi, paraYaz, sayiyaCevir, tutarGirisindenKurus } from '@/lib/p
 import { budgetPut, emptyBudget, routinePut, routinesGet, yeniId, type Routine } from '@/lib/revApi';
 import { veriDegisti } from '@/lib/veriBus';
 import { clay, color, motion, radius, rhythm, TABULAR } from '@/theme/tokens';
+import { useDil } from '@/i18n/useDil';
 
 /**
  * rev2-onboarding-kayit.md — REV2-r1. `SetupShell` kabuğu (§2), 4 adım.
@@ -39,6 +40,7 @@ const NIYET_SIRASI: [Niyet, IconName][] = [
 type GiderAlan = 'kira' | 'fatura' | 'ulasim' | 'kredi';
 
 export default function Onboarding() {
+  useDil();
   const shellRef = useRef<SetupShellHandle>(null);
   const reduceMotion = useReduceMotion();
   const anim = useRef(new Animated.Value(1)).current;

@@ -5,7 +5,8 @@ import { ClayPressable } from '@/components/ClayPressable';
 import { DayBox } from '@/components/DayBox';
 import { Icon } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
-import { ayAdiTek, ayAnahtari, gunAnahtari, gunEkle, tarihtenGun } from '@/lib/tarih';
+import { metin } from '@/i18n/cekirdek';
+import { gunAnahtari, gunEkle, kisaTarih, tamTarih, tarihtenGun } from '@/lib/tarih';
 import { clay, color, radius, rhythm, size } from '@/theme/tokens';
 
 const GUN_SAYISI = 21;
@@ -50,7 +51,7 @@ export function DateField({
   }, [bugunAnahtari, gun]);
 
   const seciliTarih = tarihtenGun(gun);
-  const bicimliTarih = `${seciliTarih.getDate()} ${ayAdiTek(ayAnahtari(seciliTarih))} ${seciliTarih.getFullYear()}`;
+  const bicimliTarih = tamTarih(seciliTarih);
 
   return (
     <View>
@@ -60,7 +61,7 @@ export function DateField({
       <View style={{ height: rhythm.group }} />
       <ClayPressable
         onPress={() => setAcik((v) => !v)}
-        accessibilityLabel={accessibilityLabel ?? `${label}: ${bicimliTarih}`}
+        accessibilityLabel={accessibilityLabel ?? metin('bilesen.datefield.a11y', { etiket: label, tarih: bicimliTarih })}
         borderRadius={radius.tile}
         background={color.well}
         pressedBackground={color.groove}
@@ -91,7 +92,7 @@ export function DateField({
                       onChange(anahtar);
                       setAcik(false);
                     }}
-                    accessibilityLabel={`${d.getDate()} ${ayAdiTek(ayAnahtari(d))}`}
+                    accessibilityLabel={kisaTarih(d)}
                   />
                 </View>
               );

@@ -29,21 +29,33 @@ export type Kategori = {
   ikon: IconName;
 };
 
+/** Kategori — `ad` aktif dilden okunur (`kategori.ad.<kod>`), kod dilden bağımsızdır. */
+function kat(kod: KategoriKodu, aile: CatFamily, ikon: IconName): Kategori {
+  return {
+    kod,
+    aile,
+    ikon,
+    get ad() {
+      return t[`kategori.ad.${kod}`];
+    },
+  };
+}
+
 export const KATEGORILER: Record<KategoriKodu, Kategori> = {
-  market: { kod: 'market', ad: 'Market', aile: 'yesil', ikon: 'shopping-basket' },
-  kafe: { kod: 'kafe', ad: 'Kafe', aile: 'amber', ikon: 'coffee' },
-  ulasim: { kod: 'ulasim', ad: 'Ulaşım', aile: 'mavi', ikon: 'bus' },
-  restoran: { kod: 'restoran', ad: 'Restoran', aile: 'amber', ikon: 'utensils' },
-  fatura: { kod: 'fatura', ad: 'Fatura', aile: 'lacivert', ikon: 'receipt-text' },
-  akaryakit: { kod: 'akaryakit', ad: 'Akaryakıt', aile: 'mavi', ikon: 'fuel' },
-  saglik: { kod: 'saglik', ad: 'Sağlık', aile: 'yesil', ikon: 'pill' },
-  kiraev: { kod: 'kiraev', ad: 'Kira ve ev', aile: 'lacivert', ikon: 'house' },
-  abonelik: { kod: 'abonelik', ad: 'Abonelik', aile: 'lacivert', ikon: 'repeat' },
-  eglence: { kod: 'eglence', ad: 'Eğlence', aile: 'kiremit', ikon: 'ticket' },
-  giyim: { kod: 'giyim', ad: 'Giyim', aile: 'kiremit', ikon: 'shirt' },
-  aliskanliklar: { kod: 'aliskanliklar', ad: 'Alışkanlıklar', aile: 'duman', ikon: 'footprints' },
-  diger: { kod: 'diger', ad: 'Diğer', aile: 'duman', ikon: 'circle-dashed' },
-} as const;
+  market: kat('market', 'yesil', 'shopping-basket'),
+  kafe: kat('kafe', 'amber', 'coffee'),
+  ulasim: kat('ulasim', 'mavi', 'bus'),
+  restoran: kat('restoran', 'amber', 'utensils'),
+  fatura: kat('fatura', 'lacivert', 'receipt-text'),
+  akaryakit: kat('akaryakit', 'mavi', 'fuel'),
+  saglik: kat('saglik', 'yesil', 'pill'),
+  kiraev: kat('kiraev', 'lacivert', 'house'),
+  abonelik: kat('abonelik', 'lacivert', 'repeat'),
+  eglence: kat('eglence', 'kiremit', 'ticket'),
+  giyim: kat('giyim', 'kiremit', 'shirt'),
+  aliskanliklar: kat('aliskanliklar', 'duman', 'footprints'),
+  diger: kat('diger', 'duman', 'circle-dashed'),
+};
 
 /** §4 dokunuş bütçesi — ilk 6 çip (frekansa göre sıralı; Faz 1 iskeletinde sabit sıra). */
 export const ILK_ALTI: KategoriKodu[] = [

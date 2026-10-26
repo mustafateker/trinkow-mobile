@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { CategoryIconBox } from '@/components/CategoryIconBox';
 import { Icon } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
+import { gunlukA11yGrubaEkle, t } from '@/content/metinler';
 import type { Harcama } from '@/db/harcama';
 import { GUNLUK_HARCAMA_KATEGORILERI, kategori as kategoriGetir, type KategoriKodu } from '@/lib/kategoriler';
 import { paraYaz } from '@/lib/para';
@@ -32,12 +33,12 @@ export function CategoryQuickAddCard({
               <View style={{ width: rhythm.blockInCard }} />
               <View style={stil.metin}>
                 <Txt role="bodyStrong" numberOfLines={1}>{kategori.ad}</Txt>
-                <Txt role="caption">{toplam > 0 ? `Bugün ${paraYaz(toplam)}` : 'Bugün harcama yok'}</Txt>
+                <Txt role="caption">{toplam > 0 ? `${t['ui.common.today_prefix']} ${paraYaz(toplam)}` : t['ui.common.no_spend_today']}</Txt>
               </View>
               <Pressable
                 onPress={() => onEkle(kod)}
                 accessibilityRole="button"
-                accessibilityLabel={`${kategori.ad} kategorisine harcama ekle`}
+                accessibilityLabel={gunlukA11yGrubaEkle(kategori.ad)}
                 hitSlop={a11y.minTarget - size.iconButton}
                 style={({ pressed }) => [
                   stil.ekle,

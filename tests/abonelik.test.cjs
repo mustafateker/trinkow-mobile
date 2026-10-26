@@ -1,15 +1,13 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { yukle } = require('./yukle.cjs');
+const { yukle, i18n } = require('./yukle.cjs');
 
-const dil = { english: false, locale: 'tr-TR' };
+// Metinler dil çekirdeğinden (`i18n()`), tarih biçimi `localeKodu`ndan gelir.
+const dil = { locale: 'tr-TR' };
 const yerellestirme = {
-  ingilizceMi: () => dil.english,
   localeKodu: () => dil.locale,
 };
-const metinler = yukle('src/content/metinler.ts', {
-  '@/lib/yerellestirme': yerellestirme,
-});
+const metinler = yukle('src/content/metinler.ts');
 const { abonelikTarihBilgisi, abonelikDurumEtiketi, abonelikTarihEtiketi } = yukle('src/lib/abonelik.ts', {
   '@/content/metinler': metinler,
   '@/lib/yerellestirme': yerellestirme,
@@ -38,9 +36,13 @@ test('ayın 31i kısa ayda son güne sabitlenir', () => {
   assert.equal(sonuc.siradakiGun, '2027-02-28');
 });
 
-test('abonelik tarih etiketleri ve durumları seçili dili kullanır', () => {
-  dil.english = true;
+test('abonelik tarih etiketleri ve durumları seçili dili kullanır', (ctx) => {
+  i18n().diliAyarla('en');
   dil.locale = 'en-US';
+  ctx.after(() => {
+    i18n().diliAyarla('tr');
+    dil.locale = 'tr-TR';
+  });
   assert.equal(abonelikTarihEtiketi('2026-10-17'), 'October 17');
   assert.equal(abonelikDurumEtiketi({
     siradakiGun: '2026-10-17',
@@ -66,6 +68,4 @@ test('abonelik tarih etiketleri ve durumları seçili dili kullanır', () => {
     buAyOdendi: true,
     durum: 'odendi',
   }), 'Paid this month');
-  dil.english = false;
-  dil.locale = 'tr-TR';
 });

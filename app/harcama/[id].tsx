@@ -27,6 +27,7 @@ import { TUTAR_BUYUK_ESIK_KURUS, kurustanTutarGirisi, paraSimgesi, paraYaz, sayi
 import { eklenmeEtiketi, kisaTarih, saatYaz } from '@/lib/tarih';
 import { veriDegisti } from '@/lib/veriBus';
 import { clay, color, layout, radius, rhythm, size } from '@/theme/tokens';
+import { useDil } from '@/i18n/useDil';
 
 /**
  * E-12 · Harcama detayı + E-13 · Taksit serisi silme onayı.
@@ -42,6 +43,7 @@ import { clay, color, layout, radius, rhythm, size } from '@/theme/tokens';
  * taksitli kayıtta da düzenlenebilir kalır (mevcut davranış, değişmedi).
  */
 export default function HarcamaDetayEkrani() {
+  useDil();
   const { id } = useLocalSearchParams<{ id: string }>();
   // BE-6b: `id` artık Mongo ObjectId (string) — `Number(id)` SAYISALLAŞTIRIRDI
   // ve NaN üretirdi (sözleşme uyuşmazlığı, PM'e bildirildi). Route parametresi

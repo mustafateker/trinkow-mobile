@@ -31,11 +31,11 @@ import {
   ekleLimitDisiUyari,
   ekleTaksitOnizleme,
   ekleTutarOneriCip,
-  EKLE_ARAMA_YENI_ALT,
   t,
   toastKaydedildi,
   toastKaydedildiLimitDisi,
 } from '@/content/metinler';
+import { metin } from '@/i18n/cekirdek';
 import {
   ODEME_VARSAYILAN,
   gunToplami,
@@ -60,6 +60,7 @@ import { toastGoster } from '@/lib/toastBus';
 import { veriDegisti } from '@/lib/veriBus';
 import type { SesliHarcamaTaslagi } from '@/lib/sesliHarcama';
 import { color, layout, radius, rhythm } from '@/theme/tokens';
+import { useDil } from '@/i18n/useDil';
 
 /**
  * E-11 · Harcama ekle. Referans: prototip-v4/02-harcama-ekle.html (17 yüzey, T-4).
@@ -79,6 +80,7 @@ const TAKSIT_SECENEKLERI = [3, 6, 9, 12];
 type TutarAltMetinTuru = 'gecmisten' | 'katalogdan' | 'kategori' | null;
 
 export default function HarcamaEkleEkrani() {
+  useDil();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<{ gunFarki?: string; kategori?: string; ad?: string; tutarKurus?: string; rutinId?: string; sesli?: string }>();
   const [sesliTetik, setSesliTetik] = useState(params.sesli === '1' ? 1 : 0);
@@ -592,7 +594,7 @@ export default function HarcamaEkleEkrani() {
             ) : aramaSonucYok ? (
               <SearchResultRow
                 baslik={ekleAramaYeniBaslik(aramaMetni.trim())}
-                altBaslik={EKLE_ARAMA_YENI_ALT}
+                altBaslik={t['ekle.arama.yeni.alt']}
                 onPress={serbestEkle}
               />
             ) : (
@@ -688,7 +690,7 @@ export default function HarcamaEkleEkrani() {
               <View style={stil.detayIkon}><Icon name="limitler" size={20} color={color.primary} /></View>
               <View style={stil.esnek}>
                 <Txt role="bodyStrong">{t['ui.expense.other_details']}</Txt>
-                <Txt role="caption">{abonelikMi ? 'Aylık · ' : ''}{odeme === 'kart' ? 'Kart' : 'Nakit'}{taksitSayisi ? ` · ${taksitSayisi} taksit` : ''}{notMetni.trim() ? ' · Not eklendi' : ''}</Txt>
+                <Txt role="caption">{abonelikMi ? `${t['ui.common.monthly']} · ` : ''}{odeme === 'kart' ? t['ekle.odeme.kart'] : t['ekle.odeme.nakit']}{taksitSayisi ? ` · ${metin('ekle.taksit.secenek', { n: taksitSayisi })}` : ''}{notMetni.trim() ? ` · ${t['ui.expense.note_added']}` : ''}</Txt>
               </View>
               <View style={detaylarAcik ? stil.okAcik : undefined}>
                 <Icon name="chevron-down" size={20} color={color.text2} />
@@ -745,7 +747,7 @@ export default function HarcamaEkleEkrani() {
               {TAKSIT_SECENEKLERI.map((n) => (
                 <Chip
                   key={n}
-                  ad={`${n} taksit`}
+                  ad={metin('ekle.taksit.secenek', { n })}
                   selected={taksitSayisi === n}
                   dotColor={color.primary}
                   onPress={() => setTaksitSayisi(n)}

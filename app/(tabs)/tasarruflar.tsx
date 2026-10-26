@@ -21,6 +21,7 @@ import { tasarrufDonemBasligi, tasarrufDonemKisaEtiketi, tasarrufDonemSinirlari,
 import { toastGoster } from '@/lib/toastBus';
 import { veriDegisti } from '@/lib/veriBus';
 import { a11y, color, layout, radius, rhythm } from '@/theme/tokens';
+import { useDil } from '@/i18n/useDil';
 
 /**
  * rev2-tasarruf-profil.md §3.12 — E-27 Tasarruf. Kahraman gösterge + DÖRT
@@ -29,6 +30,7 @@ import { a11y, color, layout, radius, rhythm } from '@/theme/tokens';
  * *gerçek birikim* (B) · *rutin tasarrufu* (D) — üçü hiçbir yerde toplanmaz.
  */
 export default function TasarruflarEkrani() {
+  useDil();
   const [donem, setDonem] = useState<TasarrufDonemi>('ay');
   const [donemSheetAcik, setDonemSheetAcik] = useState(false);
   const referansGun = bugun();

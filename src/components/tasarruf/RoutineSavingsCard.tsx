@@ -48,7 +48,7 @@ export function RoutineSavingsCard({
       <View style={{ height: rhythm.blockInCard }} />
       {siraliRutinler.length === 0 ? (
         <Txt role="body" tone={color.text2}>
-          {hicRutinYok ? t['tasarruf.rutin.hicYok'] : 'Bu dönemde rutin tasarrufu oluşmadı.'}
+          {hicRutinYok ? t['tasarruf.rutin.hicYok'] : t['ui.savings.routine_empty']}
         </Txt>
       ) : (
         <>

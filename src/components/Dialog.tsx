@@ -95,7 +95,7 @@ function DangerButton({
     <ClayPressable
       onPress={loading ? undefined : onPress}
       disabled={loading}
-      accessibilityLabel={loading ? 'Siliniyor' : label}
+      accessibilityLabel={loading ? t['sil.siliniyor'] : label}
       accessibilityHint={t['ui.common.undo_unavailable']}
       borderRadius={radius.pill}
       background={color.danger}
@@ -105,7 +105,7 @@ function DangerButton({
       gloss={false}
       style={stil.silBtn}>
       <Txt role="bodyStrong" tone={color.onPrimary}>
-        {loading ? 'Siliniyor' : label}
+        {loading ? t['sil.siliniyor'] : label}
       </Txt>
     </ClayPressable>
   );

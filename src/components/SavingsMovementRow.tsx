@@ -7,7 +7,7 @@ import { Icon } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
 import { a11yTasarrufHareket, t } from '@/content/metinler';
 import type { Movement } from '@/lib/revApi';
-import { ayAdiTek, ayAnahtari, tarihtenGun } from '@/lib/tarih';
+import { ayKisaAdi, kisaTarih, tarihtenGun } from '@/lib/tarih';
 import { paraYaz } from '@/lib/para';
 import { color, radius, rhythm, size } from '@/theme/tokens';
 
@@ -35,7 +35,7 @@ export function SavingsMovementRow({
   const tarih = tarihtenGun(movement.gun);
   const tutar = paraYaz(Math.abs(movement.tutar_kurus));
   const birincil = cekildiMi ? t['tasarruf.hareket.cekildi'] : t['tasarruf.hareket.eklendi'];
-  const etiket = a11yTasarrufHareket(birincil, tarih.getDate(), ayAdiTek(ayAnahtari(tarih)), tutar, movement.not_metni || undefined);
+  const etiket = a11yTasarrufHareket(birincil, kisaTarih(tarih), tutar, movement.not_metni || undefined);
 
   const satir = (
     <ClayPressable
@@ -43,7 +43,7 @@ export function SavingsMovementRow({
       accessibilityLabel={etiket}
       borderRadius={radius.tile}
       style={stil.satir}>
-      <DayBox gun={tarih.getDate()} ayKisa={ayAdiTek(ayAnahtari(tarih)).slice(0, 3)} />
+      <DayBox gun={tarih.getDate()} ayKisa={ayKisaAdi(tarih)} />
       <View style={{ width: rhythm.blockInCard }} />
       <View style={stil.orta}>
         <Txt role="body" numberOfLines={1} ellipsizeMode="tail">

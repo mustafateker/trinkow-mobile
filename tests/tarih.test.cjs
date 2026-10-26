@@ -1,11 +1,8 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
-const { yukle } = require('./yukle.cjs');
+const { yukle, i18n } = require('./yukle.cjs');
 
-const locale = { value: 'tr-TR' };
-const { aySonGunu, ayYilEtiketi } = yukle('src/lib/tarih.ts', {
-  '@/lib/yerellestirme': { localeKodu: () => locale.value },
-});
+const { aySonGunu, ayYilEtiketi } = yukle('src/lib/tarih.ts');
 
 test('ay sonu API sorguları için her ay geçerli gün üretir', () => {
   assert.equal(aySonGunu('2026-09'), '2026-09-30');
@@ -14,9 +11,12 @@ test('ay sonu API sorguları için her ay geçerli gün üretir', () => {
   assert.equal(aySonGunu('2026-12'), '2026-12-31');
 });
 
-test('ay ve yıl etiketi aktif locale göre biçimlenir', () => {
+test('ay ve yıl etiketi aktif dile göre biçimlenir', () => {
   assert.equal(ayYilEtiketi('2026-10'), 'Ekim 2026');
-  locale.value = 'en-US';
-  assert.equal(ayYilEtiketi('2026-10'), 'October 2026');
-  locale.value = 'tr-TR';
+  i18n().diliAyarla('en');
+  try {
+    assert.equal(ayYilEtiketi('2026-10'), 'October 2026');
+  } finally {
+    i18n().diliAyarla('tr');
+  }
 });

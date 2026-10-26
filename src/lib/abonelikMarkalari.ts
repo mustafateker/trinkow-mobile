@@ -1,3 +1,5 @@
+import { t } from '@/content/metinler';
+
 export type SubscriptionBrandGroup =
   | 'video'
   | 'muzik'
@@ -77,7 +79,8 @@ export const ABONELIK_MARKALARI = [
   { id: 'skillshare', ad: 'Skillshare', grup: 'egitim', renk: '#00B86B', monogram: 'S' },
   { id: 'masterclass', ad: 'MasterClass', grup: 'egitim', renk: '#D81F26', monogram: 'M' },
 
-  { id: 'diger', ad: 'Diğer', grup: 'diger', monogram: '+' },
+  // Ad render anında aktif dilden okunur (getter); seçilince ad alanı boş kalır, kullanıcı yazar.
+  { id: 'diger', get ad() { return t['ui.subscription.other']; }, grup: 'diger', monogram: '+' },
 ] as const satisfies readonly SubscriptionBrand[];
 
 export type SubscriptionBrandId = (typeof ABONELIK_MARKALARI)[number]['id'];
@@ -104,15 +107,16 @@ export const POPULER_ABONELIK_IDS: readonly SubscriptionBrandId[] = [
   'xbox-game-pass',
 ];
 
+/** Grup başlıkları getter: modül yüklenirken değil, her çizimde aktif dilden okunur. */
 export const ABONELIK_MARKA_GRUPLARI: ReadonlyArray<{ id: SubscriptionBrandGroup; baslik: string }> = [
-  { id: 'video', baslik: 'Dizi ve video' },
-  { id: 'muzik', baslik: 'Müzik ve ses' },
-  { id: 'yapay-zeka', baslik: 'Yapay zekâ' },
-  { id: 'is', baslik: 'Bulut ve üretkenlik' },
-  { id: 'oyun', baslik: 'Oyun' },
-  { id: 'saglik', baslik: 'Sağlık ve spor' },
-  { id: 'egitim', baslik: 'Eğitim' },
-  { id: 'diger', baslik: 'Diğer' },
+  { id: 'video', get baslik() { return t['ui.subscriptions.group.video']; } },
+  { id: 'muzik', get baslik() { return t['ui.subscriptions.group.music']; } },
+  { id: 'yapay-zeka', get baslik() { return t['ui.subscriptions.group.ai']; } },
+  { id: 'is', get baslik() { return t['ui.subscriptions.group.cloud']; } },
+  { id: 'oyun', get baslik() { return t['ui.subscriptions.group.gaming']; } },
+  { id: 'saglik', get baslik() { return t['ui.subscriptions.group.health']; } },
+  { id: 'egitim', get baslik() { return t['ui.subscriptions.group.education']; } },
+  { id: 'diger', get baslik() { return t['ui.subscription.other']; } },
 ];
 
 function aramaAnahtari(deger: string) {

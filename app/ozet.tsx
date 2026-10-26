@@ -9,12 +9,15 @@ import { LoadState, RevScreen, money, useRevLoad } from '@/components/RevScreen'
 import { GrupBasligi, SettingRow } from '@/components/SettingRow';
 import { Txt } from '@/components/Txt';
 import { a11yProfilSatir, ozetRutinTasarrufu, t } from '@/content/metinler';
+import { metin } from '@/i18n/cekirdek';
 import { kategori as kategoriGetir } from '@/lib/kategoriler';
 import { bugun, savingsGet } from '@/lib/revApi';
 import { ayYilEtiketi } from '@/lib/tarih';
 import { rhythm } from '@/theme/tokens';
+import { useDil } from '@/i18n/useDil';
 
 export default function Ozet() {
+  useDil();
   const load = useRevLoad(useCallback(() => savingsGet(bugun().slice(0, 7)), []));
   const d = load.data;
 
@@ -68,7 +71,13 @@ export default function Ozet() {
             )}
           </View>
 
-          <InfoStrip variant="info" metin={d.motivasyon.mesaj} />
+          {/* Sunucunun Türkçe `mesaj`ı değil, verisi (`tur`, `borc_yuzde`) kullanılır — cümle aktif dilde kurulur. */}
+          <InfoStrip
+            variant="info"
+            metin={d.motivasyon.tur === 'borc'
+              ? metin('ozet_ekran.motivasyon.borc', { yuzde: d.motivasyon.borc_yuzde ?? 0 })
+              : t['ozet_ekran.motivasyon.birikim']}
+          />
 
           <View>
             <Button variant="primary" label={t['ui.summary.savings']} onPress={() => router.push('/tasarruflar')} />

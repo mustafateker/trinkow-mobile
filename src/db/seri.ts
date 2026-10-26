@@ -119,10 +119,14 @@ export async function milestoneGosterildiIsaretle(milestone: number): Promise<vo
 }
 
 function yanitiSeriDurumunaCevir(y: OzetSeriYaniti, kutlanacakMilestone: number | null): SeriDurumu {
+  const enUzunBitis = y.en_uzun_seri_bitis_gunu;
   return {
     mevcutSeri: y.mevcut_seri,
     enUzunSeri: y.en_uzun_seri,
-    enUzunSeriEtiketi: y.en_uzun_seri_bitis_gunu ? ayBasligi(ayAnahtari(tarihtenGun(y.en_uzun_seri_bitis_gunu))) : null,
+    // Getter: "Eylül 2026" state'e yazılmaz, her okunuşta AKTİF dilde biçimlenir.
+    get enUzunSeriEtiketi() {
+      return enUzunBitis ? ayBasligi(ayAnahtari(tarihtenGun(enUzunBitis))) : null;
+    },
     kapali: y.kapali,
     kirildiMi: y.kirildi_mi,
     sonrakiDurak: y.sonraki_durak,

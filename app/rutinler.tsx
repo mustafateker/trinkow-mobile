@@ -18,6 +18,8 @@ import { routinePut, routinesGet, yeniId, type Routine } from '@/lib/revApi';
 import { color, rhythm, size } from '@/theme/tokens';
 import { veriDegisti } from '@/lib/veriBus';
 import { rutinGunlukOzeti, rutinKaldirA11y, rutinSatiriA11y, t } from '@/content/metinler';
+import { butunDillerde } from '@/i18n/cekirdek';
+import { useDil } from '@/i18n/useDil';
 
 const HAZIR_RUTINLER = [
   ['Kahve', 'kafe', 'ui.routines.preset.coffee'],
@@ -85,7 +87,11 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
           <View style={{ height: rhythm.section }} />
           <GrupBasligi metin={t['ui.routines.daily_routines']} />
           {HAZIR_RUTINLER.map(([name, kategoriKodu, labelKey], i) => {
-            const secili = active.some((rutin) => rutin.ad === name);
+            // Öneri aktif dildeki adla kaydedilir; "zaten eklendi" eşleşmesi önerinin
+            // BÜTÜN dillerdeki adlarıyla yapılır (Türkçe'yken eklenen "Kahve",
+            // uygulama İngilizce'yken "Coffee" önerisini işaretli gösterir).
+            const adlar = [name, ...butunDillerde(labelKey)];
+            const secili = active.some((rutin) => adlar.includes(rutin.ad));
             const kat = kategoriGetir(kategoriKodu);
             const label = t[labelKey];
             return (
@@ -97,11 +103,11 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
                   accessibilityLabel={`${label}${secili ? `, ${t['ui.routines.selected']}` : ''}`}
                   deger={secili ? <Icon name="check" size={size.iconSm} color={color.primaryText} /> : false}
                   onPress={() => {
-                    const existing = active.find((rutin) => rutin.ad === name);
+                    const existing = active.find((rutin) => adlar.includes(rutin.ad));
                     if (existing) edit(existing);
                     else {
                       clear();
-                      setAd(name);
+                      setAd(label);
                       setCat(kategoriKodu);
                     }
                   }}
@@ -189,6 +195,7 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
 }
 
 export default function Rutinler() {
+  useDil();
   return (
     <RevScreen title={t['ui.settings.routines_title']}>
       <RoutinePanel />

@@ -16,8 +16,10 @@ import { oturumYaz } from '@/lib/oturumDeposu';
 import { SosyalGirisHatasi, appleIleDevamEt, googleIleDevamEt, sosyalSaglayicilar } from '@/lib/sosyalGiris';
 import { rhythm } from '@/theme/tokens';
 import { t } from '@/content/metinler';
+import { useDil } from '@/i18n/useDil';
 
 export default function GirisEkrani() {
+  useDil();
   const [eposta, setEposta] = useState('');
   const [sifre, setSifre] = useState('');
   const [hatirla, setHatirla] = useState(true);
@@ -27,14 +29,14 @@ export default function GirisEkrani() {
   const [sosyalMesgul, setSosyalMesgul] = useState(false);
   async function gonder() {
     if (mesgul) return;
-    if (!demo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eposta.trim())) { setHata('Geçerli bir e-posta adresi gir.'); return; }
+    if (!demo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(eposta.trim())) { setHata(t['ui.login.invalid_email']); return; }
     setHata(null); setMesgul(true);
     try {
       const cift = await girisYap(eposta.trim(), sifre, demo);
       const ben = await benKimim(cift.erisimTokeni);
       await oturumYaz({ ...cift, kullaniciId: ben.id, email: ben.email, kimlikSaglayici: ben.kimlikSaglayici }, hatirla);
     } catch (e) {
-      setHata(e instanceof ApiHatasi && e.durum === 401 ? 'E-posta ya da şifre yanlış.' : 'Oturum açılamadı. Bağlantını kontrol edip yeniden dene.');
+      setHata(e instanceof ApiHatasi && e.durum === 401 ? t['ui.login.invalid_credentials'] : t['ui.login.failed']);
     } finally { setMesgul(false); }
   }
   async function googleGonder() {
@@ -49,30 +51,30 @@ export default function GirisEkrani() {
       await oturumYaz({ ...cift, kullaniciId: ben.id, email: ben.email, kimlikSaglayici: ben.kimlikSaglayici }, hatirla);
     } catch (e) {
       if (e instanceof SosyalGirisHatasi && e.kod === 'yapilandirma') {
-        setHata('Google ile giriş bu uygulama sürümünde yapılandırılmamış.');
+        setHata(t['ui.login.google_not_configured']);
       } else if (e instanceof SosyalGirisHatasi && e.kod === 'native-modul') {
-        setHata('Google ile giriş için uygulamayı yeniden yükleyip native geliştirme sürümünü aç.');
+        setHata(t['ui.login.google_native_required']);
       } else if (e instanceof SosyalGirisHatasi && e.kod === 'play-services') {
-        setHata('Google Play Hizmetleri kullanılamıyor veya güncel değil.');
+        setHata(t['ui.login.google_play_services']);
       } else if (e instanceof SosyalGirisHatasi && e.kod === 'oauth-yapilandirma') {
-        setHata('Google ile giriş yapılandırması bu uygulama imzasıyla eşleşmiyor.');
+        setHata(t['ui.login.google_signature_mismatch']);
       } else if (e instanceof ApiHatasi && e.hataKodu === 'GOOGLE_GIRISI_YAPILANDIRILMADI') {
-        setHata('Google ile giriş şu anda kullanılamıyor.');
+        setHata(t['ui.login.google_unavailable']);
       } else if (e instanceof ApiHatasi && e.hataKodu === 'GECERSIZ_GOOGLE_KIMLIGI') {
-        setHata('Google oturumu doğrulanamadı. Yeniden deneyebilirsin.');
+        setHata(t['ui.login.google_invalid']);
       } else if (e instanceof ApiHatasi && e.hataKodu === 'GOOGLE_DOGRULAMA_KULLANILAMIYOR') {
-        setHata('Google oturumu şu anda doğrulanamıyor. Biraz sonra yeniden dene.');
+        setHata(t['ui.login.google_verification_unavailable']);
       } else if (e instanceof ApiAgHatasi) {
-        setHata('Google ile oturum açılamadı. Bağlantını kontrol edip yeniden dene.');
+        setHata(t['ui.login.google_network_failed']);
       } else {
-        setHata('Google ile oturum açılamadı. Yeniden dene.');
+        setHata(t['ui.login.google_failed']);
       }
     } finally { setSosyalMesgul(false); }
   }
   return <AuthShell title={t['ui.login.title']} subtitle={t['ui.login.tagline']} onBack={router.canGoBack() ? () => router.back() : undefined}>
         {hata ? <InfoStrip variant="warning" icon="info" metin={hata} /> : null}
         {hata ? <View style={{ height: rhythm.blockInCard }} /> : null}
-        <TextField label={demo ? 'Test adı' : 'E-posta'} value={eposta} onChangeText={setEposta} keyboardType="email-address" autoCapitalize="none" autoComplete="email" textContentType="emailAddress" />
+        <TextField label={demo ? t['ui.login.test_name'] : t['alan.eposta']} value={eposta} onChangeText={setEposta} keyboardType="email-address" autoCapitalize="none" autoComplete="email" textContentType="emailAddress" />
         <View style={{ height: rhythm.blockInCard }} />
         <PasswordField label={t['alan.sifre']} value={sifre} onChangeText={setSifre} autoComplete="current-password" textContentType="password" />
         <View style={{ height: rhythm.group }} />

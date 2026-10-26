@@ -82,7 +82,7 @@ export function InAppUpdateHost() {
             {bilgi?.storeVersion ? (
               <>
                 <View style={{ height: rhythm.group }} />
-                <Txt role="caption" tone={color.text2}>{t['ui.common.play_version']}{bilgi.storeVersion}</Txt>
+                <Txt role="caption" tone={color.text2}>{t['ui.common.play_version']} {bilgi.storeVersion}</Txt>
               </>
             ) : null}
             {hata ? (

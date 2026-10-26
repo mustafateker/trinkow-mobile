@@ -4,6 +4,7 @@ import { CategoryIconBox } from '@/components/CategoryIconBox';
 import { Icon } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
 import { gunlukA11yGrubaEkle, gunlukGrupBugun, gunlukGrupKalan, gunlukGrupLimitDisi, t } from '@/content/metinler';
+import { metin } from '@/i18n/cekirdek';
 import { aileRenkleri, kategori } from '@/lib/kategoriler';
 import { paraYaz } from '@/lib/para';
 import { a11y, clay, color, radius, rhythm, size } from '@/theme/tokens';
@@ -62,7 +63,7 @@ export function CategoryLimitRow({
           style={stil.oluk}
           accessible
           accessibilityRole="progressbar"
-          accessibilityLabel={`${kat.ad} kategori limiti`}
+          accessibilityLabel={metin('bilesen.categorylimitrow.a11y', { kategoriAdi: kat.ad })}
           accessibilityValue={{ min: 0, max: limitKurus, now: harcananKurus }}>
           <View style={[stil.dolgu, { flexGrow: anaOran, backgroundColor: renk.solid }]} />
           {tasmaOran > 0 ? (

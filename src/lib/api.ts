@@ -16,6 +16,7 @@
  */
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
+import { aktifDil } from '@/i18n/cekirdek';
 import { apiAdresiniCoz } from '@/lib/apiAdres';
 import { oturumErisimTokeniGuncelle, oturumOku, oturumGecersizKil } from '@/lib/oturumDeposu';
 import { apiStaleTime, mutasyonSonrasiOnbellekGecersizKil, queryClient } from '@/lib/queryClient';
@@ -78,6 +79,9 @@ async function hamIstek<T>(yol: string, secenekler: IstekSecenekleri = {}, tekra
       method: yontem,
       headers: {
         'Content-Type': 'application/json',
+        // Uygulamanın seçili dili (ActivationKing `DeviceLanguage` header'ının karşılığı) —
+        // sunucu kendi ürettiği metni (e-posta vb.) bu dilde hazırlayabilir.
+        'Accept-Language': aktifDil(),
         ...(secenekler.erisimTokeni || oturum ? { Authorization: `Bearer ${secenekler.erisimTokeni ?? oturum?.erisimTokeni}` } : {}),
       },
       body: govde !== undefined ? JSON.stringify(govde) : undefined,
@@ -667,6 +671,7 @@ export async function katalogGetir(bilinenSurum: string | null, tekrarDenendi = 
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
+        'Accept-Language': aktifDil(),
         ...(oturum ? { Authorization: `Bearer ${oturum.erisimTokeni}` } : {}),
         ...(bilinenSurum ? { 'If-None-Match': `"${bilinenSurum}"` } : {}),
       },

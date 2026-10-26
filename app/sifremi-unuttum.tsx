@@ -9,7 +9,9 @@ import { InfoStrip } from '@/components/InfoStrip';
 import { ApiHatasi, sifirlamaIste } from '@/lib/api';
 import { rhythm } from '@/theme/tokens';
 import { t } from '@/content/metinler';
+import { useDil } from '@/i18n/useDil';
 export default function SifremiUnuttum() {
+  useDil();
   const params = useLocalSearchParams<{ email?: string }>();
   const [email, setEmail] = useState(params.email ?? '');
   const [mesgul, setMesgul] = useState(false);
@@ -17,10 +19,10 @@ export default function SifremiUnuttum() {
   const [hata, setHata] = useState<string | null>(null);
   async function gonder() {
     if (mesgul) return;
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setHata('Geçerli bir e-posta adresi gir.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) { setHata(t['sifremi_unuttum.hata.eposta']); return; }
     setMesgul(true); setHata(null);
     try { await sifirlamaIste(email.trim()); setBitti(true); }
-    catch (e) { setHata(e instanceof ApiHatasi && e.durum === 503 ? 'Şifre kurtarma şu anda kullanılamıyor. Daha sonra yeniden dene.' : 'İstek gönderilemedi. Bağlantını kontrol edip yeniden dene.'); }
+    catch (e) { setHata(e instanceof ApiHatasi && e.durum === 503 ? t['sifremi_unuttum.hata.kullanilamiyor'] : t['sifremi_unuttum.hata.gonderilemedi']); }
     finally { setMesgul(false); }
   }
   return <AuthShell title={t['ui.password.forgot_title']} subtitle={t['ui.password.forgot_subtitle']} onBack={() => router.back()}>
