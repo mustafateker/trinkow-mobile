@@ -265,6 +265,10 @@ export const icons = {
     ),
     { t: 'c', cx: 12, cy: 12, r: 3 } as Sekil,
   ],
+  /** Premium — kilitli Analizler/Tasarruf ekranı (Lucide "lock"). */
+  lock: [{ t: 'r', x: 3, y: 11, w: 18, h: 11, rx: 2 } as Sekil, p('M7 11V7a5 5 0 0 1 10 0v4')],
+  /** Premium — paywall başlığı ve Ayarlar satırı (Lucide "crown"). */
+  crown: [p('m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7z'), p('M5 20h14')],
 } as const;
 
 export type IconName = keyof typeof icons;

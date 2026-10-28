@@ -34,6 +34,7 @@ import { color } from '@/theme/tokens';
 import { sunucuYerellestirmesiniUygula, yerellestirmeyiBaslat } from '@/lib/yerellestirmeDeposu';
 import { useYerellestirme } from '@/lib/useYerellestirme';
 import { oturumOnbelleginiTemizle, queryClient } from '@/lib/queryClient';
+import { standartPaywallGosterilsinMi, uyelikBaslatBekle, uyelikKapat } from '@/lib/uyelik';
 import { initializeVoiceExpenseWidget } from '@/widgets/VoiceExpenseWidget';
 
 // Android gesture navigation is transparent in edge-to-edge mode. The native
@@ -43,14 +44,21 @@ if (Platform.OS === 'android') {
   void SystemUI.setBackgroundColorAsync(color.navDark);
 }
 
-function IlkYonlendirme({ onboarding }: { onboarding: boolean }) {
+/**
+ * Kurulumu bitmemiş kullanıcı önce standart fiyatlı paywall'ı (kullanıcı
+ * başına bir kez), sonra onboarding'i görür; bitmişse doğrudan sekmeler.
+ */
+type IlkEkran = '(tabs)' | 'onboarding' | 'premium';
+
+function IlkYonlendirme({ ilkEkran }: { ilkEkran: IlkEkran }) {
   const gezinme = useRootNavigationState();
   const [tamam, setTamam] = useState(false);
   useEffect(() => {
     if (!gezinme?.key || tamam) return;
     setTamam(true);
-    if (onboarding) router.replace('/onboarding');
-  }, [gezinme?.key, onboarding, tamam]);
+    if (ilkEkran === 'onboarding') router.replace('/onboarding');
+    else if (ilkEkran === 'premium') router.replace({ pathname: '/premium', params: { tur: 'standart', kaynak: 'kayit' } });
+  }, [gezinme?.key, ilkEkran, tamam]);
   return null;
 }
 
@@ -58,7 +66,7 @@ function IlkYonlendirme({ onboarding }: { onboarding: boolean }) {
 function OturumGezgini() {
   const [tetik, setTetik] = useState(0);
   const [durum, setDurum] = useState<'yukleniyor' | 'kapali' | 'acik'>('yukleniyor');
-  const [ilkEkran, setIlkEkran] = useState('(tabs)');
+  const [ilkEkran, setIlkEkran] = useState<IlkEkran>('(tabs)');
 
   useEffect(() => oturumDegisimineAbone(() => {
     oturumOnbelleginiTemizle();
@@ -78,12 +86,16 @@ function OturumGezgini() {
         const kayit = await oturumOku();
         if (iptal) return;
         if (!kayit) {
+          void uyelikKapat();
           gunSiniriSaatiniAyarla(0);
           await acilisSuresiniTamamla();
           if (iptal) return;
           setDurum('kapali');
           return;
         }
+        // Premium durumu arka planda yüklenir; yalnız kurulumu bitmemiş
+        // kullanıcıda (paywall kararı için) en fazla 3 sn beklenir.
+        const uyelik = uyelikBaslatBekle(kayit.kullaniciId, 3000);
         const [saat, tamam, yerellestirme] = await Promise.all([
           gunSiniriOku(),
           onboardingTamamlandiMi(),
@@ -93,10 +105,11 @@ function OturumGezgini() {
         gunSiniriSaatiniAyarla(saat);
         await sunucuYerellestirmesiniUygula(yerellestirme.dil, yerellestirme.paraBirimi);
         await kurulumGunuBaslat();
+        if (!tamam) await uyelik;
         if (iptal) return;
         await acilisSuresiniTamamla();
         if (iptal) return;
-        setIlkEkran(tamam ? '(tabs)' : 'onboarding');
+        setIlkEkran(tamam ? '(tabs)' : standartPaywallGosterilsinMi(kayit.kullaniciId) ? 'premium' : 'onboarding');
         setDurum('acik');
         void katalogTazele().catch(() => {});
       } catch (hata) {
@@ -136,6 +149,7 @@ function OturumGezgini() {
       <Stack.Protected guard={durum === 'acik'}>
         <Stack.Screen name="(tabs)" options={{ gestureEnabled: false }} />
         <Stack.Screen name="onboarding" options={{ gestureEnabled: false }} />
+        <Stack.Screen name="premium" options={{ gestureEnabled: false }} />
         <Stack.Screen name="harcama-ekle" options={{ presentation: 'modal' }} />
         <Stack.Screen name="harcama/[id]" options={{ presentation: 'modal' }} />
         <Stack.Screen name="ayarlar" />
@@ -153,7 +167,7 @@ function OturumGezgini() {
         <Stack.Screen name="gun-sec" />
       </Stack.Protected>
     </Stack>
-    {durum === 'acik' ? <IlkYonlendirme onboarding={ilkEkran === 'onboarding'} /> : null}
+    {durum === 'acik' ? <IlkYonlendirme ilkEkran={ilkEkran} /> : null}
     {durum === 'acik' ? <ProfilingHost /> : null}
   </>;
 }

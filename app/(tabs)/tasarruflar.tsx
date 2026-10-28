@@ -4,6 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { ErrorState } from '@/components/ErrorState';
 import { Icon } from '@/components/Icon';
+import { PremiumKilidi } from '@/components/PremiumKilidi';
 import { RevScreen, useRevLoad } from '@/components/RevScreen';
 import { SavingsSheet, type BirikimGirdisi } from '@/components/SavingsSheet';
 import { CategoryDistributionCard } from '@/components/tasarruf/CategoryDistributionCard';
@@ -19,6 +20,7 @@ import { bugun, movementDelete, movementPut, routinesGet, savingsPeriodGet, move
 import { paraYaz } from '@/lib/para';
 import { tasarrufDonemBasligi, tasarrufDonemKisaEtiketi, tasarrufDonemSinirlari, type TasarrufDonemi } from '@/lib/tasarrufDonem';
 import { toastGoster } from '@/lib/toastBus';
+import { useUyelik } from '@/lib/uyelik';
 import { veriDegisti } from '@/lib/veriBus';
 import { a11y, color, layout, radius, rhythm } from '@/theme/tokens';
 import { useDil } from '@/i18n/useDil';
@@ -30,6 +32,30 @@ import { useDil } from '@/i18n/useDil';
  * *gerçek birikim* (B) · *rutin tasarrufu* (D) — üçü hiçbir yerde toplanmaz.
  */
 export default function TasarruflarEkrani() {
+  useDil();
+  const uyelik = useUyelik();
+  if (!uyelik.kilitli) return <TasarruflarIcerik />;
+  // Tasarruf Premium'a özeldir; ücretsiz kullanıcı tanıtım ve kilit görür.
+  const header = (
+    <View style={stil.ekranBasi}>
+      <View style={stil.esnek}>
+        <Txt role="caption" tone={color.navMuted}>
+          {t['premium.ayar.baslik']}
+        </Txt>
+        <Txt role="h2" tone="#FFFFFF" numberOfLines={1}>
+          {t['tasarruf.baslik']}
+        </Txt>
+      </View>
+    </View>
+  );
+  return (
+    <RevScreen title={t['tasarruf.baslik']} tab="tasarruflar" header={header} contentGap={0}>
+      <PremiumKilidi ozellik="tasarruf" hazir={uyelik.hazir} />
+    </RevScreen>
+  );
+}
+
+function TasarruflarIcerik() {
   useDil();
   const [donem, setDonem] = useState<TasarrufDonemi>('ay');
   const [donemSheetAcik, setDonemSheetAcik] = useState(false);

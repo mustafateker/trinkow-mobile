@@ -1,7 +1,7 @@
 import { islemHatasiniGoster } from '@/lib/islemHatasi';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Platform, ScrollView, Share, StyleSheet, View } from 'react-native';
+import { Linking, Platform, ScrollView, Share, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AccountSection } from '@/components/AccountSection';
@@ -55,6 +55,8 @@ import {
 import { hesabiSil, oturumuKapat } from '@/lib/hesapEylemleri';
 import { type Oturum, oturumOku } from '@/lib/oturumDeposu';
 import { toastGoster } from '@/lib/toastBus';
+import { MAGAZA_ADI, abonelikYonetimAdresi, geriYukle, useUyelik, uyelikEtkin } from '@/lib/uyelik';
+import { metin } from '@/i18n/cekirdek';
 import { paraYaz, tutarGirisindenKurus, kurustanTutarGirisi } from '@/lib/para';
 import { ayAnahtari, ayBasligi, gunIyelikEki, tarihtenGun } from '@/lib/tarih';
 import { veriDegisti } from '@/lib/veriBus';
@@ -113,6 +115,25 @@ export default function AyarlarEkrani() {
   const [oturum, setOturum] = useState<Oturum | null>(null);
   const [widgetYardimiAcik, setWidgetYardimiAcik] = useState(false);
   const [hizliErisimIslemi, setHizliErisimIslemi] = useState<'widget' | 'tile' | null>(null);
+  const uyelik = useUyelik();
+  const [geriYukleniyor, setGeriYukleniyor] = useState(false);
+
+  async function satinAlimlariGeriYukle() {
+    if (geriYukleniyor) return;
+    setGeriYukleniyor(true);
+    try {
+      const acildi = await geriYukle();
+      toastGoster({ tur: 'info', metin: acildi ? t['premium.toast.geri_yuklendi'] : t['premium.toast.geri_yukleme_yok'] });
+    } catch {
+      toastGoster({ tur: 'warning', metin: t['premium.toast.geri_yukleme_hata'] });
+    } finally {
+      setGeriYukleniyor(false);
+    }
+  }
+
+  async function aboneligiYonet() {
+    await Linking.openURL(await abonelikYonetimAdresi()).catch(() => {});
+  }
 
   const oku = useCallback(async () => {
     setYukleniyor(true);
@@ -370,6 +391,39 @@ export default function AyarlarEkrani() {
             <InfoStrip variant="warning" icon="refresh-cw" metin={t['ui.settings.load_error']} />
             <View style={{ height: rhythm.group }} />
             <Button label={t['ui.settings.retry']} variant="ghost" icon="refresh-cw" auto onPress={() => void oku()} />
+            <View style={{ height: rhythm.section }} />
+          </>
+        ) : null}
+        {uyelikEtkin ? (
+          <>
+            <Txt role="h2">{t['premium.ayar.baslik']}</Txt>
+            <View style={{ height: rhythm.blockInCard }} />
+            <SettingGroup>
+              {uyelik.premium ? (
+                <SettingRow
+                  icon="crown"
+                  iconTone="orange"
+                  baslik={t['premium.ayar.aktif']}
+                  aciklama={metin('premium.ayar.yonet', { magaza: MAGAZA_ADI })}
+                  onPress={() => void aboneligiYonet()}
+                />
+              ) : (
+                <SettingRow
+                  icon="crown"
+                  iconTone="orange"
+                  baslik={t['premium.ayar.gec']}
+                  aciklama={t['premium.ayar.gec.alt']}
+                  onPress={() => router.push({ pathname: '/premium', params: { tur: 'indirim', kaynak: 'ayarlar' } })}
+                />
+              )}
+              <SettingRow
+                icon="refresh-cw"
+                iconTone="neutral"
+                baslik={t['premium.eylem.geri_yukle']}
+                disabled={geriYukleniyor}
+                onPress={() => void satinAlimlariGeriYukle()}
+              />
+            </SettingGroup>
             <View style={{ height: rhythm.section }} />
           </>
         ) : null}
