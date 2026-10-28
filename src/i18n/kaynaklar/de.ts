@@ -1718,6 +1718,7 @@ const de: DilPaketi = {
     'premium.ayar.yonet': 'Abo über {magaza} verwalten',
     'premium.ayar.gec': 'Premium holen',
     'premium.ayar.gec.alt': 'Analysen, Sparübersicht, werbefrei',
+    'premium.hesap_sil.uyari': 'Wenn du dein Konto löschst, wird dein Premium-Abo nicht gekündigt. Damit keine weiteren Kosten anfallen, kündige es zuerst über {magaza}.',
   },
   takvim: {
     aylar: ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'],

@@ -1687,6 +1687,7 @@ const cs: DilPaketi = {
     'premium.ayar.yonet': 'Spravuj předplatné v {magaza}',
     'premium.ayar.gec': 'Přejít na Premium',
     'premium.ayar.gec.alt': 'Analýzy, přehled úspor, bez reklam',
+    'premium.hesap_sil.uyari': 'Smazání účtu nezruší předplatné Premium. Aby se platby zastavily, nejdřív ho zruš v {magaza}.',
   },
   takvim: {
     aylar: ['Leden', 'Únor', 'Březen', 'Duben', 'Květen', 'Červen', 'Červenec', 'Srpen', 'Září', 'Říjen', 'Listopad', 'Prosinec'],

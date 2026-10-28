@@ -1706,6 +1706,7 @@ const es: DilPaketi = {
     'premium.ayar.yonet': 'Gestiona tu suscripción en {magaza}',
     'premium.ayar.gec': 'Hazte Premium',
     'premium.ayar.gec.alt': 'Análisis, seguimiento del ahorro, sin anuncios',
+    'premium.hesap_sil.uyari': 'Eliminar tu cuenta no cancela tu suscripción Premium. Para que no se te siga cobrando, cancélala primero en {magaza}.',
   },
   takvim: {
     aylar: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],

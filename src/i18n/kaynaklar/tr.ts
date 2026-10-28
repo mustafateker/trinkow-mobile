@@ -2153,6 +2153,7 @@ export const metinler = {
   'premium.ayar.yonet': 'Aboneliğini {magaza} üzerinden yönet',
   'premium.ayar.gec': "Premium'a geç",
   'premium.ayar.gec.alt': 'Analizler, tasarruf takibi, reklamsız kullanım',
+  'premium.hesap_sil.uyari': 'Hesabını silmek Premium aboneliğini iptal etmez. Ücret alınmaya devam etmesin diye önce {magaza} üzerinden iptal et.',
 };
 
 /**

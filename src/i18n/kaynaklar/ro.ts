@@ -1716,6 +1716,7 @@ const ro: DilPaketi = {
     'premium.ayar.yonet': 'Gestionează abonamentul din {magaza}',
     'premium.ayar.gec': 'Treci la Premium',
     'premium.ayar.gec.alt': 'Analize, economii, fără reclame',
+    'premium.hesap_sil.uyari': 'Ștergerea contului nu îți anulează abonamentul Premium. Ca să nu mai plătești, anulează-l mai întâi din {magaza}.',
   },
   takvim: {
     aylar: ['Ianuarie', 'Februarie', 'Martie', 'Aprilie', 'Mai', 'Iunie', 'Iulie', 'August', 'Septembrie', 'Octombrie', 'Noiembrie', 'Decembrie'],
