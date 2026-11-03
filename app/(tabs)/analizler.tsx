@@ -4,6 +4,7 @@ import Svg, { Circle, Defs, G, Line, LinearGradient, Path, Stop } from 'react-na
 
 import { CategoryIconBox } from '@/components/CategoryIconBox';
 import { ErrorState } from '@/components/ErrorState';
+import { PremiumKilidi } from '@/components/PremiumKilidi';
 import { RevScreen, useRevLoad } from '@/components/RevScreen';
 import { Skeleton } from '@/components/Skeleton';
 import { Txt } from '@/components/Txt';
@@ -19,6 +20,7 @@ import { aileRenkleri, kategori } from '@/lib/kategoriler';
 import { paraYaz } from '@/lib/para';
 import { budgetGet } from '@/lib/revApi';
 import { gunAnahtari } from '@/lib/tarih';
+import { useUyelik } from '@/lib/uyelik';
 import { localeKodu } from '@/lib/yerellestirme';
 import { color, layout, radius, rhythm } from '@/theme/tokens';
 import { analizGiderPay, analizGelirPay, analizHalkaA11y, t } from '@/content/metinler';
@@ -40,7 +42,23 @@ const DONEM_METNI: Record<AnalizDonemi, keyof typeof t> = {
   yil: 'ui.analysis.period_year',
 };
 
+/** Analizler Premium'a özeldir; ücretsiz kullanıcı tanıtım ve kilit görür. */
 export default function AnalizlerEkrani() {
+  useDil();
+  const uyelik = useUyelik();
+  if (!uyelik.kilitli) return <AnalizlerIcerik />;
+  const header = <View style={stil.header}>
+    <View style={stil.esnek}>
+      <Txt role="caption" tone={color.navMuted}>{t['premium.ayar.baslik']}</Txt>
+      <Txt role="h2" tone="#FFFFFF">{t['ui.analysis.title']}</Txt>
+    </View>
+  </View>;
+  return <RevScreen title={t['ui.analysis.title']} tab="analizler" header={header} contentGap={0}>
+    <PremiumKilidi ozellik="analiz" hazir={uyelik.hazir} />
+  </RevScreen>;
+}
+
+function AnalizlerIcerik() {
   useDil();
   const [donem, setDonem] = useState<AnalizDonemi>('hafta');
   const veri = useRevLoad(useCallback(async (): Promise<AnalizVerisi> => {

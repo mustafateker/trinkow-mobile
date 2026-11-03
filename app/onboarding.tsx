@@ -19,6 +19,7 @@ import { useReduceMotion } from '@/lib/hareket';
 import type { KategoriKodu } from '@/lib/kategoriler';
 import { paraSimgesi, paraYaz, sayiyaCevir, tutarGirisindenKurus } from '@/lib/para';
 import { budgetPut, emptyBudget, routinePut, routinesGet, yeniId, type Routine } from '@/lib/revApi';
+import { indirimPaywallGosterilsinMi } from '@/lib/uyelik';
 import { veriDegisti } from '@/lib/veriBus';
 import { clay, color, motion, radius, rhythm, TABULAR } from '@/theme/tokens';
 import { useDil } from '@/i18n/useDil';
@@ -209,7 +210,9 @@ export default function Onboarding() {
         gunlukLimitOnerisiKurus: kayitliLimit,
       });
       veriDegisti();
-      router.replace('/');
+      // Kurulum bitince ücretsiz kullanıcıya %50 indirimli Premium teklifi.
+      if (indirimPaywallGosterilsinMi()) router.replace({ pathname: '/premium', params: { tur: 'indirim', kaynak: 'onboarding' } });
+      else router.replace('/');
     } catch {
       setBitirHata(true);
     } finally {
