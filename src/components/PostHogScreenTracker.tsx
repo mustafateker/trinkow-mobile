@@ -18,3 +18,4 @@ export function PostHogScreenTracker() {
 
   return null;
 }
+
