@@ -58,6 +58,7 @@ import { tahminEt, type GecmisKayit, type KategoriTahmini } from '@/lib/kategori
 import { gunSeciciAbone } from '@/lib/gunSeciciBus';
 import { toastGoster } from '@/lib/toastBus';
 import { veriDegisti } from '@/lib/veriBus';
+import { posthog } from '@/config/posthog';
 import type { SesliHarcamaTaslagi } from '@/lib/sesliHarcama';
 import { color, layout, radius, rhythm } from '@/theme/tokens';
 import { useDil } from '@/i18n/useDil';
@@ -408,6 +409,11 @@ export default function HarcamaEkleEkrani() {
           taksitToplam: null,
         });
       }
+      posthog?.capture('expense_created', {
+        category: kategoriKodu,
+        payment_method: taksitliAcik ? 'installment' : odeme,
+        is_recurring: rutinId !== null,
+      });
       veriDegisti();
       toastGoster({
         tur: limitDisiFarkKurus > 0 ? 'warning' : 'info',

@@ -22,6 +22,7 @@ import { tasarrufDonemBasligi, tasarrufDonemKisaEtiketi, tasarrufDonemSinirlari,
 import { toastGoster } from '@/lib/toastBus';
 import { useUyelik } from '@/lib/uyelik';
 import { veriDegisti } from '@/lib/veriBus';
+import { posthog } from '@/config/posthog';
 import { a11y, color, layout, radius, rhythm } from '@/theme/tokens';
 import { useDil } from '@/i18n/useDil';
 
@@ -103,6 +104,10 @@ function TasarruflarIcerik() {
     setSheetHata(undefined);
     try {
       await movementPut(girdi);
+      posthog?.capture('savings_movement_saved', {
+        action: duzenlenen ? 'updated' : 'created',
+        movement_direction: girdi.tutar_kurus >= 0 ? 'deposit' : 'withdrawal',
+      });
       veriDegisti();
       await load.reload();
       setSheetAcik(false);

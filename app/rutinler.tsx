@@ -17,6 +17,7 @@ import { kurustanTutarGirisi, tutarGirisindenKurus } from '@/lib/para';
 import { routinePut, routinesGet, yeniId, type Routine } from '@/lib/revApi';
 import { color, rhythm, size } from '@/theme/tokens';
 import { veriDegisti } from '@/lib/veriBus';
+import { posthog } from '@/config/posthog';
 import { rutinGunlukOzeti, rutinKaldirA11y, rutinSatiriA11y, t } from '@/content/metinler';
 import { butunDillerde } from '@/i18n/cekirdek';
 import { useDil } from '@/i18n/useDil';
@@ -55,12 +56,17 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
     setCount('1');
   }
 
-  async function run(fn: () => Promise<unknown>, success: string = t['ui.common.saved']) {
+  async function run(
+    fn: () => Promise<unknown>,
+    success: string = t['ui.common.saved'],
+    captureProperties?: { action: 'created' | 'updated'; category: KategoriKodu | null },
+  ) {
     if (busy) return;
     setBusy(true);
     setMessage('');
     try {
       await fn();
+      if (captureProperties) posthog?.capture('routine_saved', captureProperties);
       veriDegisti();
       await load.reload();
       setMessage(success);
@@ -146,7 +152,10 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
                 aktif: true,
               });
               clear();
-            }, duzenleniyor ? t['ui.routines.updated'] : t['ui.routines.added'])
+            }, duzenleniyor ? t['ui.routines.updated'] : t['ui.routines.added'], {
+              action: duzenleniyor ? 'updated' : 'created',
+              category: cat,
+            })
           }
         />
       </View>

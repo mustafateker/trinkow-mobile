@@ -26,6 +26,7 @@ import { aileRenkleri, kategori as kategoriGetir, type KategoriKodu } from '@/li
 import { TUTAR_BUYUK_ESIK_KURUS, kurustanTutarGirisi, paraSimgesi, paraYaz, sayiyaCevir, tutarGirisindenKurus, tutarGosterimi } from '@/lib/para';
 import { eklenmeEtiketi, kisaTarih, saatYaz } from '@/lib/tarih';
 import { veriDegisti } from '@/lib/veriBus';
+import { posthog } from '@/config/posthog';
 import { clay, color, layout, radius, rhythm, size } from '@/theme/tokens';
 import { useDil } from '@/i18n/useDil';
 
@@ -135,6 +136,11 @@ export default function HarcamaDetayEkrani() {
         odeme,
         notMetni: notMetni.trim() || null,
         ...(tutarDuzenleAcik ? { tutarKurus: tutarKurusDuzenlenen } : {}),
+      });
+      posthog?.capture('expense_updated', {
+        category: kategoriKodu,
+        payment_method: odeme,
+        amount_changed: tutarDuzenleAcik,
       });
       veriDegisti();
       router.back();

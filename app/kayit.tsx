@@ -15,6 +15,7 @@ import { t } from '@/content/metinler';
 import { ApiAgHatasi, ApiHatasi, benKimim, kayitOl } from '@/lib/api';
 import { kayitGonderPasifMi, sifreTekrarHatasi } from '@/lib/kayitKurallari';
 import { oturumYaz } from '@/lib/oturumDeposu';
+import { posthog } from '@/config/posthog';
 import { color, rhythm } from '@/theme/tokens';
 import { useDil } from '@/i18n/useDil';
 
@@ -93,6 +94,7 @@ export default function KayitEkrani() {
         email: ben.email,
         kimlikSaglayici: ben.kimlikSaglayici,
       });
+      posthog?.capture('account_registered');
       // Yönlendirmeyi kök oturum koruyucusu yapar.
     } catch (hata) {
       if (hata instanceof ApiAgHatasi) {

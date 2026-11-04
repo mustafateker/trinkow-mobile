@@ -16,7 +16,9 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { PostHogProvider } from 'posthog-react-native';
 
+import { posthog } from '@/config/posthog';
 import { onboardingTamamlandiMi } from '@/db/profil';
 import { gunSiniriOku, kurulumGunuBaslat, yerellestirmeOku } from '@/db/ayarTercihleri';
 import { katalogTazele } from '@/db/katalog';
@@ -202,7 +204,7 @@ export default function RootLayout() {
 
   if ((!fontHazir && !fontHatasi) || !yerellestirmeHazir) return null;
 
-  return (
+  const app = (
     <QueryClientProvider client={queryClient}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
@@ -218,4 +220,6 @@ export default function RootLayout() {
       </GestureHandlerRootView>
     </QueryClientProvider>
   );
+
+  return posthog ? <PostHogProvider client={posthog}>{app}</PostHogProvider> : app;
 }

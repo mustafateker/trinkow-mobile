@@ -13,6 +13,8 @@ import { TextField } from '@/components/TextField';
 import { Txt } from '@/components/Txt';
 import { ApiAgHatasi, ApiHatasi, GELISTIRME_GIRISI, benKimim, girisYap, googleIleGirisYap, googleYapilandirmasiniGetir } from '@/lib/api';
 import { oturumYaz } from '@/lib/oturumDeposu';
+import { posthog } from '@/config/posthog';
+import { posthogLog } from '@/lib/posthogLog';
 import { SosyalGirisHatasi, appleIleDevamEt, googleIleDevamEt, sosyalSaglayicilar } from '@/lib/sosyalGiris';
 import { rhythm } from '@/theme/tokens';
 import { t } from '@/content/metinler';
@@ -35,7 +37,10 @@ export default function GirisEkrani() {
       const cift = await girisYap(eposta.trim(), sifre, demo);
       const ben = await benKimim(cift.erisimTokeni);
       await oturumYaz({ ...cift, kullaniciId: ben.id, email: ben.email, kimlikSaglayici: ben.kimlikSaglayici }, hatirla);
+      posthog?.capture('user_signed_in', { authentication_provider: 'password', remember_session: hatirla });
+      posthogLog.info('authentication_succeeded', { authentication_provider: 'password', remember_session: hatirla });
     } catch (e) {
+      posthogLog.warn('authentication_failed', { authentication_provider: 'password', failure_type: e instanceof ApiHatasi && e.durum === 401 ? 'invalid_credentials' : 'request_failed' });
       setHata(e instanceof ApiHatasi && e.durum === 401 ? t['ui.login.invalid_credentials'] : t['ui.login.failed']);
     } finally { setMesgul(false); }
   }
@@ -49,7 +54,10 @@ export default function GirisEkrani() {
       const cift = await googleIleGirisYap(idTokeni);
       const ben = await benKimim(cift.erisimTokeni);
       await oturumYaz({ ...cift, kullaniciId: ben.id, email: ben.email, kimlikSaglayici: ben.kimlikSaglayici }, hatirla);
+      posthog?.capture('user_signed_in', { authentication_provider: 'google', remember_session: hatirla });
+      posthogLog.info('authentication_succeeded', { authentication_provider: 'google', remember_session: hatirla });
     } catch (e) {
+      posthogLog.warn('authentication_failed', { authentication_provider: 'google', failure_type: 'request_failed' });
       if (e instanceof SosyalGirisHatasi && e.kod === 'yapilandirma') {
         setHata(t['ui.login.google_not_configured']);
       } else if (e instanceof SosyalGirisHatasi && e.kod === 'native-modul') {

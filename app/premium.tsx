@@ -16,6 +16,7 @@ import { t } from '@/content/metinler';
 import { metin } from '@/i18n/cekirdek';
 import { useDil } from '@/i18n/useDil';
 import { toastGoster } from '@/lib/toastBus';
+import { posthog } from '@/config/posthog';
 import {
   MAGAZA_ADI,
   geriYukle,
@@ -105,6 +106,7 @@ export default function PremiumEkrani() {
     const sonuc = await satinAl(secili.paket);
     setMesgul(null);
     if (sonuc === 'premium') {
+      posthog?.capture('premium_purchased', { billing_period: secili.donem, paywall_source: kaynak, has_trial: secili.denemeGunu !== null });
       toastGoster({ tur: 'info', metin: t['premium.toast.basarili'] });
       devamEt(kaynak);
     } else if (sonuc === 'beklemede') {

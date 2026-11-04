@@ -15,6 +15,7 @@ import { Txt } from '@/components/Txt';
 import { obRutinGunlukToplam, obRutinSatirAlt, t } from '@/content/metinler';
 import { HEDEF_ETIKET_ALAN, OZET_ACIKLAMA } from '@/content/hedefEtiketleri';
 import { onboardingKaydet, type Niyet } from '@/db/profil';
+import { posthog } from '@/config/posthog';
 import { useReduceMotion } from '@/lib/hareket';
 import type { KategoriKodu } from '@/lib/kategoriler';
 import { paraSimgesi, paraYaz, sayiyaCevir, tutarGirisindenKurus } from '@/lib/para';
@@ -209,6 +210,7 @@ export default function Onboarding() {
         maasDuzensiz: true,
         gunlukLimitOnerisiKurus: kayitliLimit,
       });
+      posthog?.capture('onboarding_completed', { onboarding_goal: niyet });
       veriDegisti();
       // Kurulum bitince ücretsiz kullanıcıya %50 indirimli Premium teklifi.
       if (indirimPaywallGosterilsinMi()) router.replace({ pathname: '/premium', params: { tur: 'indirim', kaynak: 'onboarding' } });

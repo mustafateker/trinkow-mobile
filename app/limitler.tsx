@@ -16,6 +16,7 @@ import { kurustanTutarGirisi, tutarGirisindenKurus } from '@/lib/para';
 import { budgetBody, budgetGet, budgetPut } from '@/lib/revApi';
 import { rhythm } from '@/theme/tokens';
 import { veriDegisti } from '@/lib/veriBus';
+import { posthog } from '@/config/posthog';
 import { kategoriLimitKaldirA11y, t } from '@/content/metinler';
 import { useDil } from '@/i18n/useDil';
 
@@ -53,6 +54,7 @@ export default function Limitler() {
         kategori_limitleri: Object.fromEntries(Object.entries(cats).map(([k, v]) => [k, tutarGirisindenKurus(v)])),
       });
       load.setData(result);
+      posthog?.capture('spending_limits_saved', { limit_mode: mode, category_limit_count: Object.keys(cats).length });
       veriDegisti();
       setMessage(t['ui.limits.saved']);
     } catch {

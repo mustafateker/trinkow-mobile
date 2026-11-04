@@ -17,6 +17,7 @@ import { abonelikMarkasiBul } from '@/lib/abonelikMarkalari';
 import { paraYaz } from '@/lib/para';
 import { bugun, subscriptionDelete, subscriptionPut, subscriptionsGet, type Subscription } from '@/lib/revApi';
 import { veriDegisti } from '@/lib/veriBus';
+import { posthog } from '@/config/posthog';
 import { color, radius, rhythm, size } from '@/theme/tokens';
 import { abonelikSilGovde, abonelikSatiriA11y, t } from '@/content/metinler';
 import { metin } from '@/i18n/cekirdek';
@@ -61,6 +62,7 @@ export default function AboneliklerEkrani() {
     try {
       await islem();
       await load.reload();
+      posthog?.capture('subscription_saved', { action: secili ? 'updated' : 'created' });
       veriDegisti();
       setSheetAcik(false);
       setMesaj(basari);
@@ -70,7 +72,7 @@ export default function AboneliklerEkrani() {
     } finally {
       setBusy(false);
     }
-  }, [busy, load]);
+  }, [busy, load, secili]);
 
   async function sil() {
     if (!silinecek || busy) return;

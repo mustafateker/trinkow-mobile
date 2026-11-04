@@ -11,6 +11,7 @@ import { kurustanTutarGirisi, tutarGirisindenKurus } from '@/lib/para';
 import { budgetBody, budgetGet, budgetPut, type BudgetInput } from '@/lib/revApi';
 import { rhythm } from '@/theme/tokens';
 import { veriDegisti } from '@/lib/veriBus';
+import { posthog } from '@/config/posthog';
 import { t } from '@/content/metinler';
 import { useDil } from '@/i18n/useDil';
 
@@ -65,6 +66,7 @@ export default function Butce() {
         },
       };
       const result = await budgetPut(body);
+      posthog?.capture('budget_saved', { action: load.data?.butce ? 'updated' : 'created' });
       load.setData(result);
       veriDegisti();
       setMessage(t['ui.budget.updated']);

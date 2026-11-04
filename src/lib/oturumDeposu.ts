@@ -1,6 +1,7 @@
 /** Kalıcı oturum Keychain/Keystore'da, hatırlanmayan oturum yalnız bellekte. */
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
+import { posthog } from '@/config/posthog';
 
 export type Oturum = {
   erisimTokeni: string;
@@ -48,6 +49,10 @@ export async function oturumOku(): Promise<Oturum | null> {
 }
 export async function oturumYaz(oturum: Oturum, hatirla = true): Promise<void> {
   await sirala(() => sakla({ ...oturum, oturumKimligi: kimlik() }, hatirla));
+  posthog?.identify(oturum.kullaniciId, {
+    email: oturum.email,
+    authentication_provider: oturum.kimlikSaglayici,
+  });
   oturumDegisti();
 }
 export async function oturumErisimTokeniGuncelle(erisimTokeni: string, eskiYenileme: string, yeniYenileme: string): Promise<void> {
@@ -61,10 +66,14 @@ export async function oturumGecersizKil(yenilemeTokeni: string): Promise<void> {
     await sakla(null, false);
     return true;
   });
-  if (degisti) oturumDegisti();
+  if (degisti) {
+    posthog?.reset();
+    oturumDegisti();
+  }
 }
 export async function oturumSil(): Promise<void> {
   await sirala(() => sakla(null, false));
+  posthog?.reset();
   oturumDegisti();
 }
 type Dinleyici = () => void;
