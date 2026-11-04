@@ -38,6 +38,7 @@ import { useYerellestirme } from '@/lib/useYerellestirme';
 import { oturumOnbelleginiTemizle, queryClient } from '@/lib/queryClient';
 import { standartPaywallGosterilsinMi, uyelikBaslatBekle, uyelikKapat } from '@/lib/uyelik';
 import { initializeVoiceExpenseWidget } from '@/widgets/VoiceExpenseWidget';
+import { PostHogScreenTracker } from '@/components/PostHogScreenTracker';
 
 // Android gesture navigation is transparent in edge-to-edge mode. The native
 // root behind it must therefore match our dock instead of falling back to
@@ -139,6 +140,7 @@ function OturumGezgini() {
   }
 
   return <>
+    <PostHogScreenTracker />
     <Stack initialRouteName={durum === 'acik' ? ilkEkran : 'giris'} screenOptions={{ headerShown: false, contentStyle: { backgroundColor: color.bg } }}>
       <Stack.Screen name="legal" />
       <Stack.Screen name="yardim" />

@@ -85,7 +85,22 @@ export default function PremiumEkrani() {
 
   useEffect(() => {
     if (kaynak === 'kayit') standartPaywallGosterildi();
-  }, [kaynak]);
+    posthog?.capture('paywall_viewed', {
+      paywall_type: tur,
+      paywall_source: kaynak,
+    });
+  }, [kaynak, tur]);
+
+  function vazgec(eylemTuru: 'atla' | 'kapat') {
+    posthog?.capture('paywall_dismissed', {
+      paywall_type: tur,
+      paywall_source: kaynak,
+      dismiss_action: eylemTuru,
+      selected_package: secili?.donem ?? null,
+      has_trial: secili?.denemeGunu !== null,
+    });
+    devamEt(kaynak);
+  }
 
   function tekrarDene() {
     setYuklemeHatasi(false);
@@ -101,6 +116,12 @@ export default function PremiumEkrani() {
 
   async function satinAlmayiBaslat() {
     if (!secili || mesgul) return;
+    posthog?.capture('paywall_purchase_started', {
+      billing_period: secili.donem,
+      paywall_source: kaynak,
+      paywall_type: tur,
+      has_trial: secili.denemeGunu !== null,
+    });
     setMesgul('satin');
     setSatinAlmaHatasi(false);
     const sonuc = await satinAl(secili.paket);
@@ -112,7 +133,10 @@ export default function PremiumEkrani() {
     } else if (sonuc === 'beklemede') {
       toastGoster({ tur: 'info', metin: t['premium.toast.beklemede'] });
       devamEt(kaynak);
+    } else if (sonuc === 'iptal') {
+      posthog?.capture('paywall_purchase_cancelled', { billing_period: secili.donem, paywall_source: kaynak });
     } else if (sonuc === 'hata') {
+      posthog?.capture('paywall_purchase_failed', { billing_period: secili.donem, paywall_source: kaynak });
       setSatinAlmaHatasi(true);
     }
   }
@@ -144,7 +168,7 @@ export default function PremiumEkrani() {
                 tone="#FFFFFF"
                 background={color.navGlassBg}
                 pressedBackground={color.navGlassBgPressed}
-                onPress={() => devamEt(kaynak)}
+                onPress={() => vazgec('kapat')}
               />
             </View>
           ) : null}
@@ -204,7 +228,14 @@ export default function PremiumEkrani() {
                       key={paket.kimlik}
                       paket={paket}
                       secili={paket.kimlik === secili?.kimlik}
-                      onPress={() => setSeciliKimlik(paket.kimlik)}
+                      onPress={() => {
+                        setSeciliKimlik(paket.kimlik);
+                        posthog?.capture('paywall_package_selected', {
+                          billing_period: paket.donem,
+                          has_trial: paket.denemeGunu !== null,
+                          is_discounted: paket.indirimYuzdesi !== null,
+                        });
+                      }}
                     />
                   ))}
                 </View>
@@ -262,7 +293,7 @@ export default function PremiumEkrani() {
               onPress={() => void satinAlmayiBaslat()}
             />
             <View style={{ height: rhythm.group }} />
-            <Button variant="ghost" label={ikincilEtiket} disabled={mesgul !== null} onPress={() => devamEt(kaynak)} />
+            <Button variant="ghost" label={ikincilEtiket} disabled={mesgul !== null} onPress={() => vazgec('atla')} />
           </>
         )}
       </View>
