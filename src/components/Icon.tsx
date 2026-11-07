@@ -269,14 +269,30 @@ export const icons = {
   lock: [{ t: 'r', x: 3, y: 11, w: 18, h: 11, rx: 2 } as Sekil, p('M7 11V7a5 5 0 0 1 10 0v4')],
   /** Premium — paywall başlığı ve Ayarlar satırı (Lucide "crown"). */
   crown: [p('m2 4 3 12h14l3-12-6 7-4-7-4 7-6-7z'), p('M5 20h14')],
+  /** Premium — parlak özellikler ve rozetler (Lucide "sparkles"). */
+  sparkles: [
+    p(
+      'm12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z',
+    ),
+    p('M5 3v4'),
+    p('M3 5h4'),
+    p('M19 17v4'),
+    p('M17 19h4'),
+  ],
+  /** Güven / garanti rozeti (Lucide "shield-check"). */
+  'shield-check': [
+    p(
+      'M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z',
+    ),
+    p('m9 12 2 2 4-4'),
+  ],
 } as const;
 
 export type IconName = keyof typeof icons;
 
 type Props = {
   name: IconName;
-  /** §9 — yalnız 20 / 24 / 28. Ara boyut yok. */
-  size: 20 | 22 | 24 | 28 | 32;
+  size: 14 | 16 | 20 | 22 | 24 | 28 | 32;
   color: string;
   strokeWidth?: number;
 };

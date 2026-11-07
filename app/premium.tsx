@@ -172,10 +172,25 @@ return (
             />
           </View>
         ) : null}
-        <View style={stil.tac}>
-          <Icon name="crown" size={32} color={color.warning} />
+
+        <View style={stil.heroRozetSatiri}>
+          <View style={stil.heroIkonKapsayici}>
+            <View style={stil.heroIkonGlow} />
+            <View style={stil.tac}>
+              <Icon name="crown" size={28} color={color.warning} />
+            </View>
+          </View>
+          {rozetYuzdesi !== null && !premium ? (
+            <View style={stil.indirimRozet}>
+              <Icon name="sparkles" size={14} color={color.warning} />
+              <Txt role="label" tone={color.warning}>
+                {metin('premium.rozet.indirim', { yuzde: rozetYuzdesi }).toUpperCase()}
+              </Txt>
+            </View>
+          ) : null}
         </View>
-        <View style={{ height: rhythm.pad }} />
+
+        <View style={{ height: rhythm.group }} />
         <Txt role="h1" tone="#FFFFFF">
           {t['premium.baslik']}
         </Txt>
@@ -183,16 +198,6 @@ return (
         <Txt role="body" tone={color.navMuted}>
           {t[tur === 'indirim' ? 'premium.alt.indirim' : 'premium.alt.standart']}
         </Txt>
-        {rozetYuzdesi !== null && !premium ? (
-          <>
-            <View style={{ height: rhythm.blockInCard }} />
-            <View style={stil.rozet}>
-              <Txt role="label" tone={color.warningInk}>
-                {metin('premium.rozet.indirim', { yuzde: rozetYuzdesi })}
-              </Txt>
-            </View>
-          </>
-        ) : null}
       </View>
 
       <View style={stil.panel}>
@@ -208,7 +213,7 @@ return (
           </View>
         ) : (
           <>
-            <PremiumOzellikleri />
+            <PremiumOzellikleri compact />
             <View style={{ height: rhythm.section }} />
             {yuklemeHatasi ? (
               <>
@@ -284,8 +289,15 @@ return (
               <View style={{ height: rhythm.group }} />
             </>
           ) : null}
+          <View style={stil.guvenceSatiri}>
+            <Icon name="shield-check" size={14} color={color.text3} />
+            <Txt role="micro" tone={color.text3}>
+              İstediğin zaman {MAGAZA_ADI} üzerinden tek tıkla iptal et
+            </Txt>
+          </View>
           <Button
             variant="primary"
+            icon="crown"
             label={denemeGunu !== null ? metin('premium.eylem.deneme', { gun: denemeGunu }) : t['premium.eylem.satin_al']}
             loading={mesgul === 'satin'}
             loadingLabel={t['premium.isleniyor']}
@@ -314,37 +326,53 @@ function PlanKarti({ paket, secili, onPress }: { paket: PaywallPaketi; secili: b
       selected={secili}
       accessibilityLabel={[etiket, fiyat, deneme].filter(Boolean).join(', ')}
       borderRadius={radius.card}
-      background={secili ? color.primarySoft : color.surface}
+      background={secili ? '#F5F6FF' : color.surface}
       pressedBackground={color.groove}
-      shadow={secili ? clay.sunken : clay.raised}
+      shadow={secili ? clay.raised : clay.raised}
       pressedShadow={clay.pressed}
-      style={stil.plan}>
-      <View style={[stil.radyo, secili ? stil.radyoSecili : null]}>{secili ? <View style={stil.radyoIc} /> : null}</View>
+      style={[stil.plan, secili ? stil.planSecili : stil.planSeciliDegil]}>
+      {yillik ? (
+        <View style={stil.avantajBadge}>
+          <Icon name="sparkles" size={14} color="#FFFFFF" />
+          <Txt role="micro" tone="#FFFFFF">
+            {t['premium.plan.en_avantajli'].toUpperCase()}
+          </Txt>
+        </View>
+      ) : null}
+
+      <View style={[stil.secimGostergesi, secili ? stil.secimGostergesiSecili : null]}>
+        {secili ? <Icon name="check" size={14} color="#FFFFFF" strokeWidth={2.5} /> : null}
+      </View>
+
       <View style={stil.planOrta}>
         <View style={stil.planBaslik}>
           <Txt role="bodyStrong">{etiket}</Txt>
-          {yillik ? (
-            <View style={stil.avantaj}>
-              <Txt role="micro" tone={color.successInk}>
-                {t['premium.plan.en_avantajli']}
-              </Txt>
-            </View>
-          ) : null}
         </View>
-        {deneme ? (
+        {yillik && paket.aylikKarsilik ? (
           <Txt role="caption" tone={color.primaryText}>
-            {deneme}
+            {metin('premium.fiyat.aylik_karsilik', { fiyat: paket.aylikKarsilik })}
           </Txt>
         ) : null}
-        {yillik && paket.aylikKarsilik ? <Txt role="caption">{metin('premium.fiyat.aylik_karsilik', { fiyat: paket.aylikKarsilik })}</Txt> : null}
+        {deneme ? (
+          <Txt role="caption" tone={color.successInk}>
+            {deneme}
+          </Txt>
+        ) : (
+          <Txt role="caption" tone={color.text3}>
+            {yillik ? 'Yıllık faturalandırılır' : 'Aylık yenilenir'}
+          </Txt>
+        )}
       </View>
+
       <View style={stil.planFiyat}>
         {ustuCizili ? (
           <Txt role="caption" tone={color.text3} style={stil.ustuCizili}>
             {ustuCizili}
           </Txt>
         ) : null}
-        <Txt role="amount">{fiyat}</Txt>
+        <Txt role="amount" tone={secili ? color.primary : color.text}>
+          {fiyat}
+        </Txt>
       </View>
     </ClayPressable>
   );
@@ -357,23 +385,47 @@ const stil = StyleSheet.create({
   kahraman: {
     paddingHorizontal: layout.screenPaddingX,
     paddingTop: layout.headerPadTop,
-    paddingBottom: rhythm.section,
+    paddingBottom: rhythm.pad,
   },
-  kapatSatiri: { flexDirection: 'row', justifyContent: 'flex-end' },
-  tac: {
-    width: 64,
-    height: 64,
-    borderRadius: radius.tile,
-    backgroundColor: color.navGlassBg,
+  kapatSatiri: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: rhythm.group },
+  heroRozetSatiri: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: rhythm.blockInCard,
+  },
+  heroIkonKapsayici: {
+    position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  rozet: {
-    alignSelf: 'flex-start',
+  heroIkonGlow: {
+    position: 'absolute',
+    width: 58,
+    height: 58,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(245, 158, 11, 0.16)',
+  },
+  tac: {
+    width: 52,
+    height: 52,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  indirimRozet: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
     paddingHorizontal: rhythm.blockInCard,
     paddingVertical: rhythm.sameObject,
     borderRadius: radius.pill,
-    backgroundColor: color.warningSoft,
+    backgroundColor: 'rgba(245, 158, 11, 0.16)',
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.35)',
   },
   panel: {
     flex: 1,
@@ -385,27 +437,58 @@ const stil = StyleSheet.create({
     paddingBottom: rhythm.section,
   },
   aktifKart: { padding: rhythm.pad, borderRadius: radius.card, backgroundColor: color.successSoft },
-  planlar: { gap: rhythm.blockInCard },
-  plan: { flexDirection: 'row', alignItems: 'center', gap: rhythm.blockInCard, padding: rhythm.pad },
-  radyo: {
-    width: 22,
-    height: 22,
+  planlar: { gap: rhythm.pad },
+  plan: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: rhythm.blockInCard,
+    padding: rhythm.pad,
+    paddingVertical: 18,
+    borderRadius: radius.card,
+    position: 'relative',
+  },
+  planSecili: {
+    borderWidth: 2,
+    borderColor: color.primary,
+  },
+  planSeciliDegil: {
+    borderWidth: 1.5,
+    borderColor: 'rgba(23, 28, 66, 0.08)',
+  },
+  secimGostergesi: {
+    width: 24,
+    height: 24,
     borderRadius: radius.pill,
     borderWidth: 2,
-    borderColor: color.text3,
+    borderColor: '#CBD5E1',
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
   },
-  radyoSecili: { borderColor: color.primary },
-  radyoIc: { width: 10, height: 10, borderRadius: radius.pill, backgroundColor: color.primary },
-  planOrta: { flex: 1, minWidth: 0, gap: rhythm.sameObject },
-  planBaslik: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: rhythm.group },
-  avantaj: {
+  secimGostergesiSecili: {
+    borderColor: color.primary,
+    backgroundColor: color.primary,
+  },
+  avantajBadge: {
+    position: 'absolute',
+    top: -10,
+    right: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
     paddingHorizontal: rhythm.group,
-    paddingVertical: rhythm.sameObject / 2,
+    paddingVertical: 3,
     borderRadius: radius.pill,
-    backgroundColor: color.successSoft,
+    backgroundColor: color.primary,
+    zIndex: 2,
+    shadowColor: '#5C5AF6',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 3,
   },
+  planOrta: { flex: 1, minWidth: 0, gap: 2 },
+  planBaslik: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: rhythm.group },
   planFiyat: { alignItems: 'flex-end', flexShrink: 0 },
   ustuCizili: { textDecorationLine: 'line-through' },
   altSabit: {
@@ -414,5 +497,12 @@ const stil = StyleSheet.create({
     backgroundColor: color.bg,
     borderTopWidth: 1,
     borderTopColor: color.line,
+  },
+  guvenceSatiri: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    marginBottom: rhythm.group,
   },
 });
