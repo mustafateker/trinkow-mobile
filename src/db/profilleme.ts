@@ -17,12 +17,12 @@ import { gunAnahtari, gunFarkiHesapla, tarihtenGun } from '@/lib/tarih';
  *
  * Kurallar (bileşen envanteri `ProfilingSheet`): günde en fazla 1 ·
  * reddedilen soru (Şimdi değil VEYA kapatma X — ikisi de eşit "çıkış
- * kapısı", not-kutu) 14 gün geri gelmez · toplam 3 soru, hepsi
+ * kapısı", not-kutu) 5 gün geri gelmez · toplam 3 soru, hepsi
  * cevaplanınca/bırakılınca bileşen bir daha görünmez.
  */
 export type ProfillemeSoruId = 'yatirim' | 'taksit' | 'bildirim';
 
-const RED_COOLDOWN_GUN = 14;
+const RED_COOLDOWN_GUN = 5;
 
 /**
  * Soru sırası = gösterilme sırası; her biri "en erken bu gün" eşiği taşır.
@@ -77,7 +77,7 @@ async function gosterildiIsaretle(): Promise<void> {
   await ayarYaz('profilleme_son_gosterim_gun', gunAnahtari(new Date()));
 }
 
-/** "Şimdi değil" / kapatma (X) — ikisi de reddet sayılır, 14 gün cooldown başlar. */
+/** "Şimdi değil" / kapatma (X) — ikisi de reddet sayılır, 5 gün cooldown başlar. */
 export async function profillemeReddet(id: ProfillemeSoruId): Promise<void> {
   await ayarYaz(`profilleme_red_${id}`, gunAnahtari(new Date()));
   await gosterildiIsaretle();

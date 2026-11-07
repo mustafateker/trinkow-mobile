@@ -7,28 +7,18 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AccountSection } from '@/components/AccountSection';
 import { BottomSheet } from '@/components/BottomSheet';
 import { Button } from '@/components/Button';
-import { Chip } from '@/components/Chip';
-import { MoneyInput } from '@/components/MoneyInput';
-import { DayBox } from '@/components/DayBox';
 import { Dialog } from '@/components/Dialog';
 import { DilSecimSheet, dilA11yEtiketi, dilAdi } from '@/components/DilSecici';
 import { InfoStrip } from '@/components/InfoStrip';
-import { OptionCard } from '@/components/OptionCard';
 import { PushHeader } from '@/components/PushHeader';
 import { SegmentedControl } from '@/components/SegmentedControl';
 import { SettingGroup, SettingRow } from '@/components/SettingRow';
 import { Skeleton } from '@/components/Skeleton';
 import { Txt } from '@/components/Txt';
-import { ValueWell } from '@/components/ValueWell';
 import {
-  a11yDegerDegistir,
-  a11yObGun,
-  ayarPlanBekliyor,
-  ayarPlanKalan,
   ayarSurum,
   ayarVeriSilOzet,
   hesapsilVeri,
-  obOzetMaasGunu,
   t,
 } from '@/content/metinler';
 import {
@@ -43,24 +33,14 @@ import {
 } from '@/db/ayarTercihleri';
 import { ilkKayitGunu, tumKayitSayisi, tumSayfalariGetir, tumVeriyiSil, type OdemeTipi } from '@/db/harcama';
 import { budgetGet, favoritesGet, movementsGet, routinesGet, subscriptionsGet } from '@/lib/revApi';
-import {
-  gelirKaydet,
-  katman2DolanKartSayisi,
-  maasGunuKaydet,
-  niyetKaydet,
-  profilDetayOku,
-  profilOku,
-  type Niyet,
-} from '@/db/profil';
 import { hesabiSil, oturumuKapat } from '@/lib/hesapEylemleri';
 import { type Oturum, oturumOku } from '@/lib/oturumDeposu';
 import { toastGoster } from '@/lib/toastBus';
 import { MAGAZA_ADI, abonelikYonetimAdresi, geriYukle, useUyelik, uyelikEtkin } from '@/lib/uyelik';
 import { metin } from '@/i18n/cekirdek';
-import { paraYaz, tutarGirisindenKurus, kurustanTutarGirisi } from '@/lib/para';
-import { ayAnahtari, ayBasligi, gunIyelikEki, tarihtenGun } from '@/lib/tarih';
+import { ayAnahtari, ayBasligi, tarihtenGun } from '@/lib/tarih';
 import { veriDegisti } from '@/lib/veriBus';
-import { color, layout, radius, rhythm, v4 } from '@/theme/tokens';
+import { color, layout, radius, rhythm } from '@/theme/tokens';
 import { useDil } from '@/i18n/useDil';
 import type { ParaBirimi } from '@/lib/yerellestirme';
 import { yerellestirmeyiSakla } from '@/lib/yerellestirmeDeposu';
@@ -81,8 +61,6 @@ import {
  * odaklandığında (`useFocusEffect`) tazelenir, bu yüzden giriş/kayıt/çıkış
  * sonrası buraya dönüldüğünde satır güncel görünür.
  */
-const MAAS_GUNLERI = Array.from({ length: 31 }, (_, i) => i + 1);
-
 export default function AyarlarEkrani() {
   const insets = useSafeAreaInsets();
   useYerellestirme();
@@ -96,18 +74,9 @@ export default function AyarlarEkrani() {
   const [dilSheetAcik, setDilSheetAcik] = useState(false);
   const [paraBirimi, setParaBirimi] = useState<ParaBirimi>('TRY');
   const [tercihlerHazir, setTercihlerHazir] = useState(false);
-  const [niyet, setNiyet] = useState<Niyet>('takip');
-  const [gelirKurus, setGelirKurus] = useState<number | null>(null);
-  const [maasGunu, setMaasGunu] = useState<number | null>(null);
-  const [maasDuzensiz, setMaasDuzensiz] = useState(false);
-  const [katman2Kalan, setKatman2Kalan] = useState(8);
   const [kayitAdedi, setKayitAdedi] = useState(0);
   const [ilkKayitAyYil, setIlkKayitAyYil] = useState<string | null>(null);
 
-  const [kipSheetAcik, setKipSheetAcik] = useState(false);
-  const [gelirDuzenleAcik, setGelirDuzenleAcik] = useState(false);
-  const [gelirBuffer, setGelirBuffer] = useState('');
-  const [maasDuzenleAcik, setMaasDuzenleAcik] = useState(false);
   const [veriSilAcik, setVeriSilAcik] = useState(false);
   const [veriSiliniyor, setVeriSiliniyor] = useState(false);
   const [hesapSilAcik, setHesapSilAcik] = useState(false);
@@ -143,24 +112,15 @@ export default function AyarlarEkrani() {
         gunSiniriOku(),
         varsayilanOdemeOku(),
         yerellestirmeOku(),
-        profilOku(),
-        profilDetayOku(),
         tumKayitSayisi(),
         ilkKayitGunu(),
         oturumOku(),
       ]);
-      const [sinir, odemeD, yerellestirme, profil, detay, adet, ilkGun, oturumKaydi] = sonuclar;
+      const [sinir, odemeD, yerellestirme, adet, ilkGun, oturumKaydi] = sonuclar;
       if (sinir.status === 'fulfilled') setGunSiniri(sinir.value);
       if (odemeD.status === 'fulfilled') setOdeme(odemeD.value);
       // Sunucunun dil alanı yalnız tr/en tutar ve uygulanmaz; buradan yalnız para birimi alınır.
       if (yerellestirme.status === 'fulfilled') setParaBirimi(yerellestirme.value.paraBirimi);
-      if (profil.status === 'fulfilled') {
-        setNiyet(profil.value.niyet ?? 'takip');
-        setGelirKurus(profil.value.gelirKurus);
-        setMaasGunu(profil.value.maasGunu);
-        setMaasDuzensiz(profil.value.maasDuzensiz);
-      }
-      if (detay.status === 'fulfilled') setKatman2Kalan(8 - katman2DolanKartSayisi(detay.value));
       if (adet.status === 'fulfilled') setKayitAdedi(adet.value);
       if (ilkGun.status === 'fulfilled') setIlkKayitAyYil(ilkGun.value ? ayBasligi(ayAnahtari(tarihtenGun(ilkGun.value))) : null);
       if (oturumKaydi.status === 'fulfilled') setOturum(oturumKaydi.value);
@@ -215,43 +175,6 @@ export default function AyarlarEkrani() {
   async function paraBirimiSec(deger: ParaBirimi) {
     setParaBirimi(deger);
     await paraBirimiKaydet(deger);
-  }
-
-  async function kipSec(id: Niyet) {
-    setNiyet(id);
-    setKipSheetAcik(false);
-    await niyetKaydet(id);
-    veriDegisti();
-  }
-
-  function gelirDuzenleAc() {
-    setGelirBuffer(gelirKurus ? kurustanTutarGirisi(gelirKurus) : '');
-    setGelirDuzenleAcik(true);
-  }
-
-  async function gelirDuzenleKapat() {
-    const kurus = tutarGirisindenKurus(gelirBuffer);
-    const yeni = kurus > 0 ? kurus : null;
-    setGelirKurus(yeni);
-    setGelirDuzenleAcik(false);
-    await gelirKaydet(yeni);
-    veriDegisti();
-  }
-
-  async function maasGunuSec(gun: number) {
-    setMaasGunu(gun);
-    setMaasDuzensiz(false);
-    setMaasDuzenleAcik(false);
-    await maasGunuKaydet(gun, false);
-    veriDegisti();
-  }
-
-  async function maasDuzensizSec() {
-    setMaasGunu(null);
-    setMaasDuzensiz(true);
-    setMaasDuzenleAcik(false);
-    await maasGunuKaydet(null, true);
-    veriDegisti();
   }
 
   async function veriyiSil() {
@@ -345,17 +268,9 @@ export default function AyarlarEkrani() {
     }
   }
 
-  const maasGunuDegeri = maasDuzensiz ? t['ob.maas.duzensiz'] : maasGunu !== null ? obOzetMaasGunu(gunIyelikEki(maasGunu)) : t['tan.girilmedi'];
-  const katman2Deger = katman2Kalan === 8 ? ayarPlanBekliyor(8) : ayarPlanKalan(katman2Kalan);
   const saglayiciEtiketi: Record<string, string> = {
     google: t['ayar.hesap.saglayici.google'], apple: t['ayar.hesap.saglayici.apple'], eposta: t['ayar.hesap.saglayici.sifre'],
   };
-  const kipMeta: { id: Niyet; icon: 'target' | 'landmark' | 'trending-up'; baslik: string; alt: string }[] = [
-    { id: 'takip', icon: 'target', baslik: t['ob.niyet.takip'], alt: t['ob.niyet.takip.alt'] },
-    { id: 'tasarruf', icon: 'landmark', baslik: t['ob.niyet.tasarruf'], alt: t['ob.niyet.tasarruf.alt'] },
-    { id: 'borc', icon: 'trending-up', baslik: t['ob.niyet.borc'], alt: t['ob.niyet.borc.alt'] },
-  ];
-  const kipEtiket: Record<Niyet, string> = { takip: t['pano.kip.takip'], tasarruf: t['pano.kip.tasarruf'], borc: t['pano.kip.borc'] };
   const gunSiniriSecenekleri: { value: `${GunSiniriSaat}`; label: string }[] = [
     { value: '0', label: t['ayar.gun_siniri.0'] }, { value: '3', label: t['ayar.gun_siniri.3'] }, { value: '6', label: t['ayar.gun_siniri.6'] },
   ];
@@ -490,63 +405,6 @@ export default function AyarlarEkrani() {
 
         <View style={{ height: rhythm.section }} />
 
-        <Txt role="h2">{t['ui.settings.goal_plan']}</Txt>
-        <View style={{ height: rhythm.blockInCard }} />
-        <View style={stil.bolum}>
-          <ValueWell
-            etiket={t['ayar.kip']}
-            deger={kipEtiket[niyet]}
-            onPress={() => setKipSheetAcik(true)}
-            accessibilityLabel={a11yDegerDegistir(t['ayar.kip'], kipEtiket[niyet])}
-          />
-          <View style={stil.bolumAyraci} />
-          {gelirDuzenleAcik ? <>
-            <MoneyInput label={t['ayar.plan.gelir']} value={gelirBuffer} onChangeText={setGelirBuffer} autoFocus />
-            <View style={{ height: rhythm.group }} />
-            <Button label={t['ui.settings.save_income']} variant="secondary" onPress={() => void gelirDuzenleKapat().catch(yazmaBasarisiz)} />
-          </> : <ValueWell
-              etiket={t['ayar.plan.gelir']}
-              deger={gelirKurus ? paraYaz(gelirKurus) : t['ayar.plan.gelir_girilmedi']}
-              degerSoluk={!gelirKurus}
-              onPress={gelirDuzenleAc}
-              accessibilityLabel={gelirKurus ? a11yDegerDegistir(t['ayar.plan.gelir'], paraYaz(gelirKurus)) : t['ayar.plan.gelir']}
-            />}
-          <View style={{ height: rhythm.blockInCard }} />
-          <ValueWell
-            etiket={t['ayar.plan.maas_gunu']}
-            deger={maasGunuDegeri}
-            degerSoluk={maasGunu === null && !maasDuzensiz}
-            onPress={() => setMaasDuzenleAcik((a) => !a)}
-            accessibilityLabel={a11yDegerDegistir(t['ayar.plan.maas_gunu'], maasGunuDegeri)}
-          />
-          {maasDuzenleAcik ? (
-            <>
-              <View style={{ height: rhythm.group }} />
-              <View style={stil.gunIzgara}>
-                {MAAS_GUNLERI.map((n) => (
-                  <View key={n} style={stil.gunHucre}>
-                    <DayBox gun={n} selected={maasGunu === n} onPress={() => void maasGunuSec(n).catch(yazmaBasarisiz)} accessibilityLabel={a11yObGun(n)} />
-                  </View>
-                ))}
-              </View>
-              <View style={{ height: rhythm.blockInCard }} />
-              <Chip ad={t['ob.maas.duzensiz']} selected={maasDuzensiz} onPress={() => void maasDuzensizSec().catch(yazmaBasarisiz)} />
-            </>
-          ) : null}
-          <View style={{ height: rhythm.blockInCard }} />
-          <ValueWell
-            etiket={t['ayar.plan.tanit']}
-            deger={katman2Deger}
-            degerSoluk
-            onPress={() => router.push('/rutinler')}
-            accessibilityLabel={t['ayar.plan.tanit']}
-          />
-          <View style={{ height: rhythm.blockInCard }} />
-          <ValueWell etiket={t['ayar.plan.gor']} deger="" onPress={() => router.push('/butce')} accessibilityLabel={t['ayar.plan.gor']} />
-        </View>
-
-        <View style={{ height: rhythm.section }} />
-
         {/* Hesap — D-2c-2: gerçek oturuma bağlandı; D-2c-3/K-080: hesap
             zorunlu, çıkış/silme sonrası `_layout.tsx`'in giriş duvarı
             devreye girer (bkz. src/lib/hesapEylemleri.ts). */}
@@ -575,17 +433,6 @@ export default function AyarlarEkrani() {
           <View style={{ height: rhythm.group }} />
           <Button label={t['ayar.veri_sil']} variant="ghost" icon="trash" auto disabled={kayitAdedi === 0} onPress={() => setVeriSilAcik(true)} />
         </View>
-
-        <View style={{ height: rhythm.section }} />
-
-        <Txt role="h2">{t['ui.settings.finance_tools']}</Txt>
-        <View style={{ height: rhythm.blockInCard }} />
-        <SettingGroup>
-          <SettingRow icon="banknote" iconTone="green" baslik={t['ui.settings.budget_title']} aciklama={t['ui.settings.budget_description']} onPress={() => router.push('/butce')} />
-          <SettingRow icon="limitler" iconTone="blue" baslik={t['ui.settings.limits_title']} aciklama={t['ui.settings.limits_description']} onPress={() => router.push('/limitler')} />
-          <SettingRow icon="repeat" iconTone="orange" baslik={t['ui.settings.routines_title']} aciklama={t['ui.settings.routines_description']} onPress={() => router.push('/rutinler')} />
-          <SettingRow icon="notebook" iconTone="pink" baslik={t['ui.settings.favorites_title']} aciklama={t['ui.settings.favorites_description']} onPress={() => router.push('/favoriler')} />
-        </SettingGroup>
 
         <View style={{ height: rhythm.section }} />
 
@@ -622,19 +469,6 @@ export default function AyarlarEkrani() {
 
       {/* Dil — 11 dil; seçim anında uygulanır ve cihazda saklanır. */}
       <DilSecimSheet visible={dilSheetAcik} onClose={() => setDilSheetAcik(false)} />
-
-      {/* Kip sheet */}
-      <BottomSheet visible={kipSheetAcik} onClose={() => setKipSheetAcik(false)}>
-        <Txt role="h2">{t['ayar.kip_degistir']}</Txt>
-        <View style={{ height: rhythm.blockInCard }} />
-        {kipMeta.map((k, i) => (
-          <View key={k.id}>
-            {i > 0 ? <View style={{ height: rhythm.group }} /> : null}
-            <OptionCard icon={k.icon} title={k.baslik} caption={k.alt} selected={niyet === k.id} onPress={() => void kipSec(k.id).catch(yazmaBasarisiz)} />
-          </View>
-        ))}
-        <View style={{ height: rhythm.pad }} />
-      </BottomSheet>
 
       <Dialog
         visible={veriSilAcik}
@@ -684,8 +518,4 @@ const stil = StyleSheet.create({
   kart: { padding: rhythm.pad },
   bolum: { padding: rhythm.pad, backgroundColor: color.surface, borderWidth: 1, borderColor: color.line, borderRadius: radius.tile },
   bolumAyraci: { height: 1, backgroundColor: color.line, marginVertical: rhythm.pad },
-  gunIzgara: { flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -v4.gridGap / 2 },
-  gunHucre: { width: '14.2857%', alignItems: 'center', marginBottom: v4.gridGap },
-  cipAgi: { flexDirection: 'row', flexWrap: 'wrap', marginRight: -rhythm.group, marginBottom: -rhythm.group },
-  cipOge: { marginRight: rhythm.group, marginBottom: rhythm.group },
 });

@@ -11,7 +11,7 @@ import { MilestoneRail } from '@/components/streak/MilestoneRail';
 import { Legend } from '@/components/streak/Legend';
 import { StreakDayGrid } from '@/components/streak/StreakDayGrid';
 import { Txt } from '@/components/Txt';
-import { seriAktifGovde, seriDurakKalan, seriDurakSonraki, seriPencereBaslik, t } from '@/content/metinler';
+import { seriAktifGovde, seriDurakKalan, seriDurakSonraki, seriHeroBirim, seriPencereBaslik, t } from '@/content/metinler';
 import { useSeriEkrani } from '@/db/useSeriEkrani';
 import { clay, color, layout, radius, rhythm } from '@/theme/tokens';
 import { useDil } from '@/i18n/useDil';
@@ -46,7 +46,7 @@ export default function SeriEkrani() {
                 <View style={stil.heroOrta}>
                   <Txt role="hero">{veri.durum.mevcutSeri}</Txt>
                   <Txt role="label" tone={color.text2}>
-                    {t['seri.hero.birim']}
+                    {seriHeroBirim(veri.durum.mevcutSeri)}
                   </Txt>
                   <View style={{ height: rhythm.blockInCard }} />
                   <Txt role="body" style={stil.ortali}>
@@ -67,7 +67,7 @@ export default function SeriEkrani() {
                     </Txt>
                   </View>
                   <Txt role="amount">
-                    {veri.durum.enUzunSeri > 0 ? `${veri.durum.enUzunSeri} ${t['seri.hero.birim']}` : t['seri.en_uzun_bos']}
+                    {veri.durum.enUzunSeri > 0 ? `${veri.durum.enUzunSeri} ${seriHeroBirim(veri.durum.enUzunSeri)}` : t['seri.en_uzun_bos']}
                   </Txt>
                 </View>
               </ClaySurface>
@@ -168,7 +168,7 @@ function SeriKapali({
                 {enUzunSeriEtiketi ?? t['seri.en_uzun_bos']}
               </Txt>
             </View>
-            <Txt role="amount">{enUzunSeri > 0 ? `${enUzunSeri} ${t['seri.hero.birim']}` : t['seri.en_uzun_bos']}</Txt>
+            <Txt role="amount">{enUzunSeri > 0 ? `${enUzunSeri} ${seriHeroBirim(enUzunSeri)}` : t['seri.en_uzun_bos']}</Txt>
           </View>
         </ClaySurface>
       </View>

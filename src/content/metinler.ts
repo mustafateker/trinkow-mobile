@@ -393,6 +393,11 @@ export function seriGunA11y(gunAy: string, durum: 'altinda' | 'disinda' | 'bos')
   return metin('cumle.seriGunA11y', { gunAy, durum });
 }
 
+/** `seri.hero.birim` — "gün" / "day(s)" */
+export function seriHeroBirim(n: number): string {
+  return metin('seri.hero.birim', { n });
+}
+
 /** `kutlama.baslik` — "{n} gün" */
 export function kutlamaBaslik(n: number): string {
   return metin('cumle.kutlamaBaslik', { n });
@@ -986,6 +991,11 @@ export function profilSatirLimitlerDeger(gunlukTutar: string, kategoriLimitSayis
 /** `profil.satir.rutinlerDeger` — "{n} rutin · bu ay {tutar} tasarruf" */
 export function profilSatirRutinlerDeger(rutinSayisi: number, tutar: string): string {
   return metin('cumle.profilSatirRutinlerDeger', { rutinSayisi, tutar });
+}
+
+/** `profil.satir.aboneliklerDeger` — "{n} abonelik · aylık {tutar}" */
+export function profilSatirAboneliklerDeger(abonelikSayisi: number, tutar: string): string {
+  return metin('cumle.profilSatirAboneliklerDeger', { abonelikSayisi, tutar });
 }
 
 /** `profil.satir.favorilerDeger` — "{n} ürün, son fiyatlarıyla" */

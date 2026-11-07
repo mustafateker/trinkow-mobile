@@ -13,19 +13,15 @@ import { InfoStrip } from '@/components/InfoStrip';
 import { Icon } from '@/components/Icon';
 import { IconButton } from '@/components/IconButton';
 import { SearchField } from '@/components/SearchField';
-import { SearchResultRow } from '@/components/SearchResultRow';
-import { SearchResultSkeleton } from '@/components/SearchResultSkeleton';
 import { SegmentedControl } from '@/components/SegmentedControl';
 import { TextField } from '@/components/TextField';
 import { Txt } from '@/components/Txt';
 import { VoiceExpenseInput } from '@/components/VoiceExpenseInput';
-import { aktifKatalogu, type KatalogOgesi } from '@/content/urunKatalogu';
+import { aktifKatalogu } from '@/content/urunKatalogu';
 import {
   a11yEkleGun,
   a11yEkleOneriCip,
   a11yEkleSonKullanilan,
-  ekleAramaSatirGecen,
-  ekleAramaYeniBaslik,
   ekleKategoriTahmini,
   ekleGunSeridi,
   ekleLimitDisiUyari,
@@ -44,7 +40,6 @@ import {
   sikAlinanlar,
   taksitSerisiOlustur,
   tahminGecmisi,
-  urunAra,
   type OdemeTipi,
   type SikAlinan,
 } from '@/db/harcama';
@@ -64,20 +59,13 @@ import { color, layout, radius, rhythm } from '@/theme/tokens';
 import { useDil } from '@/i18n/useDil';
 
 /**
- * E-11 · Harcama ekle. Referans: prototip-v4/02-harcama-ekle.html (17 yüzey, T-4).
- * Dokunuş bütçesi (ekran-envanteri §4): 1) Harcama ekle 2) Kategori 3) Kaydet.
- * Ürün arama (F-18) bu bütçeyi UZATMAZ: arama boş bırakılırsa hiçbir dalda
- * doğrulama hatası doğmaz (delta-v4.md "Bilinçli tasarım kararları" #1).
- *
- * Kategori bu ekranda seçilir (`CategoryPicker`): `?kategori=` route param'ı ya da
- * seçilen ürün ön-seçim verir, param yoksa "Diğer" ile açılır; kullanıcı kaydetmeden
- * önce tek dokunuşla değiştirebilir.
- * Nakite dönülürse taksit sessizce sıfırlanır (K-023). Kaydet yalnız
- * tutar>0 iken etkin.
+ * E-11 · Harcama ekle.
+ * Kullanıcı kendi ürün ve açıklamasını doğrudan yazabilir; önceden tanımlı olmayan
+ * ürünler arama ekranına kilitlenmeden doğrudan kaydedilir.
  */
 const TAKSIT_SECENEKLERI = [3, 6, 9, 12];
 
-/** Tutar kuyusunun altındaki tek cümlelik köken açıklaması (design point #5 — tekrar yok). */
+/** Tutar kuyusunun altındaki tek cümlelik köken açıklaması. */
 type TutarAltMetinTuru = 'gecmisten' | 'katalogdan' | 'kategori' | null;
 
 export default function HarcamaEkleEkrani() {
@@ -86,8 +74,6 @@ export default function HarcamaEkleEkrani() {
   const params = useLocalSearchParams<{ gunFarki?: string; kategori?: string; ad?: string; tutarKurus?: string; rutinId?: string; sesli?: string }>();
   const [sesliTetik, setSesliTetik] = useState(params.sesli === '1' ? 1 : 0);
 
-  // v4 K-049 — Günlük'ün geçmiş sayfasından açılınca tarih o güne SABİTLENİR
-  // (0/-1 dışındaki bir gün farkı geldiyse Bugün/Dün seçici gizlenir).
   const gunFarkiParam = params.gunFarki !== undefined ? Number.parseInt(params.gunFarki, 10) : null;
   const sabitGunFarki =
     gunFarkiParam !== null && Number.isFinite(gunFarkiParam) && gunFarkiParam !== 0 && gunFarkiParam !== -1;
@@ -98,39 +84,22 @@ export default function HarcamaEkleEkrani() {
   const [rutinId, setRutinId] = useState<string | null>(params.rutinId ?? null);
   const [rutinler, setRutinler] = useState<{id:string;ad:string;kategori:string;birim_fiyat_kurus:number}[]>([]);
 
-  // F-18 — arama alanı. `urunAdi` doluysa alan "seçili" durumdadır (ürün
-  // kaydın AYRI alanı, K-033); `aramaMetni` yalnız seçim yokken canlıdır.
   const [urunAdi, setUrunAdi] = useState(params.ad ?? '');
-  const [aramaMetni, setAramaMetni] = useState('');
-  const [gecmisSonuclar, setGecmisSonuclar] = useState<SikAlinan[]>([]);
-  const [gecmisYukleniyor, setGecmisYukleniyor] = useState(false);
   const [ogrenilenKategoriler, setOgrenilenKategoriler] = useState<Map<string, string>>(new Map());
   const [oneriTutarKurus, setOneriTutarKurus] = useState<number | null>(null);
   const [tutarAltMetinTuru, setTutarAltMetinTuru] = useState<TutarAltMetinTuru>(null);
 
-  // Kategori seçim arayüzü YOK (REV2) — değer daima param'dan ya da seçilen
-  // üründen gelir. "Diğer" düşüşü artık yalnız savunma amaçlıdır: bilinen
-  // hiçbir akış bu ekranı param'sız açmaz (bkz. dosya başındaki not).
-  // Serbest ürün girişinde de mevcut değer olduğu gibi korunur; kullanıcı
-  // isterse arama/favorilerden doğru kategoriyi taşıyan bir ürün seçer.
   const [kategoriKodu, setKategoriKodu] = useState<KategoriKodu>(() =>
     kategoriGetir(params.kategori ?? 'diger').kod,
   );
-  // Kategori tahmini: param, ürün seçimi ya da elle seçim kategoriyi KİLİTLER;
-  // kilitli değilken ürün adı/tutar/saat değiştikçe tahmin güncellenir.
   const [kategoriKilitli, setKategoriKilitli] = useState(params.kategori !== undefined);
   const [tahmin, setTahmin] = useState<KategoriTahmini | null>(null);
   const [gecmisKayitlari, setGecmisKayitlari] = useState<GecmisKayit[]>([]);
 
-  // D-2c-1b — Ayarlar'daki "varsayılan ödeme" ön-seçim olarak gelir; burada
-  // değiştirmek yalnız BU kaydı etkiler, tercihi KALICI değiştirmez.
   const [odeme, setOdeme] = useState<OdemeTipi>(ODEME_VARSAYILAN);
   const [taksitliAcik, setTaksitliAcik] = useState(false);
   const [taksitSayisi, setTaksitSayisi] = useState<number | null>(null);
-  // D-2d-2 — gün yalnız E-24 Gün seçici'den değişir (kip=sec); Günlük'ün
-  // "Dün" sayfasından açılan akışın ilk değeri korunur (K-049).
   const [secilenGunFarki, setSecilenGunFarki] = useState<number | null>(gunFarkiParam === -1 ? -1 : null);
-  const [notAcik, setNotAcik] = useState(false);
   const [detaylarAcik, setDetaylarAcik] = useState(false);
   const [notMetni, setNotMetni] = useState('');
 
@@ -149,16 +118,12 @@ export default function HarcamaEkleEkrani() {
     void gunlukLimit().then((l) => canli && setLimitKurus(l)).catch(() => {});
     void tumOgrenilenKategoriler().then((m) => canli && setOgrenilenKategoriler(m)).catch(() => {});
     void tahminGecmisi().then((l) => canli && setGecmisKayitlari(l)).catch(() => {});
-    // K-072 — yalnız İLK yüklemede ön-seçim olarak uygulanır; kullanıcının
-    // ekranda `odemeSec` ile yaptığı değişikliği bu efekt geç render'da EZMEZ
-    // (taksitliAcik/odeme bağımlılık dizisine eklenmez).
     void varsayilanOdemeOku().then((v) => canli && setOdeme(v)).catch(() => {});
     return () => {
       canli = false;
     };
   }, []);
 
-  // D-2d-2 — E-24 Gün seçici (kip=sec) seçtiği günü bu bus'la bildirir.
   useEffect(() => gunSeciciAbone(setSecilenGunFarki), []);
 
   const gunFarki = sabitGunFarki ? gunFarkiParam! : (secilenGunFarki ?? 0);
@@ -174,33 +139,9 @@ export default function HarcamaEkleEkrani() {
     };
   }, [seciliGun]);
 
-  // F-18 — kullanıcının kendi geçmişinde arama (SQLite, tipik <50ms).
-  // Katalog senkron/RAM-içi olduğu için burada beklenmez (RN inşa notu #1).
-  useEffect(() => {
-    if (urunAdi.trim() !== '') return;
-    const sorgu = aramaMetni.trim();
-    if (!sorgu) {
-      setGecmisSonuclar([]);
-      setGecmisYukleniyor(false);
-      return;
-    }
-    let canli = true;
-    setGecmisYukleniyor(true);
-    void urunAra(sorgu, 20).then((sonuc) => {
-      if (!canli) return;
-      setGecmisSonuclar(sonuc);
-      setGecmisYukleniyor(false);
-    });
-    return () => {
-      canli = false;
-    };
-  }, [aramaMetni, urunAdi]);
-
   const tutarKurus = tutarGirisindenKurus(buffer);
   const abonelikMi = kategoriKodu === 'abonelik';
 
-  // Abonelik kategorisi aylık periyottadır; taksit, aynı harcamayı aylara
-  // bölmek anlamına geldiği için abonelik periyoduyla birlikte kullanılamaz.
   useEffect(() => {
     if (!abonelikMi) return;
     setTaksitliAcik(false);
@@ -232,21 +173,33 @@ export default function HarcamaEkleEkrani() {
       ? gununToplamiKurus + tutarKurus - limitKurus
       : 0;
 
-  // F-18 — arama sonuçları açıkken kategori kontrolü ekranda YOKTUR (katlama
-  // tablosu istisnası): kategori bir sonraki dokunuşta üründen gelecek.
-  const aramaAktif = urunAdi.trim() === '' && aramaMetni.trim() !== '';
-  const sonKullanilanStripGoster = urunAdi.trim() === '' && aramaMetni.trim() === '' && sikAlinanlarListesi.length > 0;
+  const sonKullanilanStripGoster = urunAdi.trim() === '' && sikAlinanlarListesi.length > 0;
 
-  const gecmisAdlarNormalize = useMemo(
-    () => new Set(gecmisSonuclar.map((g) => turkceNormalize(g.urunAdi))),
-    [gecmisSonuclar],
-  );
-  const katalogSonuclari = useMemo(
-    () => (aramaAktif ? katalogAra(aramaMetni, gecmisAdlarNormalize) : []),
-    [aramaAktif, aramaMetni, gecmisAdlarNormalize],
-  );
-  const aramaSonucYok =
-    aramaAktif && !gecmisYukleniyor && gecmisSonuclar.length === 0 && katalogSonuclari.length === 0;
+  const oneriler = useMemo(() => {
+    const sorgu = turkceNormalize(urunAdi.trim());
+    if (!sorgu || sorgu.length < 2) return [];
+    const gecmisten = sikAlinanlarListesi
+      .filter((s) => turkceNormalize(s.urunAdi).includes(sorgu))
+      .map((s) => ({
+        ad: s.urunAdi,
+        kategori: kategoriGetir(s.kategori).kod,
+        tutarKurus: s.tutarKurus,
+        aile: kategoriGetir(s.kategori).aile,
+      }));
+    const gecmisAdlar = new Set(gecmisten.map((g) => turkceNormalize(g.ad)));
+    const katalogtan = katalogAra(urunAdi.trim(), gecmisAdlar)
+      .slice(0, 3)
+      .map((k) => {
+        const efektifKategori = kategoriGetir(ogrenilenKategoriler.get(turkceNormalize(k.ad)) ?? k.kategori);
+        return {
+          ad: k.ad,
+          kategori: efektifKategori.kod,
+          tutarKurus: 0,
+          aile: efektifKategori.aile,
+        };
+      });
+    return [...gecmisten, ...katalogtan].slice(0, 6);
+  }, [urunAdi, sikAlinanlarListesi, ogrenilenKategoriler]);
 
   const tutarAltMetin =
     tutarAltMetinTuru === 'gecmisten'
@@ -296,7 +249,6 @@ export default function HarcamaEkleEkrani() {
   function urunSec(ad: string, kategoriKoduSecilen: KategoriKodu, gecmisTutarKurus: number) {
     setRutinId(null);
     setUrunAdi(ad);
-    setAramaMetni('');
     setKategoriKilitli(true);
     setTahmin(null);
     setKategoriKodu(kategoriKoduSecilen);
@@ -306,34 +258,21 @@ export default function HarcamaEkleEkrani() {
     setOneriTutarKurus(null);
   }
 
-  function katalogSec(oge: KatalogOgesi) {
-    const efektifKod = kategoriGetir(ogrenilenKategoriler.get(turkceNormalize(oge.ad)) ?? oge.kategori).kod;
-    setUrunAdi(oge.ad);
-    setAramaMetni('');
+  function oneriSec(o: { ad: string; kategori: KategoriKodu; tutarKurus: number }) {
+    setUrunAdi(o.ad);
     setKategoriKilitli(true);
     setTahmin(null);
-    setKategoriKodu(efektifKod);
-    setOneriTutarKurus(null);
-    // Katalogda fiyat yok (K-050/K-037): tutar 0 kalırsa "sen yaz" denir.
-    setTutarAltMetinTuru(tutarKurus === 0 ? 'katalogdan' : 'kategori');
-  }
-
-  function serbestEkle() {
-    const ad = aramaMetni.trim();
-    if (!ad) return;
-    setUrunAdi(ad);
-    setAramaMetni('');
-    // Serbest ürün girişinde seçili kategori olduğu gibi korunur.
-    setOneriTutarKurus(null);
-    setTutarAltMetinTuru(null);
+    setKategoriKodu(o.kategori);
+    if (o.tutarKurus > 0) {
+      setBuffer(kurustanTutarGirisi(o.tutarKurus));
+      setTutarAltMetinTuru('gecmisten');
+    }
   }
 
   function urunKaldir() {
     setUrunAdi('');
-    setAramaMetni('');
     setOneriTutarKurus(null);
     setTutarAltMetinTuru(null);
-    // RN inşa notu #4 — ürün silinince kategori ve tutar SİLİNMEZ.
   }
 
   function oneriKabulEt() {
@@ -351,7 +290,6 @@ export default function HarcamaEkleEkrani() {
     }
     if (taslak.urunAdi) {
       setUrunAdi(taslak.urunAdi);
-      setAramaMetni('');
       setKategoriKilitli(false);
       setTahmin(null);
     }
@@ -365,8 +303,6 @@ export default function HarcamaEkleEkrani() {
     }
     if (taslak.notMetni) {
       setNotMetni(taslak.notMetni);
-      setNotAcik(true);
-      setDetaylarAcik(true);
     }
   }
 
@@ -580,225 +516,173 @@ export default function HarcamaEkleEkrani() {
           <Txt role="label" tone={color.text2}>{t['ui.expense.item_or_note']}</Txt>
           <View style={{ height: rhythm.group }} />
           <SearchField
-            deger={aramaMetni}
-            onDegerDegisti={setAramaMetni}
-            secili={urunAdi.trim() ? urunAdi : null}
+            deger={urunAdi}
+            onDegerDegisti={(val) => {
+              setUrunAdi(val);
+              if (kategoriKilitli && !val) {
+                setKategoriKilitli(false);
+              }
+            }}
+            secili={null}
             onKaldir={urunKaldir}
-            yukleniyor={gecmisYukleniyor}
-            placeholder={t['ekle.arama.placeholder']}
+            yukleniyor={false}
+            placeholder={t['ekle.urun.placeholder']}
             accessibilityLabel={t['a11y.ekle.arama']}
             temizleEtiketi={t['a11y.ekle.aramaTemizle']}
             kaldirEtiketi={t['a11y.ekle.urunKaldir']}
           />
         </View>
 
-        {aramaAktif ? (
-          <View style={stil.pad}>
-            <View style={{ height: rhythm.section }} />
-            {gecmisYukleniyor ? (
-              <SearchResultSkeleton />
-            ) : aramaSonucYok ? (
-              <SearchResultRow
-                baslik={ekleAramaYeniBaslik(aramaMetni.trim())}
-                altBaslik={t['ekle.arama.yeni.alt']}
-                onPress={serbestEkle}
-              />
-            ) : (
-              <>
-                {gecmisSonuclar.length > 0 ? (
-                  <>
-                    <Txt role="label" tone={color.text2}>
-                      {t['ui.expense.favorites']}</Txt>
-                    <View style={{ height: rhythm.group }} />
-                    {gecmisSonuclar.map((s, i) => (
-                      <View key={`${s.kategori}:${s.urunAdi}`} style={i > 0 ? { marginTop: rhythm.group } : undefined}>
-                        <SearchResultRow
-                          kategori={kategoriGetir(s.kategori)}
-                          baslik={s.urunAdi}
-                          altBaslik={ekleAramaSatirGecen(kategoriGetir(s.kategori).ad, paraYaz(s.tutarKurus))}
-                          onPress={() => urunSec(s.urunAdi, kategoriGetir(s.kategori).kod, s.tutarKurus)}
-                        />
-                      </View>
-                    ))}
-                  </>
-                ) : null}
-                {katalogSonuclari.length > 0 ? (
-                  <>
-                    {gecmisSonuclar.length > 0 ? <View style={{ height: rhythm.section }} /> : null}
-                    <Txt role="label" tone={color.text2}>
-                      {t['ekle.arama.grup.katalog']}
-                    </Txt>
-                    <View style={{ height: rhythm.group }} />
-                    {katalogSonuclari.map((k, i) => {
-                      const efektifKategori = kategoriGetir(ogrenilenKategoriler.get(turkceNormalize(k.ad)) ?? k.kategori);
-                      return (
-                        <View key={k.id} style={i > 0 ? { marginTop: rhythm.group } : undefined}>
-                          <SearchResultRow
-                            kategori={efektifKategori}
-                            baslik={k.ad}
-                            altBaslik={efektifKategori.ad}
-                            onPress={() => katalogSec(k)}
-                          />
-                        </View>
-                      );
-                    })}
-                  </>
-                ) : null}
-              </>
-            )}
-          </View>
-        ) : (
-          <>
-            <View style={{ height: rhythm.section }} />
-            <View style={stil.pad}>
-              <Txt role="label" tone={color.text2}>
-                {t['ekle.kategori.etiket']}
-              </Txt>
-            </View>
-            <View style={{ height: rhythm.group }} />
-            {/* Tasarım kiti §7.4 — kategori bu sheet'te seçilir. Param'dan ya da
-                seçilen üründen gelen değer ön-seçili durur, tek dokunuşla değişir. */}
-            <CategoryPicker value={kategoriKodu} onChange={kategoriSec} />
-            {abonelikMi ? (
-              <View style={[stil.pad, { marginTop: rhythm.blockInCard }]}>
-                <Txt role="label" tone={color.text2}>{t['ui.expense.payment_period']}</Txt>
-                <View style={{ height: rhythm.group }} />
-                <View style={stil.satir}>
-                  <Chip
-                    ad={t['ui.common.monthly']}
-                    selected
-                    dotColor={color.primary}
-                    accessibilityLabel={t['ui.expense.subscription_period_a11y']}
-                  />
-                </View>
-                <View style={{ height: rhythm.group }} />
-                <Txt role="caption" tone={color.text2}>{t['ui.expense.subscription_monthly']}</Txt>
-              </View>
-            ) : null}
-            {tahmin && !kategoriKilitli ? (
-              <View style={[stil.pad, { marginTop: rhythm.group }]}>
-                <Txt role="caption" tone={color.text2}>
-                  {ekleKategoriTahmini(kategoriGetir(tahmin.kategori).ad)}
-                </Txt>
-              </View>
-            ) : null}
-          </>
-        )}
-
-        {!aramaAktif ? <>
-          <View style={{ height: rhythm.section }} />
-          <View style={stil.pad}>
-            <Pressable
-              onPress={() => setDetaylarAcik((v) => !v)}
-              accessibilityRole="button"
-              accessibilityState={{ expanded: detaylarAcik }}
-              style={({ pressed }) => [stil.detaySatiri, pressed && stil.detaySatiriBasili]}>
-              <View style={stil.detayIkon}><Icon name="limitler" size={20} color={color.primary} /></View>
-              <View style={stil.esnek}>
-                <Txt role="bodyStrong">{t['ui.expense.other_details']}</Txt>
-                <Txt role="caption">{abonelikMi ? `${t['ui.common.monthly']} · ` : ''}{odeme === 'kart' ? t['ekle.odeme.kart'] : t['ekle.odeme.nakit']}{taksitSayisi ? ` · ${metin('ekle.taksit.secenek', { n: taksitSayisi })}` : ''}{notMetni.trim() ? ` · ${t['ui.expense.note_added']}` : ''}</Txt>
-              </View>
-              <View style={detaylarAcik ? stil.okAcik : undefined}>
-                <Icon name="chevron-down" size={20} color={color.text2} />
-              </View>
-            </Pressable>
-          </View>
-        </> : null}
-
-        {detaylarAcik && !aramaAktif ? <>
-        <View style={{ height: rhythm.section }} />
-        <View style={stil.pad}>
-          <Txt role="label" tone={color.text2}>
-            {t['ekle.odeme.etiket']}
-          </Txt>
-          <View style={{ height: rhythm.group }} />
-          <View style={stil.odemeSatiri}>
-            <View style={stil.segmentEsnek}>
-              <SegmentedControl
-                secenekler={[
-                  { value: 'nakit' as OdemeTipi, label: t['ekle.odeme.nakit'], icon: 'banknote' },
-                  { value: 'kart' as OdemeTipi, label: t['ekle.odeme.kart'], icon: 'credit-card' },
-                ]}
-                deger={odeme}
-                onChange={odemeSec}
-              />
-            </View>
-            {odeme === 'kart' && !abonelikMi ? (
-              <>
-                <View style={{ width: rhythm.blockInCard }} />
-                <Chip
-                  ad={t['ekle.taksit.baglanti']}
-                  selected={taksitliAcik}
-                  dotColor={color.primary}
-                  onPress={() => setTaksitliAcik((a) => !a)}
-                />
-              </>
-            ) : null}
-          </View>
-        </View>
-
-        {taksitliAcik ? (
-          <>
-            <View style={{ height: rhythm.blockInCard }} />
-            <View style={stil.pad}>
-              <Txt role="label" tone={color.text2}>
-                {t['ekle.taksit.baslik']}
-              </Txt>
-            </View>
-            <View style={{ height: rhythm.group }} />
+        {oneriler.length > 0 ? (
+          <View style={[stil.pad, { marginTop: rhythm.group }]}>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={[stil.yatayKaydir, { paddingHorizontal: layout.screenPaddingX }]}>
-              {TAKSIT_SECENEKLERI.map((n) => (
+              contentContainerStyle={stil.yatayKaydir}>
+              {oneriler.map((o) => (
                 <Chip
-                  key={n}
-                  ad={metin('ekle.taksit.secenek', { n })}
-                  selected={taksitSayisi === n}
-                  dotColor={color.primary}
-                  onPress={() => setTaksitSayisi(n)}
+                  key={`${o.kategori}:${o.ad}`}
+                  ad={`${o.ad} · ${kategoriGetir(o.kategori).ad}`}
+                  tutar={o.tutarKurus > 0 ? paraYaz(o.tutarKurus) : undefined}
+                  dotColor={aileRenkleri(o.aile).solid}
+                  onPress={() => oneriSec(o)}
                 />
               ))}
             </ScrollView>
-            {taksitSayisi ? (
+          </View>
+        ) : null}
+
+        <View style={{ height: rhythm.group }} />
+        <View style={stil.pad}>
+          <TextField
+            label={t['ekle.not.etiket']}
+            value={notMetni}
+            onChangeText={setNotMetni}
+            placeholder={t['ekle.not.placeholder']}
+            maxLength={100}
+          />
+        </View>
+
+        <View style={{ height: rhythm.section }} />
+        <View style={stil.pad}>
+          <Txt role="label" tone={color.text2}>
+            {t['ekle.kategori.etiket']}
+          </Txt>
+        </View>
+        <View style={{ height: rhythm.group }} />
+        <CategoryPicker value={kategoriKodu} onChange={kategoriSec} />
+        {abonelikMi ? (
+          <View style={[stil.pad, { marginTop: rhythm.blockInCard }]}>
+            <Txt role="label" tone={color.text2}>{t['ui.expense.payment_period']}</Txt>
+            <View style={{ height: rhythm.group }} />
+            <View style={stil.satir}>
+              <Chip
+                ad={t['ui.common.monthly']}
+                selected
+                dotColor={color.primary}
+                accessibilityLabel={t['ui.expense.subscription_period_a11y']}
+              />
+            </View>
+            <View style={{ height: rhythm.group }} />
+            <Txt role="caption" tone={color.text2}>{t['ui.expense.subscription_monthly']}</Txt>
+          </View>
+        ) : null}
+        {tahmin && !kategoriKilitli ? (
+          <View style={[stil.pad, { marginTop: rhythm.group }]}>
+            <Txt role="caption" tone={color.text2}>
+              {ekleKategoriTahmini(kategoriGetir(tahmin.kategori).ad)}
+            </Txt>
+          </View>
+        ) : null}
+
+        <View style={{ height: rhythm.section }} />
+        <View style={stil.pad}>
+          <Pressable
+            onPress={() => setDetaylarAcik((v) => !v)}
+            accessibilityRole="button"
+            accessibilityState={{ expanded: detaylarAcik }}
+            style={({ pressed }) => [stil.detaySatiri, pressed && stil.detaySatiriBasili]}>
+            <View style={stil.detayIkon}><Icon name="limitler" size={20} color={color.primary} /></View>
+            <View style={stil.esnek}>
+              <Txt role="bodyStrong">{t['ui.expense.other_details']}</Txt>
+              <Txt role="caption">{abonelikMi ? `${t['ui.common.monthly']} · ` : ''}{odeme === 'kart' ? t['ekle.odeme.kart'] : t['ekle.odeme.nakit']}{taksitSayisi ? ` · ${metin('ekle.taksit.secenek', { n: taksitSayisi })}` : ''}</Txt>
+            </View>
+            <View style={detaylarAcik ? stil.okAcik : undefined}>
+              <Icon name="chevron-down" size={20} color={color.text2} />
+            </View>
+          </Pressable>
+        </View>
+
+        {detaylarAcik ? (
+          <>
+            <View style={{ height: rhythm.section }} />
+            <View style={stil.pad}>
+              <Txt role="label" tone={color.text2}>
+                {t['ekle.odeme.etiket']}
+              </Txt>
+              <View style={{ height: rhythm.group }} />
+              <View style={stil.odemeSatiri}>
+                <View style={stil.segmentEsnek}>
+                  <SegmentedControl
+                    secenekler={[
+                      { value: 'nakit' as OdemeTipi, label: t['ekle.odeme.nakit'], icon: 'banknote' },
+                      { value: 'kart' as OdemeTipi, label: t['ekle.odeme.kart'], icon: 'credit-card' },
+                    ]}
+                    deger={odeme}
+                    onChange={odemeSec}
+                  />
+                </View>
+                {odeme === 'kart' && !abonelikMi ? (
+                  <>
+                    <View style={{ width: rhythm.blockInCard }} />
+                    <Chip
+                      ad={t['ekle.taksit.baglanti']}
+                      selected={taksitliAcik}
+                      dotColor={color.primary}
+                      onPress={() => setTaksitliAcik((a) => !a)}
+                    />
+                  </>
+                ) : null}
+              </View>
+            </View>
+
+            {taksitliAcik ? (
               <>
-                <View style={{ height: rhythm.group }} />
+                <View style={{ height: rhythm.blockInCard }} />
                 <View style={stil.pad}>
-                  <Txt role="caption" tone={color.text2}>
-                    {ekleTaksitOnizleme(paraYaz(Math.round(tutarKurus / taksitSayisi), true), taksitSayisi)}
+                  <Txt role="label" tone={color.text2}>
+                    {t['ekle.taksit.baslik']}
                   </Txt>
                 </View>
+                <View style={{ height: rhythm.group }} />
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={[stil.yatayKaydir, { paddingHorizontal: layout.screenPaddingX }]}>
+                  {TAKSIT_SECENEKLERI.map((n) => (
+                    <Chip
+                      key={n}
+                      ad={metin('ekle.taksit.secenek', { n })}
+                      selected={taksitSayisi === n}
+                      dotColor={color.primary}
+                      onPress={() => setTaksitSayisi(n)}
+                    />
+                  ))}
+                </ScrollView>
+                {taksitSayisi ? (
+                  <>
+                    <View style={{ height: rhythm.group }} />
+                    <View style={stil.pad}>
+                      <Txt role="caption" tone={color.text2}>
+                        {ekleTaksitOnizleme(paraYaz(Math.round(tutarKurus / taksitSayisi), true), taksitSayisi)}
+                      </Txt>
+                    </View>
+                  </>
+                ) : null}
               </>
             ) : null}
           </>
         ) : null}
-
-        <View style={{ height: rhythm.section }} />
-        <View style={[stil.pad, stil.satir]}>
-          <Chip
-            ad={t['ekle.not.ac']}
-            selected={notAcik}
-            dotColor={color.primary}
-            onPress={() => setNotAcik((a) => !a)}
-            accessibilityLabel={t['ui.expense.add_note']}
-          />
-        </View>
-
-        {notAcik ? (
-          <>
-            <View style={{ height: rhythm.group }} />
-            <View style={stil.pad}>
-              <TextField
-                label={t['ekle.not.etiket']}
-                value={notMetni}
-                onChangeText={setNotMetni}
-                placeholder={t['ekle.not.placeholder']}
-                maxLength={60}
-              />
-            </View>
-          </>
-        ) : null}
-        </> : null}
 
         <View style={{ height: rhythm.section }} />
         </View>

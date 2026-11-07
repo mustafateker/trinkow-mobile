@@ -1,10 +1,10 @@
-import { router } from 'expo-router';
 import { useState } from 'react';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { CategoryIconBox } from '@/components/CategoryIconBox';
 import { CategoryPicker } from '@/components/CategoryPicker';
+import { ClayPressable } from '@/components/ClayPressable';
 import { Icon } from '@/components/Icon';
 import { IconButton } from '@/components/IconButton';
 import { MoneyInput } from '@/components/MoneyInput';
@@ -12,10 +12,10 @@ import { LoadState, RevScreen, money, useRevLoad } from '@/components/RevScreen'
 import { GrupBasligi, SettingGroup, SettingRow } from '@/components/SettingRow';
 import { TextField } from '@/components/TextField';
 import { Txt } from '@/components/Txt';
-import { kategori as kategoriGetir, type KategoriKodu } from '@/lib/kategoriler';
+import { aileRenkleri, kategori as kategoriGetir, type KategoriKodu } from '@/lib/kategoriler';
 import { kurustanTutarGirisi, tutarGirisindenKurus } from '@/lib/para';
 import { routinePut, routinesGet, yeniId, type Routine } from '@/lib/revApi';
-import { color, rhythm, size } from '@/theme/tokens';
+import { clay, color, radius, rhythm } from '@/theme/tokens';
 import { veriDegisti } from '@/lib/veriBus';
 import { posthog } from '@/config/posthog';
 import { rutinGunlukOzeti, rutinKaldirA11y, rutinSatiriA11y, t } from '@/content/metinler';
@@ -87,42 +87,83 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
         <View>
           <Txt role="body">{t['ui.routines.description']}</Txt>
           <View style={{ height: rhythm.blockInCard }} />
-          <SettingGroup>
-            <SettingRow icon="calendar-clock" iconTone="primary" baslik={t['ui.routines.monthly_subscriptions']} aciklama={t['ui.routines.subscriptions_description']} onPress={() => router.push('/abonelikler' as never)} />
-          </SettingGroup>
-          <View style={{ height: rhythm.section }} />
           <GrupBasligi metin={t['ui.routines.daily_routines']} />
-          {HAZIR_RUTINLER.map(([name, kategoriKodu, labelKey], i) => {
-            // Öneri aktif dildeki adla kaydedilir; "zaten eklendi" eşleşmesi önerinin
-            // BÜTÜN dillerdeki adlarıyla yapılır (Türkçe'yken eklenen "Kahve",
-            // uygulama İngilizce'yken "Coffee" önerisini işaretli gösterir).
-            const adlar = [name, ...butunDillerde(labelKey)];
-            const secili = active.some((rutin) => adlar.includes(rutin.ad));
-            const kat = kategoriGetir(kategoriKodu);
-            const label = t[labelKey];
-            return (
-              <View key={name}>
-                {i > 0 ? <View style={{ height: rhythm.group }} /> : null}
-                <SettingRow
-                  leading={<CategoryIconBox kategori={kat} />}
-                  baslik={label}
-                  accessibilityLabel={`${label}${secili ? `, ${t['ui.routines.selected']}` : ''}`}
-                  deger={secili ? <Icon name="check" size={size.iconSm} color={color.primaryText} /> : false}
-                  onPress={() => {
-                    const existing = active.find((rutin) => adlar.includes(rutin.ad));
-                    if (existing) edit(existing);
-                    else {
-                      clear();
-                      setAd(label);
-                      setCat(kategoriKodu);
-                    }
-                  }}
-                />
-              </View>
-            );
-          })}
           <View style={{ height: rhythm.group }} />
-          <Button variant="ghost" label={t['ui.routines.custom']} onPress={clear} />
+          <View style={stil.hazirIzgara}>
+            {HAZIR_RUTINLER.map(([name, kategoriKodu, labelKey]) => {
+              // Öneri aktif dildeki adla kaydedilir; "zaten eklendi" eşleşmesi önerinin
+              // BÜTÜN dillerdeki adlarıyla yapılır (Türkçe'yken eklenen "Kahve",
+              // uygulama İngilizce'yken "Coffee" önerisini işaretli gösterir).
+              const adlar = [name, ...butunDillerde(labelKey)];
+              const existing = active.find((rutin) => adlar.includes(rutin.ad));
+              const secili = Boolean(existing);
+              const label = t[labelKey];
+              const suAnSecili = existing ? id === existing.id : cat === kategoriKodu && ad === label;
+              const kat = kategoriGetir(kategoriKodu);
+              const renk = aileRenkleri(kat.aile);
+
+              return (
+                <View key={name} style={stil.hazirOge}>
+                  <ClayPressable
+                    onPress={() => {
+                      if (existing) edit(existing);
+                      else {
+                        clear();
+                        setAd(label);
+                        setCat(kategoriKodu);
+                      }
+                    }}
+                    accessibilityLabel={`${label}${secili ? `, ${t['ui.routines.selected']}` : ''}`}
+                    selected={suAnSecili}
+                    borderRadius={radius.tile}
+                    background={suAnSecili ? color.primarySoft : color.surface}
+                    shadow={suAnSecili ? clay.sunken : clay.raised}
+                    style={[
+                      stil.hazirKart,
+                      suAnSecili ? stil.hazirKartSecili : null,
+                    ]}>
+                    {secili ? (
+                      <View style={stil.rozet}>
+                        <Icon name="check" size={20} color={color.onPrimary} />
+                      </View>
+                    ) : null}
+                    <View style={[stil.kartIkon, { backgroundColor: renk.soft }]}>
+                      <Icon name={kat.ikon} size={20} color={renk.solid} />
+                    </View>
+                    <View style={{ height: 6 }} />
+                    <View style={stil.baslikAlani}>
+                      <Txt role="label" numberOfLines={2} style={stil.kartBaslik}>
+                        {label}
+                      </Txt>
+                    </View>
+                  </ClayPressable>
+                </View>
+              );
+            })}
+            <View style={stil.hazirOge}>
+              <ClayPressable
+                onPress={clear}
+                accessibilityLabel={t['ui.routines.custom']}
+                borderRadius={radius.tile}
+                background={!duzenleniyor && !cat && !ad ? color.primarySoft : color.surface}
+                shadow={!duzenleniyor && !cat && !ad ? clay.sunken : clay.raised}
+                style={[
+                  stil.hazirKart,
+                  !duzenleniyor && !cat && !ad ? stil.hazirKartSecili : null,
+                ]}>
+                <View style={[stil.kartIkon, { backgroundColor: color.primarySoft }]}>
+                  <Icon name="plus" size={20} color={color.primaryText} />
+                </View>
+                <View style={{ height: 6 }} />
+                <View style={stil.baslikAlani}>
+                  <Txt role="label" numberOfLines={2} style={stil.kartBaslik}>
+                    {t['ui.routines.custom']}
+                  </Txt>
+                </View>
+              </ClayPressable>
+            </View>
+          </View>
+          <View style={{ height: rhythm.section }} />
         </View>
       ) : null}
 
@@ -172,12 +213,13 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
       {active.length > 0 ? (
         <View>
           <GrupBasligi metin={t['ui.routines.active']} />
-          {active.map((rutin, i) => {
-            const kat = kategoriGetir(rutin.kategori);
-            return (
-              <View key={rutin.id}>
-                {i > 0 ? <View style={{ height: rhythm.group }} /> : null}
+          <View style={{ height: rhythm.group }} />
+          <SettingGroup>
+            {active.map((rutin) => {
+              const kat = kategoriGetir(rutin.kategori);
+              return (
                 <SettingRow
+                  key={rutin.id}
                   leading={<CategoryIconBox kategori={kat} />}
                   baslik={rutin.ad}
                   aciklama={`${kat.ad} · ${rutinGunlukOzeti(rutin.gunluk_adet, money(rutin.birim_fiyat_kurus))}`}
@@ -192,9 +234,9 @@ export function RoutinePanel({ onboarding = false }: { onboarding?: boolean }) {
                     />
                   }
                 />
-              </View>
-            );
-          })}
+              );
+            })}
+          </SettingGroup>
         </View>
       ) : null}
 
@@ -211,3 +253,56 @@ export default function Rutinler() {
     </RevScreen>
   );
 }
+
+const stil = StyleSheet.create({
+  hazirIzgara: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -4,
+  },
+  hazirOge: {
+    width: '33.333%',
+    padding: 4,
+  },
+  hazirKart: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    minHeight: 88,
+    position: 'relative',
+  },
+  hazirKartSecili: {
+    borderWidth: 1.5,
+    borderColor: color.primary,
+  },
+  kartIkon: {
+    width: 38,
+    height: 38,
+    borderRadius: radius.tile,
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: clay.sunken,
+  },
+  baslikAlani: {
+    height: 34,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  kartBaslik: {
+    textAlign: 'center',
+    paddingHorizontal: 2,
+  },
+  rozet: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    width: 22,
+    height: 22,
+    borderRadius: radius.pill,
+    backgroundColor: color.success,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 1,
+  },
+});

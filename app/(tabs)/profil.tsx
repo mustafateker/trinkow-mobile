@@ -14,6 +14,7 @@ import {
   a11yProfilSatir,
   profilKimlikSeritAltEnUzun,
   profilKimlikSeritGun,
+  profilSatirAboneliklerDeger,
   profilSatirButceDeger,
   profilSatirFavorilerDeger,
   profilSatirLimitlerDeger,
@@ -27,7 +28,7 @@ import { seriDurumuHesapla } from '@/db/seri';
 import type { Oturum } from '@/lib/oturumDeposu';
 import { oturumOku } from '@/lib/oturumDeposu';
 import { paraYaz } from '@/lib/para';
-import { budgetGet, bugun, favoritesGet, routinesGet, savingsGet } from '@/lib/revApi';
+import { budgetGet, bugun, favoritesGet, routinesGet, savingsGet, subscriptionsGet } from '@/lib/revApi';
 import { color, layout, rhythm } from '@/theme/tokens';
 import { useDil } from '@/i18n/useDil';
 
@@ -40,6 +41,8 @@ type AyarVerisi = {
   kategoriLimitSayisi: number;
   rutinSayisi: number;
   rutinTasarrufBuAyKurus: number;
+  abonelikSayisi: number;
+  abonelikAylikToplamKurus: number;
   favoriSayisi: number;
   taksitSeriSayisi: number;
   taksitBuAyToplamKurus: number;
@@ -67,8 +70,18 @@ export default function ProfilEkrani() {
         surenSeriler(buAy),
         taksitBuAyToplam(buAy),
         seriDurumuHesapla(),
+        subscriptionsGet(),
       ]);
-      const [butceYaniti, rutinYaniti, favoriYaniti, tasarrufAy, taksitSeriler, buAyTaksitToplam, seriYaniti] = sonuclar;
+      const [
+        butceYaniti,
+        rutinYaniti,
+        favoriYaniti,
+        tasarrufAy,
+        taksitSeriler,
+        buAyTaksitToplam,
+        seriYaniti,
+        abonelikYaniti,
+      ] = sonuclar;
       const butce = butceYaniti.status === 'fulfilled' ? butceYaniti.value.butce : null;
       const rutinler = rutinYaniti.status === 'fulfilled' ? rutinYaniti.value.rutinler : [];
       const favoriler = favoriYaniti.status === 'fulfilled' ? favoriYaniti.value.kalemler : [];
@@ -76,6 +89,9 @@ export default function ProfilEkrani() {
       const taksitler = taksitSeriler.status === 'fulfilled' ? taksitSeriler.value : [];
       const taksitToplam = buAyTaksitToplam.status === 'fulfilled' ? buAyTaksitToplam.value : 0;
       const seri = seriYaniti.status === 'fulfilled' ? seriYaniti.value : { mevcutSeri: 0, enUzunSeri: 0 };
+      const abonelikler = abonelikYaniti.status === 'fulfilled' ? abonelikYaniti.value.abonelikler : [];
+      const aktifAbonelikler = abonelikler.filter((a) => a.aktif);
+      const abonelikAylikToplam = aktifAbonelikler.reduce((toplam, a) => toplam + a.tutar_kurus, 0);
       return {
         gelirKurus: butce?.gelir_kurus ?? null,
         sabitGiderSayisi: butce ? Object.values(butce.sabit_giderler).filter((v) => v > 0).length : 0,
@@ -83,6 +99,8 @@ export default function ProfilEkrani() {
         kategoriLimitSayisi: butce ? Object.values(butce.kategori_limitleri).filter((v) => v > 0).length : 0,
         rutinSayisi: rutinler.filter((r) => r.aktif).length,
         rutinTasarrufBuAyKurus: tasarruf,
+        abonelikSayisi: aktifAbonelikler.length,
+        abonelikAylikToplamKurus: abonelikAylikToplam,
         favoriSayisi: favoriler.length,
         taksitSeriSayisi: taksitler.length,
         taksitBuAyToplamKurus: taksitToplam,
@@ -125,7 +143,8 @@ export default function ProfilEkrani() {
           <SettingGroup>
             <AyarSatiri icon="banknote" iconTone="green" baslik={t['profil.satir.butce']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? (ayarVerisi.data.gelirKurus != null ? profilSatirButceDeger(paraYaz(ayarVerisi.data.gelirKurus), ayarVerisi.data.sabitGiderSayisi) : t['tasarruf.gelirYok.baslik']) : t['profil.satir.butceBos']} onPress={() => router.push('/butce')} />
             <AyarSatiri icon="limitler" iconTone="blue" baslik={t['profil.satir.limitler']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? (ayarVerisi.data.gunlukLimitKurus != null ? profilSatirLimitlerDeger(paraYaz(ayarVerisi.data.gunlukLimitKurus), ayarVerisi.data.kategoriLimitSayisi) : t['profil.satir.limitlerBos']) : t['profil.satir.limitlerBos']} onPress={() => router.push('/limitler')} />
-            <AyarSatiri icon="repeat" iconTone="orange" baslik={t['profil.satir.rutinler']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? profilSatirRutinlerDeger(ayarVerisi.data.rutinSayisi, paraYaz(ayarVerisi.data.rutinTasarrufBuAyKurus)) : t['profil.satir.rutinlerBos']} onPress={() => router.push('/rutinler')} />
+            <AyarSatiri icon="repeat" iconTone="orange" baslik={t['profil.satir.rutinler']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? (ayarVerisi.data.rutinSayisi > 0 ? profilSatirRutinlerDeger(ayarVerisi.data.rutinSayisi, paraYaz(ayarVerisi.data.rutinTasarrufBuAyKurus)) : t['profil.satir.rutinlerBos']) : t['profil.satir.rutinlerBos']} onPress={() => router.push('/rutinler')} />
+            <AyarSatiri icon="calendar" iconTone="blue" baslik={t['profil.satir.abonelikler']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? (ayarVerisi.data.abonelikSayisi > 0 ? profilSatirAboneliklerDeger(ayarVerisi.data.abonelikSayisi, paraYaz(ayarVerisi.data.abonelikAylikToplamKurus)) : t['profil.satir.aboneliklerBos']) : t['profil.satir.aboneliklerBos']} onPress={() => router.push('/abonelikler')} />
             <AyarSatiri icon="notebook" iconTone="pink" baslik={t['profil.satir.favoriler']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? profilSatirFavorilerDeger(ayarVerisi.data.favoriSayisi) : t['profil.satir.favorilerBos']} onPress={() => router.push('/favoriler')} />
             <AyarSatiri icon="calendar-clock" iconTone="orange" baslik={t['profil.satir.taksitler']} yukleniyor={ayarVerisi.loading} deger={ayarVerisi.data ? profilSatirTaksitlerDeger(ayarVerisi.data.taksitSeriSayisi, paraYaz(ayarVerisi.data.taksitBuAyToplamKurus)) : t['profil.satir.taksitlerBos']} onPress={() => router.push('/taksitler')} />
             <SettingRow icon="trending-up" iconTone="green" baslik={t['profil.satir.seri']} aciklama={profilSatirSeriDeger(seri.mevcutSeri, seri.enUzunSeri)} onPress={() => router.push('/seri')} accessibilityLabel={a11yProfilSatir(t['profil.satir.seri'], profilSatirSeriDeger(seri.mevcutSeri, seri.enUzunSeri))} />
