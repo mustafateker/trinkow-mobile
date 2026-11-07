@@ -34,3 +34,33 @@ platform :android do
     upload_test_release(track: "alpha", release_status: "draft")
   end
 end
+
+platform :ios do
+  private_lane :asc_api_key do
+    key_path = ENV.fetch(
+      "APP_STORE_CONNECT_API_KEY_PATH",
+      File.expand_path("../.release-secrets/AuthKey_6JM37H93JC.p8", __dir__)
+    )
+    UI.user_error!("App Store Connect API anahtarı bulunamadı: #{key_path}") unless File.exist?(key_path)
+
+    app_store_connect_api_key(
+      key_id: ENV.fetch("APP_STORE_CONNECT_KEY_ID", "6JM37H93JC"),
+      issuer_id: ENV.fetch("APP_STORE_CONNECT_ISSUER_ID", "c52e6cf6-318d-452a-9a47-82f5b2d39467"),
+      key_filepath: key_path,
+      in_house: false
+    )
+  end
+
+  desc "Native IPA'yı App Store Connect / TestFlight'a yükler"
+  lane :testflight do
+    ipa_path = ENV.fetch("IOS_IPA_PATH")
+    UI.user_error!("IPA bulunamadı: #{ipa_path}") unless File.exist?(ipa_path)
+
+    upload_to_testflight(
+      api_key: asc_api_key,
+      ipa: ipa_path,
+      app_identifier: "com.triworkster.trinkow",
+      skip_waiting_for_build_processing: true
+    )
+  end
+end

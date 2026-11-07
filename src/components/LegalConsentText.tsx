@@ -16,15 +16,17 @@ import { color, type } from '@/theme/tokens';
 export function LegalConsentText({
   metin,
   onLinkPress,
+  align = 'left',
 }: {
   metin: string;
   onLinkPress?: (baglantiIndeksi: number) => void;
+  align?: 'left' | 'center';
 }) {
   const parcalar = metin.split('**');
   const [basiliIndeks, setBasiliIndeks] = useState<number | null>(null);
 
   return (
-    <Text style={[type.micro, { color: color.text2 }]}>
+    <Text style={[type.micro, { color: color.text2, textAlign: align }]}>
       {parcalar.map((parca, i) => {
         const baglantiMi = i % 2 === 1;
         if (!baglantiMi) return <Text key={i}>{parca}</Text>;

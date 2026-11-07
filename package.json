@@ -1,7 +1,7 @@
 {
   "name": "trinkow",
   "main": "index.js",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "private": true,
   "scripts": {
     "dev": "python3 ../dev.py",
@@ -15,7 +15,9 @@
     "release:setup": "node scripts/release-setup.mjs",
     "release": "node scripts/release.mjs",
     "release:internal": "node scripts/release.mjs internal",
-    "release:closed": "node scripts/release.mjs closed"
+    "release:closed": "node scripts/release.mjs closed",
+    "release:ios": "node scripts/release-ios.mjs build",
+    "release:ios:testflight": "node scripts/release-ios.mjs testflight"
   },
   "expo": {
     "autolinking": {
@@ -37,6 +39,7 @@
     "@fortawesome/free-brands-svg-icons": "^7.3.1",
     "@tanstack/react-query": "^5.104.5",
     "expo": "~57.0.30",
+    "expo-apple-authentication": "~57.0.2",
     "expo-constants": "~57.0.22",
     "expo-font": "~57.0.4",
     "expo-haptics": "~57.0.3",

@@ -187,6 +187,15 @@ export async function googleIleGirisYap(idTokeni: string): Promise<TokenCifti> {
   return { erisimTokeni: yanit.erisim_tokeni, yenilemeTokeni: yanit.yenileme_tokeni };
 }
 
+/** `POST /auth/apple` — native Apple Sign-In'in identityToken'ıyla oturum açar. */
+export async function appleIleGirisYap(idTokeni: string): Promise<TokenCifti> {
+  const yanit = await istek<{ erisim_tokeni: string; yenileme_tokeni: string }>('/auth/apple', {
+    yontem: 'POST',
+    govde: { id_token: idTokeni },
+  });
+  return { erisimTokeni: yanit.erisim_tokeni, yenilemeTokeni: yanit.yenileme_tokeni };
+}
+
 export type KullaniciBilgisi = { id: string; email: string; kimlikSaglayici: string };
 
 /** `GET /auth/ben` — Ayarlar E-19 hesap satırının gerçek e-posta/sağlayıcı kaynağı. */

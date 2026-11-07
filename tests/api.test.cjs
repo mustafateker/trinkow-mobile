@@ -68,6 +68,19 @@ test('Google ID tokenı backend Google giriş ucuna taşınır', async () => {
   assert.equal(tokenlar.yenilemeTokeni, 'google-refresh');
 });
 
+test('Apple ID tokenı backend Apple giriş ucuna taşınır', async () => {
+  const { api } = ortam(async (url, options) => {
+    assert.ok(url.endsWith('/auth/apple'));
+    assert.equal(options.method, 'POST');
+    assert.deepEqual(JSON.parse(options.body), { id_token: 'apple-id-token' });
+    return yanit({ erisim_tokeni: 'apple-access', yenileme_tokeni: 'apple-refresh' });
+  });
+
+  const tokenlar = await api.appleIleGirisYap('apple-id-token');
+  assert.equal(tokenlar.erisimTokeni, 'apple-access');
+  assert.equal(tokenlar.yenilemeTokeni, 'apple-refresh');
+});
+
 test('Google public OAuth yapılandırması backendden alınır', async () => {
   const { api } = ortam(async (url, options) => {
     assert.ok(url.endsWith('/auth/google/yapilandirma'));

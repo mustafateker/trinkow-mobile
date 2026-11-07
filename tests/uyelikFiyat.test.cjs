@@ -34,3 +34,15 @@ test('paywall ekranı oturum-açık korumalı ekran grubunda listeli', () => {
   const acikGrubu = kaynak.slice(baslangic, kaynak.indexOf('</Stack.Protected>', baslangic));
   assert.match(acikGrubu, /<Stack\.Screen name="premium" /);
 });
+
+test('paywall ve kilit ekranları sabit Türkçe metin içermez ve rozeti ClayPressable dışında tutar', () => {
+  const paywall = fs.readFileSync(path.resolve(__dirname, '..', 'app/premium.tsx'), 'utf8');
+  const kilit = fs.readFileSync(path.resolve(__dirname, '..', 'src/components/PremiumKilidi.tsx'), 'utf8');
+  assert.doesNotMatch(paywall, /toUpperCase\(\)/, 'locale-duyarlı toLocaleUpperCase kullanılmalı');
+  assert.doesNotMatch(kilit, /toUpperCase\(\)/, 'locale-duyarlı toLocaleUpperCase kullanılmalı');
+  assert.doesNotMatch(paywall, /Yıllık faturalandırılır|Aylık yenilenir|tek tıkla iptal/);
+  assert.doesNotMatch(kilit, /Harcama Trendi|Birikim & Tasarruf|Önizleme|\+₺1\.450/);
+  const rozetKonumu = paywall.indexOf('stil.avantajBadge');
+  const basilebilirKonumu = paywall.indexOf('<ClayPressable', rozetKonumu);
+  assert.ok(rozetKonumu > 0 && basilebilirKonumu > rozetKonumu, 'avantajBadge ClayPressable overflow:hidden dışında olmalı');
+});

@@ -2158,6 +2158,16 @@ export const metinler = {
   'premium.ayar.gec': "Premium'a geç",
   'premium.ayar.gec.alt': 'Analizler, tasarruf takibi, reklamsız kullanım',
   'premium.hesap_sil.uyari': 'Hesabını silmek Premium aboneliğini iptal etmez. Ücret alınmaya devam etmesin diye önce {magaza} üzerinden iptal et.',
+  'premium.plan.yenileme.yillik': 'Yıllık faturalandırılır',
+  'premium.plan.yenileme.aylik': 'Aylık yenilenir',
+  'premium.guvence.iptal': '{magaza} üzerinden istediğin zaman tek dokunuşla iptal et',
+  'premium.kilit.onizleme': 'Önizleme',
+  'premium.kilit.analiz.onizleme_baslik': 'Harcama trendi ve analiz',
+  'premium.kilit.tasarruf.onizleme_baslik': 'Birikim ve tasarruf',
+  'premium.kilit.tasarruf.hedef': 'Aylık birikim hedefi',
+  'premium.kilit.tasarruf.bu_ay': '+{tutar} bu ay tasarruf',
+  'premium.kilit.tasarruf.rutin': 'Rutin takipte',
+  'premium.kilit.guvence': '7 gün ücretsiz deneme • İstediğin zaman iptal et',
 };
 
 /**

@@ -11,7 +11,7 @@ import { SettingRow } from '@/components/SettingRow';
 import { SocialAuthButton } from '@/components/SocialAuthButton';
 import { TextField } from '@/components/TextField';
 import { Txt } from '@/components/Txt';
-import { ApiAgHatasi, ApiHatasi, GELISTIRME_GIRISI, benKimim, girisYap, googleIleGirisYap, googleYapilandirmasiniGetir } from '@/lib/api';
+import { ApiAgHatasi, ApiHatasi, GELISTIRME_GIRISI, appleIleGirisYap, benKimim, girisYap, googleIleGirisYap, googleYapilandirmasiniGetir } from '@/lib/api';
 import { oturumYaz } from '@/lib/oturumDeposu';
 import { posthog } from '@/config/posthog';
 import { posthogLog } from '@/lib/posthogLog';
@@ -43,6 +43,22 @@ export default function GirisEkrani() {
       posthogLog.warn('authentication_failed', { authentication_provider: 'password', failure_type: e instanceof ApiHatasi && e.durum === 401 ? 'invalid_credentials' : 'request_failed' });
       setHata(e instanceof ApiHatasi && e.durum === 401 ? t['ui.login.invalid_credentials'] : t['ui.login.failed']);
     } finally { setMesgul(false); }
+  }
+  async function appleGonder() {
+    if (mesgul || sosyalMesgul) return;
+    setHata(null); setSosyalMesgul(true);
+    try {
+      const idTokeni = await appleIleDevamEt();
+      if (!idTokeni) return;
+      const cift = await appleIleGirisYap(idTokeni);
+      const ben = await benKimim(cift.erisimTokeni);
+      await oturumYaz({ ...cift, kullaniciId: ben.id, email: ben.email, kimlikSaglayici: ben.kimlikSaglayici }, hatirla);
+      posthog?.capture('user_signed_in', { authentication_provider: 'apple', remember_session: hatirla });
+      posthogLog.info('authentication_succeeded', { authentication_provider: 'apple', remember_session: hatirla });
+    } catch {
+      posthogLog.warn('authentication_failed', { authentication_provider: 'apple', failure_type: 'request_failed' });
+      setHata(t['ui.login.failed']);
+    } finally { setSosyalMesgul(false); }
   }
   async function googleGonder() {
     if (mesgul || sosyalMesgul) return;
@@ -95,7 +111,7 @@ export default function GirisEkrani() {
         <View style={{ height: rhythm.section }} />
         <OrDivider />
         <View style={{ height: rhythm.blockInCard }} />
-        {sosyalSaglayicilar().map((provider, index) => <View key={provider}>{index > 0 ? <View style={{ height: rhythm.group }} /> : null}<SocialAuthButton provider={provider} disabled={mesgul || sosyalMesgul || provider === 'apple'} onPress={() => void (provider === 'apple' ? appleIleDevamEt() : googleGonder())} /></View>)}
+        {sosyalSaglayicilar().map((provider, index) => <View key={provider}>{index > 0 ? <View style={{ height: rhythm.group }} /> : null}<SocialAuthButton provider={provider} disabled={mesgul || sosyalMesgul} onPress={() => void (provider === 'apple' ? appleGonder() : googleGonder())} /></View>)}
         {GELISTIRME_GIRISI ? <><View style={{ height: rhythm.blockInCard }} /><SettingRow baslik={t['ui.login.dev_title']} aciklama={t['ui.login.dev_description']} anahtarDegeri={demo} onAnahtarDegistir={() => setDemo(!demo)} /></> : null}
         <View style={{ height: rhythm.section }} />
         <View style={stil.altSatir}><Txt role="caption">{t['ui.login.no_account']}</Txt><Button label={t['ui.login.create_account']} variant="ghost" textRole="label" auto onPress={() => router.replace('/kayit')} /></View>

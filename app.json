@@ -2,7 +2,7 @@
   "expo": {
     "name": "Trinkow",
     "slug": "trinkow",
-    "version": "0.1.13",
+    "version": "0.1.14",
     "orientation": "default",
     "scheme": "trinkow",
     "userInterfaceStyle": "light",
@@ -13,11 +13,15 @@
     "icon": "./assets/images/trinkow-app-icon.png",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.trinkow.app"
+      "bundleIdentifier": "com.triworkster.trinkow",
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "com.triworkster.trinkow",
-      "versionCode": 14,
+      "versionCode": 15,
       "blockedPermissions": [
         "com.google.android.gms.permission.AD_ID"
       ],
@@ -29,15 +33,7 @@
     },
     "plugins": [
       "expo-router",
-      [
-        "expo-localization",
-        {
-          "supportedLocales": [
-            "tr",
-            "en"
-          ]
-        }
-      ],
+      "expo-apple-authentication",
       [
         "expo-splash-screen",
         {

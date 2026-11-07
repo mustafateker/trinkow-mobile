@@ -96,3 +96,28 @@ test('native modül bulunmasa bile route yüklenir ve dokunuşta rebuild hatası
   assert.equal(api.sosyalSaglayicilar().join(','), 'apple');
   await assert.rejects(api.googleIleDevamEt('web.apps.googleusercontent.com'), (hata) => hata.kod === 'native-modul');
 });
+
+test('Apple ile giriş native modülden identityToken döndürür ve iptalde null döner', async () => {
+  let cagriSayisi = 0;
+  const api = yukle('src/lib/sosyalGiris.ts', {
+    'expo-apple-authentication': {
+      AppleAuthenticationScope: { FULL_NAME: 0, EMAIL: 1 },
+      isAvailableAsync: async () => true,
+      signInAsync: async ({ requestedScopes }) => {
+        cagriSayisi++;
+        assert.deepEqual(Array.from(requestedScopes), [0, 1]);
+        if (cagriSayisi === 1) return { identityToken: 'imzali-apple-tokeni' };
+        const iptal = new Error('Canceled');
+        iptal.code = 'ERR_REQUEST_CANCELED';
+        throw iptal;
+      },
+    },
+    'react-native': {
+      Platform: { OS: 'ios' },
+      TurboModuleRegistry: { get: () => null },
+    },
+  });
+
+  assert.equal(await api.appleIleDevamEt(), 'imzali-apple-tokeni');
+  assert.equal(await api.appleIleDevamEt(), null);
+});

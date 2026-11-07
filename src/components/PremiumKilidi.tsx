@@ -7,7 +7,10 @@ import { PremiumOzellikleri } from '@/components/PremiumOzellikleri';
 import { Skeleton } from '@/components/Skeleton';
 import { Txt } from '@/components/Txt';
 import { t } from '@/content/metinler';
-import { color, radius, rhythm } from '@/theme/tokens';
+import { aktifEtiket, metin } from '@/i18n/cekirdek';
+import { kategori } from '@/lib/kategoriler';
+import { paraYaz } from '@/lib/para';
+import { clay, color, radius, rhythm } from '@/theme/tokens';
 
 export type KilitliOzellik = 'analiz' | 'tasarruf';
 
@@ -18,16 +21,24 @@ const METIN = {
 
 function AnalizOnizleme() {
   const barlar = [38, 65, 45, 88, 52, 75, 96];
+  const marketAdi = kategori('market').ad;
+  const kafeAdi = kategori('kafe').ad;
+  const restoranAdi = kategori('restoran').ad;
+
   return (
     <View style={stil.onizlemeKarti}>
       <View style={stil.onizlemeBaslikSatiri}>
         <View style={stil.onizlemeSol}>
           <Icon name="chart" size={16} color={color.primaryText} />
-          <Txt role="label" tone={color.text2}>Harcama Trendi & Analiz</Txt>
+          <Txt role="label" tone={color.text2} numberOfLines={1} style={stil.esnek}>
+            {t['premium.kilit.analiz.onizleme_baslik']}
+          </Txt>
         </View>
         <View style={stil.canliEtiket}>
           <View style={stil.canliNokta} />
-          <Txt role="micro" tone={color.primaryText}>Önizleme</Txt>
+          <Txt role="micro" tone={color.primaryText}>
+            {t['premium.kilit.onizleme']}
+          </Txt>
         </View>
       </View>
 
@@ -53,15 +64,21 @@ function AnalizOnizleme() {
       <View style={stil.cipSatiri}>
         <View style={[stil.miniCip, { backgroundColor: '#E7EFFF' }]}>
           <Icon name="shopping-basket" size={14} color="#4B87FF" />
-          <Txt role="micro" tone="#272F66">Market %42</Txt>
+          <Txt role="micro" tone="#272F66">
+            {marketAdi} {metin('cumle.ozetPay', { oran: 42 })}
+          </Txt>
         </View>
         <View style={[stil.miniCip, { backgroundColor: '#EFEAFC' }]}>
           <Icon name="coffee" size={14} color="#7D60E8" />
-          <Txt role="micro" tone="#272F66">Kafe %26</Txt>
+          <Txt role="micro" tone="#272F66">
+            {kafeAdi} {metin('cumle.ozetPay', { oran: 26 })}
+          </Txt>
         </View>
         <View style={[stil.miniCip, { backgroundColor: '#E2F6ED' }]}>
           <Icon name="utensils" size={14} color="#29AD7B" />
-          <Txt role="micro" tone="#272F66">Yemek %18</Txt>
+          <Txt role="micro" tone="#272F66">
+            {restoranAdi} {metin('cumle.ozetPay', { oran: 18 })}
+          </Txt>
         </View>
       </View>
     </View>
@@ -74,18 +91,26 @@ function TasarrufOnizleme() {
       <View style={stil.onizlemeBaslikSatiri}>
         <View style={stil.onizlemeSol}>
           <Icon name="landmark" size={16} color={color.primaryText} />
-          <Txt role="label" tone={color.text2}>Birikim & Tasarruf</Txt>
+          <Txt role="label" tone={color.text2} numberOfLines={1} style={stil.esnek}>
+            {t['premium.kilit.tasarruf.onizleme_baslik']}
+          </Txt>
         </View>
         <View style={stil.canliEtiket}>
           <View style={stil.canliNokta} />
-          <Txt role="micro" tone={color.primaryText}>Önizleme</Txt>
+          <Txt role="micro" tone={color.primaryText}>
+            {t['premium.kilit.onizleme']}
+          </Txt>
         </View>
       </View>
 
       <View style={{ height: rhythm.sameObject }} />
       <View style={stil.tasarrufIlerlemeSatiri}>
-        <Txt role="bodyStrong">Aylık Birikim Hedefi</Txt>
-        <Txt role="amount" tone={color.successInk}>%78</Txt>
+        <Txt role="bodyStrong" style={stil.esnek}>
+          {t['premium.kilit.tasarruf.hedef']}
+        </Txt>
+        <Txt role="amount" tone={color.successInk}>
+          {metin('cumle.ozetPay', { oran: 78 })}
+        </Txt>
       </View>
       <View style={{ height: rhythm.sameObject }} />
       <View style={stil.progressRay}>
@@ -94,11 +119,15 @@ function TasarrufOnizleme() {
 
       <View style={{ height: rhythm.blockInCard }} />
       <View style={stil.cipSatiri}>
-        <View style={[stil.miniCip, { backgroundColor: '#E2F6ED' }]}>
-          <Txt role="micro" tone={color.successInk}>+₺1.450 Bu Ay Tasarruf</Txt>
+        <View style={[stil.miniCip, { backgroundColor: color.successSoft }]}>
+          <Txt role="micro" tone={color.successInk}>
+            {metin('premium.kilit.tasarruf.bu_ay', { tutar: paraYaz(145000) })}
+          </Txt>
         </View>
-        <View style={[stil.miniCip, { backgroundColor: '#FFF2DB' }]}>
-          <Txt role="micro" tone={color.warningInk}>Rutin Takipte</Txt>
+        <View style={[stil.miniCip, { backgroundColor: color.warningSoft }]}>
+          <Txt role="micro" tone={color.warningInk}>
+            {t['premium.kilit.tasarruf.rutin']}
+          </Txt>
         </View>
       </View>
     </View>
@@ -123,7 +152,7 @@ export function PremiumKilidi({ ozellik, hazir }: { ozellik: KilitliOzellik; haz
       <View style={stil.tacRozet}>
         <Icon name="sparkles" size={14} color={color.warningDeep} />
         <Txt role="label" tone={color.warningDeep}>
-          TRİNKOW PREMIUM
+          {t['premium.baslik'].toLocaleUpperCase(aktifEtiket())}
         </Txt>
       </View>
 
@@ -151,7 +180,7 @@ export function PremiumKilidi({ ozellik, hazir }: { ozellik: KilitliOzellik; haz
       <View style={stil.guvence}>
         <Icon name="shield-check" size={16} color={color.text3} />
         <Txt role="micro" tone={color.text3}>
-          7 gün ücretsiz deneme • İstediğin zaman iptal et
+          {t['premium.kilit.guvence']}
         </Txt>
       </View>
     </View>
@@ -162,6 +191,10 @@ const stil = StyleSheet.create({
   iskelet: { gap: rhythm.pad },
   konteyner: {
     paddingBottom: rhythm.section,
+  },
+  esnek: {
+    flex: 1,
+    minWidth: 0,
   },
   tacRozet: {
     alignSelf: 'flex-start',
@@ -180,20 +213,19 @@ const stil = StyleSheet.create({
     borderRadius: radius.card,
     backgroundColor: color.surface,
     borderWidth: 1,
-    borderColor: 'rgba(23, 28, 66, 0.08)',
-    shadowColor: '#171C42',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.04,
-    shadowRadius: 12,
-    elevation: 2,
+    borderColor: color.line,
+    boxShadow: clay.raised,
   },
   onizlemeBaslikSatiri: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: rhythm.group,
     marginBottom: rhythm.blockInCard,
   },
   onizlemeSol: {
+    flex: 1,
+    minWidth: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: rhythm.group,
@@ -250,6 +282,7 @@ const stil = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    gap: rhythm.group,
   },
   progressRay: {
     height: 8,

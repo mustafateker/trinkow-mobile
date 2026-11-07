@@ -1,8 +1,6 @@
-/** Native sosyal kimlik sağlayıcı akışları. Google ID token'ı yalnız backend'e
- * taşınır; Trinkow oturumu backend doğrulamasından sonra açılır. */
+/** Native sosyal kimlik sağlayıcı akışları. Apple ve Google ID token'ı yalnız
+ * backend'e taşınır; Trinkow oturumu backend doğrulamasından sonra açılır. */
 import { Platform, TurboModuleRegistry } from 'react-native';
-import { t } from '@/content/metinler';
-import { toastGoster } from '@/lib/toastBus';
 
 export type SosyalSaglayici = 'apple' | 'google';
 export type SosyalGirisHataKodu =
@@ -11,6 +9,7 @@ export type SosyalGirisHataKodu =
   | 'native-modul'
   | 'play-services'
   | 'genel';
+type AppleAuthModulu = typeof import('expo-apple-authentication');
 type GoogleSignInModulu = typeof import('react-native-nitro-google-signin');
 
 export class SosyalGirisHatasi extends Error {
@@ -22,8 +21,21 @@ export class SosyalGirisHatasi extends Error {
   }
 }
 
+let appleModulu: AppleAuthModulu | null = null;
 let googleYapilandirildi = false;
 let googleModulu: GoogleSignInModulu | null = null;
+
+function appleModulunuYukle(): AppleAuthModulu {
+  if (appleModulu) return appleModulu;
+  if (Platform.OS !== 'ios') throw new SosyalGirisHatasi('native-modul');
+  try {
+    const ham = require('expo-apple-authentication') as AppleAuthModulu & { default?: AppleAuthModulu };
+    appleModulu = typeof ham.signInAsync === 'function' ? ham : (ham.default ?? ham);
+    return appleModulu;
+  } catch {
+    throw new SosyalGirisHatasi('native-modul');
+  }
+}
 
 function googleModulunuYukle(): GoogleSignInModulu {
   if (googleModulu) return googleModulu;
@@ -67,8 +79,30 @@ export function sosyalSaglayicilar(): SosyalSaglayici[] {
   return Platform.OS === 'ios' ? ['apple'] : ['google'];
 }
 
-export async function appleIleDevamEt(): Promise<void> {
-  toastGoster({ tur: 'info', metin: t['giris.sosyal_yok'] });
+export async function appleIleDevamEt(): Promise<string | null> {
+  try {
+    const modul = appleModulunuYukle();
+    const kullanilabilir = await modul.isAvailableAsync();
+    if (!kullanilabilir) throw new SosyalGirisHatasi('yapilandirma');
+    const yanit = await modul.signInAsync({
+      requestedScopes: [
+        modul.AppleAuthenticationScope.FULL_NAME,
+        modul.AppleAuthenticationScope.EMAIL,
+      ],
+    });
+    if (!yanit.identityToken) {
+      throw new SosyalGirisHatasi('genel');
+    }
+    return yanit.identityToken;
+  } catch (hata) {
+    if (hata instanceof SosyalGirisHatasi) throw hata;
+    if (typeof hata === 'object' && hata !== null && 'code' in hata) {
+      if (hata.code === 'ERR_REQUEST_CANCELED' || hata.code === 'ERR_CANCELED') {
+        return null;
+      }
+    }
+    throw new SosyalGirisHatasi('genel');
+  }
 }
 
 export async function googleIleDevamEt(webClientId: string): Promise<string | null> {
