@@ -15,7 +15,7 @@ export function Legend({
 }) {
   return (
     <View style={stil.satir}>
-      <Swatch renk={color.primaryDeep} etiket={altindaEtiket} />
+      <Swatch renk={color.success} etiket={altindaEtiket} />
       <View style={{ width: rhythm.pad }} />
       <Swatch renk={color.warningSoft} etiket={disindaEtiket} />
       <View style={{ width: rhythm.pad }} />

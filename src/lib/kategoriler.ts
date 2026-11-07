@@ -1,13 +1,14 @@
 import type { IconName } from '@/components/Icon';
 import { t } from '@/content/metinler';
 import { catColor, type CatFamily } from '@/theme/tokens';
+import { ozelKategoriBul } from '@/lib/ozelKategoriler';
 
 /**
  * tokens.md §1.4 — 6 aile · 13 kategori (metinler.md §17 ile birebir).
  * Aile rengi GRUP bilgisi taşır; kategoriyi ayıran şey ikon + adtır
  * (WCAG 1.4.1: renk tek başına bilgi taşımaz).
  */
-export type KategoriKodu =
+export type StandartKategoriKodu =
   | 'market'
   | 'saglik'
   | 'kafe'
@@ -22,6 +23,8 @@ export type KategoriKodu =
   | 'aliskanliklar'
   | 'diger';
 
+export type KategoriKodu = StandartKategoriKodu | (string & {});
+
 export type Kategori = {
   kod: KategoriKodu;
   ad: string;
@@ -30,7 +33,7 @@ export type Kategori = {
 };
 
 /** Kategori — `ad` aktif dilden okunur (`kategori.ad.<kod>`), kod dilden bağımsızdır. */
-function kat(kod: KategoriKodu, aile: CatFamily, ikon: IconName): Kategori {
+function kat(kod: StandartKategoriKodu, aile: CatFamily, ikon: IconName): Kategori {
   return {
     kod,
     aile,
@@ -41,7 +44,7 @@ function kat(kod: KategoriKodu, aile: CatFamily, ikon: IconName): Kategori {
   };
 }
 
-export const KATEGORILER: Record<KategoriKodu, Kategori> = {
+export const KATEGORILER: Record<StandartKategoriKodu, Kategori> = {
   market: kat('market', 'yesil', 'shopping-basket'),
   kafe: kat('kafe', 'amber', 'coffee'),
   ulasim: kat('ulasim', 'mavi', 'bus'),
@@ -107,11 +110,28 @@ export const GUNLUK_HARCAMA_KATEGORILERI: KategoriKodu[] = TUM_KATEGORILER.filte
 export const SABIT_ODEME_KATEGORILERI: KategoriKodu[] = ['abonelik', 'fatura', 'kiraev'];
 
 export function kategori(kod: string): Kategori {
-  const secilen = KATEGORILER[kod as KategoriKodu] ?? KATEGORILER.market;
-  const adAnahtari: `kategori.ad.${KategoriKodu}` = `kategori.ad.${secilen.kod}`;
-  return { ...secilen, ad: t[adAnahtari] };
+  const secilen = KATEGORILER[kod as StandartKategoriKodu];
+  if (secilen) {
+    const adAnahtari: `kategori.ad.${StandartKategoriKodu}` = `kategori.ad.${secilen.kod as StandartKategoriKodu}`;
+    return { ...secilen, ad: t[adAnahtari] ?? secilen.ad };
+  }
+  const ozel = ozelKategoriBul(kod);
+  if (ozel) {
+    return {
+      kod: ozel.kod as KategoriKodu,
+      ad: ozel.ad,
+      aile: ozel.aile,
+      ikon: ozel.ikon,
+    };
+  }
+  return {
+    kod: kod as KategoriKodu,
+    ad: kod.startsWith('ozel_') ? kod.replace(/^ozel_([^_]+)_.*$/, '$1') : (kod.charAt(0).toUpperCase() + kod.slice(1)),
+    aile: 'duman',
+    ikon: 'circle-dashed',
+  };
 }
 
 export function aileRenkleri(aile: CatFamily) {
-  return catColor[aile];
+  return catColor[aile] ?? catColor.duman;
 }

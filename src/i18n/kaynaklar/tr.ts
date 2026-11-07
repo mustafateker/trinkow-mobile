@@ -774,10 +774,12 @@ export const metinler = {
   /** Yalnız veri okunamadığında (ağ hatası) — spesifikasyonda tanımsız üç
    * satır için inferred fallback, PM'e raporlanmıştır. */
   'profil.satir.butceBos': 'Aylık gelirini ve bütçeni belirle',
-  'profil.satir.rutinlerBos': 'Rutinlerini ve aboneliklerini buradan yönet',
+  'profil.satir.rutinlerBos': 'Günlük rutinlerini buradan yönet',
+  'profil.satir.abonelikler': 'Abonelikler',
+  'profil.satir.aboneliklerBos': 'Aboneliklerini buradan yönet',
   'profil.satir.favorilerBos': 'Sık kullandığın harcamaları kaydet',
   'profil.satir.taksitlerBos': 'Taksitli harcamalarını buradan takip et',
-  'profil.satir.rutinler': 'Rutinler ve Abonelikler',
+  'profil.satir.rutinler': 'Rutinler',
   'profil.satir.favoriler': 'Favoriler',
   'profil.satir.taksitler': 'Taksitler',
   'profil.satir.ozet': 'Aylık özet',
@@ -1183,6 +1185,8 @@ export const metinler = {
   'cumle.profilSatirLimitlerDeger': 'Günlük {gunlukTutar} · {kategoriLimitSayisi} kategori limiti',
   /** `profil.satir.rutinlerDeger` — "{n} rutin · bu ay {tutar} tasarruf" */
   'cumle.profilSatirRutinlerDeger': '{rutinSayisi} rutin · bu ay {tutar} tasarruf',
+  /** `profil.satir.aboneliklerDeger` — "{n} abonelik · aylık {tutar}" */
+  'cumle.profilSatirAboneliklerDeger': '{abonelikSayisi} abonelik · aylık {tutar}',
   /** `profil.satir.favorilerDeger` — "{n} ürün, son fiyatlarıyla" */
   'cumle.profilSatirFavorilerDeger': '{urunSayisi} ürün, son fiyatlarıyla',
   /** `profil.satir.taksitlerDeger` — "{n} seri · bu ay {tutar}" */
@@ -1737,7 +1741,7 @@ export const metinler = {
   'ui.settings.budget_description': 'Gelirini ve sabit giderlerini düzenle',
   'ui.settings.limits_title': 'Limitler',
   'ui.settings.limits_description': 'Günlük ve kategori sınırlarını düzenle',
-  'ui.settings.routines_title': 'Rutinler ve Abonelikler',
+  'ui.settings.routines_title': 'Rutinler',
   'ui.settings.routines_description': 'Düzenli harcamalarını ve yenilenmeleri yönet',
   'ui.settings.favorites_title': 'Favorilerim',
   'ui.settings.favorites_description': 'Hızlı ekleme kalemlerini düzenle',
@@ -1824,7 +1828,7 @@ export const metinler = {
   'ui.routines.daily_quantity': 'Günlük adet',
   'ui.routines.unit_price': 'Birim fiyat',
   'ui.routines.changes_notice': 'Rutin değişiklikleri bugünden itibaren geçerlidir. Harcama girmemek otomatik tasarruf sayılmaz.',
-  'ui.routines.title': 'Rutinler ve Abonelikler',
+  'ui.routines.title': 'Rutinler',
   'ui.password.reset_title': 'Yeni şifre belirle',
   'ui.password.reset_success': 'Şifren yenilendi. Tüm cihazlardaki eski oturumların kapatıldı.',
   'ui.password.new': 'Yeni şifre',

@@ -31,6 +31,7 @@ export function TextField({
   autoComplete,
   textContentType,
   placeholderTone,
+  autoFocus,
 }: {
   label?: string;
   value: string;
@@ -48,6 +49,7 @@ export function TextField({
   textContentType?: TextInputProps['textContentType'];
   /** rev2-tasarruf-profil.md §3.7 (B2) — `well` zemininde `text-3` AA altı kalıyor; bu ekranlarda `text-2` verilir. Verilmezse eski `text-3` korunur. */
   placeholderTone?: string;
+  autoFocus?: boolean;
 }) {
   const [odakli, setOdakli] = useState(false);
   const kalan = maxLength !== undefined ? maxLength - value.length : null;
@@ -83,6 +85,7 @@ export function TextField({
           textContentType={textContentType}
           importantForAutofill={autoComplete ? 'yes' : undefined}
           accessibilityLabel={accessibilityLabel ?? label ?? placeholder}
+          autoFocus={autoFocus}
           onFocus={() => setOdakli(true)}
           onBlur={() => {
             setOdakli(false);

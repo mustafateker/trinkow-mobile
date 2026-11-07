@@ -61,6 +61,14 @@ exports.yukle = function yukle(dosya, stubs = {}, globals = {}) {
   function yukleBagimlilik(name) {
     if (name === '@/i18n/cekirdek') return i18n();
     if (name === '@/config/posthog') return { posthog: undefined };
+    if (name === '@/lib/ozelKategoriler') {
+      return {
+        ozelKategoriBul: () => undefined,
+        ozelKategorileriGetirSync: () => [],
+        ozelKategoriEkle: async () => {},
+        ozelKategoriSil: async () => {},
+      };
+    }
     if (Object.hasOwn(testDependencies, name)) return yukle(testDependencies[name], stubs, globals);
     const goreli = name.startsWith('.') ? goreliCoz(filename, name) : null;
     if (goreli) return yukle(goreli, stubs, globals);

@@ -101,20 +101,20 @@ test('günde en fazla 1 — bugün zaten gösterildiyse eşik geçmiş başka bi
   assert.equal(await prof.aktifProfillemeSorusu(), null);
 });
 
-test('reddedilen soru 14 gün dolmadan geri gelmez', async () => {
+test('reddedilen soru 5 gün dolmadan geri gelmez', async () => {
   const prof = kur({
     kurulum: '2026-09-20',
-    suAn: '2026-10-02T10:00:00', // red'den 13 gün sonra
+    suAn: '2026-09-23T10:00:00', // red'den 4 gün sonra
     ayar: { profilleme_red_yatirim: '2026-09-19' },
   });
-  // 2026-09-19'dan 2026-10-02'ye 13 gün — hâlâ cooldown içinde, sıradaki soruya geç.
+  // 2026-09-19'dan 2026-09-23'e 4 gün — hâlâ cooldown içinde, sıradaki soruya geç.
   assert.equal(await prof.aktifProfillemeSorusu(), 'taksit');
 });
 
-test('reddedilen soru 14 gün dolunca geri gelir', async () => {
+test('reddedilen soru 5 gün dolunca geri gelir', async () => {
   const prof = kur({
     kurulum: '2026-09-20',
-    suAn: '2026-10-04T10:00:00', // red'den 15 gün sonra
+    suAn: '2026-09-25T10:00:00', // red'den 6 gün sonra
     ayar: { profilleme_red_yatirim: '2026-09-19' },
   });
   assert.equal(await prof.aktifProfillemeSorusu(), 'yatirim');

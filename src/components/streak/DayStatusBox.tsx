@@ -35,7 +35,7 @@ export function DayStatusBox({
     // kutu içe çöker, zemin `groove`'a (prototip "basılı" notu).
     if (basili) return { backgroundColor: color.groove, boxShadow: clay.pressed };
     if (pasif) return { backgroundColor: color.disabledBg, boxShadow: undefined };
-    if (dolu) return { backgroundColor: color.primaryDeep, boxShadow: clay.raised };
+    if (dolu) return { backgroundColor: color.success, boxShadow: clay.raised };
     if (durum === 'disinda') return { backgroundColor: color.warningSoft, boxShadow: clay.sunken };
     return { backgroundColor: color.well, boxShadow: clay.sunken };
   }
