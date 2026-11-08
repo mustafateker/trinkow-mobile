@@ -26,8 +26,8 @@ import { ProfilingHost } from '@/components/ProfilingHost';
 import { LaunchScreen } from '@/components/LaunchScreen';
 import { InAppUpdateHost } from '@/components/InAppUpdateHost';
 import { ToastHost } from '@/components/ToastHost';
-import { ApiHatasi } from '@/lib/api';
-import { oturumDegisimineAbone, oturumOku, oturumSil } from '@/lib/oturumDeposu';
+import { ApiHatasi, benKimim, girisYap } from '@/lib/api';
+import { oturumDegisimineAbone, oturumOku, oturumSil, oturumYaz } from '@/lib/oturumDeposu';
 import { gunSiniriSaatiniAyarla } from '@/lib/tarih';
 import { t } from '@/content/metinler';
 import { dilBaslat } from '@/i18n/dilDeposu';
@@ -52,6 +52,22 @@ if (Platform.OS === 'android') {
  * başına bir kez), sonra onboarding'i görür; bitmişse doğrudan sekmeler.
  */
 type IlkEkran = '(tabs)' | 'onboarding' | 'premium';
+
+const SCREENSHOT_TARGET: string = 'butce';
+
+function ScreenshotGezgini({ hedef }: { hedef: string }) {
+  const gezinme = useRootNavigationState();
+  useEffect(() => {
+    if (!gezinme?.key) return;
+    if (hedef === 'bugun') router.navigate('/');
+    else if (hedef === 'harcama-ekle') router.push({ pathname: '/harcama-ekle', params: { tutarKurus: '26500', kategori: 'restoran', ad: 'Öğle Menüsü' } });
+    else if (hedef === 'tasarruflar') router.navigate('/tasarruflar');
+    else if (hedef === 'analizler') router.navigate('/analizler');
+    else if (hedef === 'abonelikler') router.push('/abonelikler');
+    else if (hedef === 'butce') router.push('/butce');
+  }, [gezinme?.key, hedef]);
+  return null;
+}
 
 function IlkYonlendirme({ ilkEkran }: { ilkEkran: IlkEkran }) {
   const gezinme = useRootNavigationState();
@@ -86,7 +102,13 @@ function OturumGezgini() {
         if (kalan > 0) await new Promise((tamamla) => setTimeout(tamamla, kalan));
       }
       try {
-        const kayit = await oturumOku();
+        let kayit = await oturumOku();
+        if (!kayit || kayit.email !== 'demo@triworkster.com') {
+          const cift = await girisYap('demo@triworkster.com', 'TrinkowDemo2026!');
+          const ben = await benKimim(cift.erisimTokeni);
+          await oturumYaz({ ...cift, kullaniciId: ben.id, email: ben.email, kimlikSaglayici: ben.kimlikSaglayici }, true);
+          kayit = await oturumOku();
+        }
         if (iptal) return;
         if (!kayit) {
           void uyelikKapat();
@@ -172,7 +194,7 @@ function OturumGezgini() {
       </Stack.Protected>
     </Stack>
     {durum === 'acik' ? <IlkYonlendirme ilkEkran={ilkEkran} /> : null}
-    {durum === 'acik' ? <ProfilingHost /> : null}
+    {durum === 'acik' ? <ScreenshotGezgini hedef={SCREENSHOT_TARGET} /> : null}
   </>;
 }
 
