@@ -14,9 +14,13 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.triworkster.trinkow",
+      "buildNumber": "17",
       "usesAppleSignIn": true,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "Trinkow'un harcama fişi veya profil görseli seçebilmeniz için fotoğraf arşivinize erişmesine izin verin.",
+        "NSPhotoLibraryAddUsageDescription": "Trinkow'un bütçe ve harcama özeti görsellerini fotoğraf arşivinize kaydedebilmesine izin verin.",
+        "NSFaceIDUsageDescription": "Trinkow'un güvenli oturum bilgilerinizi korumak için Face ID kullanmasına izin verin."
       }
     },
     "android": {

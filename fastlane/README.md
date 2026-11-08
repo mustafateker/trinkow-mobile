@@ -33,6 +33,19 @@ Native AAB'yi Google Play kapalı test kanalına taslak olarak gönderir
 
 ----
 
+
+## iOS
+
+### ios testflight
+
+```sh
+[bundle exec] fastlane ios testflight
+```
+
+Native IPA'yı App Store Connect / TestFlight'a yükler
+
+----
+
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
 
 More information about _fastlane_ can be found on [fastlane.tools](https://fastlane.tools).

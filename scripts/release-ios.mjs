@@ -57,7 +57,7 @@ if (app.expo?.ios?.bundleIdentifier !== BUNDLE_ID) {
 }
 
 const surum = paket.version;
-const kod = Number(app.expo?.android?.versionCode ?? 15);
+const kod = Number(app.expo?.ios?.buildNumber ?? app.expo?.android?.versionCode ?? 16);
 
 console.log(`\nTrinkow iOS ${surum} (${kod}) native ${kip} akışı`);
 console.log('1/4 Testler ve tip kontrolü çalışıyor…');
@@ -73,7 +73,8 @@ for (const plistYolu of [infoPlistYolu, widgetInfoPlistYolu]) {
 }
 const pbxproj = readFileSync(pbxprojYolu, 'utf8')
   .replaceAll(/MARKETING_VERSION = [^;]+;/g, `MARKETING_VERSION = ${surum};`)
-  .replaceAll(/CURRENT_PROJECT_VERSION = \d+;/g, `CURRENT_PROJECT_VERSION = ${kod};`);
+  .replaceAll(/CURRENT_PROJECT_VERSION = \d+;/g, `CURRENT_PROJECT_VERSION = ${kod};`)
+  .replaceAll(/TARGETED_DEVICE_FAMILY = "1,2";/g, 'TARGETED_DEVICE_FAMILY = 1;');
 writeFileSync(pbxprojYolu, pbxproj);
 
 console.log('3/4 Native iOS Archive ve IPA üretiliyor…');
