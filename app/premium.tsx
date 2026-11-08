@@ -1,7 +1,8 @@
+import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, BackHandler, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets, type EdgeInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { ClayPressable } from '@/components/ClayPressable';
@@ -12,20 +13,24 @@ import { LegalConsentText } from '@/components/LegalConsentText';
 import { PremiumOzellikleri } from '@/components/PremiumOzellikleri';
 import { Skeleton } from '@/components/Skeleton';
 import { Txt } from '@/components/Txt';
+import { posthog } from '@/config/posthog';
 import { t } from '@/content/metinler';
-import { metin } from '@/i18n/cekirdek';
+import { aktifEtiket, metin } from '@/i18n/cekirdek';
 import { useDil } from '@/i18n/useDil';
 import { toastGoster } from '@/lib/toastBus';
-import { posthog } from '@/config/posthog';
 import {
   MAGAZA_ADI,
+  RevenueCatUI,
   geriYukle,
+  musteriBilgisiniGuncelle,
   paywallPaketleri,
   satinAl,
   standartPaywallGosterildi,
+  teklifGetir,
   useUyelik,
   type PaywallPaketi,
   type PaywallTuru,
+  type PurchasesOffering,
 } from '@/lib/uyelik';
 import { clay, color, layout, radius, rhythm } from '@/theme/tokens';
 
@@ -59,9 +64,249 @@ export default function PremiumEkrani() {
   const parametreler = useLocalSearchParams<{ tur?: string; kaynak?: string }>();
   const tur: PaywallTuru = parametreler.tur === 'indirim' ? 'indirim' : 'standart';
   const kaynak: Kaynak = KAYNAKLAR.find((k) => k === parametreler.kaynak) ?? 'kayit';
-  const kapatilabilir = kaynak === 'kilit' || kaynak === 'ayarlar';
   const { premium } = useUyelik();
 
+  const [offering, setOffering] = useState<PurchasesOffering | null | undefined>(undefined);
+  const [deneme, setDeneme] = useState(0);
+
+  useEffect(() => {
+    if (kaynak === 'kayit') standartPaywallGosterildi();
+    posthog?.capture('paywall_viewed', {
+      paywall_type: tur,
+      paywall_source: kaynak,
+    });
+  }, [kaynak, tur]);
+
+  const vazgec = useCallback((eylemTuru: 'atla' | 'kapat') => {
+    posthog?.capture('paywall_dismissed', {
+      paywall_type: tur,
+      paywall_source: kaynak,
+      dismiss_action: eylemTuru,
+    });
+    devamEt(kaynak);
+  }, [kaynak, tur]);
+
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      vazgec('kapat');
+      return true;
+    });
+    return () => sub.remove();
+  }, [vazgec]);
+
+  useEffect(() => {
+    let iptal = false;
+    teklifGetir(tur)
+      .then((sonuc) => {
+        if (!iptal) setOffering(sonuc);
+      })
+      .catch(() => {
+        if (!iptal) setOffering(null);
+      });
+    return () => {
+      iptal = true;
+    };
+  }, [tur, deneme]);
+
+  if (premium) {
+    return <PremiumKutlamaEkrani insets={insets} onDevam={() => devamEt(kaynak)} />;
+  }
+
+  // RevenueCat Paywall bileşeni: Offering hazırsa doğrudan RevenueCat üzerinde tasarlanan paywall gösterilir.
+  if (offering !== undefined && offering !== null) {
+    return (
+      <View style={stil.ekran}>
+        <RevenueCatUI.Paywall
+          style={stil.tamEkran}
+          options={{
+            offering,
+            displayCloseButton: true,
+          }}
+          onPurchaseStarted={({ packageBeingPurchased }) => {
+            posthog?.capture('paywall_purchase_started', {
+              billing_period: packageBeingPurchased.packageType,
+              paywall_source: kaynak,
+              paywall_type: tur,
+            });
+          }}
+          onPurchaseCompleted={({ customerInfo }) => {
+            musteriBilgisiniGuncelle(customerInfo);
+            posthog?.capture('premium_purchased', {
+              paywall_source: kaynak,
+              paywall_type: tur,
+            });
+            toastGoster({ tur: 'info', metin: t['premium.toast.basarili'] });
+          }}
+          onPurchaseCancelled={() => {
+            posthog?.capture('paywall_purchase_cancelled', { paywall_source: kaynak, paywall_type: tur });
+          }}
+          onPurchaseError={({ error }) => {
+            posthog?.capture('paywall_purchase_failed', { paywall_source: kaynak, paywall_type: tur, error_code: error.code });
+            toastGoster({ tur: 'warning', metin: t['premium.hata.satin_alma'] });
+          }}
+          onRestoreCompleted={({ customerInfo }) => {
+            musteriBilgisiniGuncelle(customerInfo);
+            const aktif = customerInfo.entitlements.active['premium'] !== undefined;
+            toastGoster({
+              tur: 'info',
+              metin: aktif ? t['premium.toast.geri_yuklendi'] : t['premium.toast.geri_yukleme_yok'],
+            });
+            if (aktif) devamEt(kaynak);
+          }}
+          onRestoreError={() => {
+            toastGoster({ tur: 'warning', metin: t['premium.toast.geri_yukleme_hata'] });
+          }}
+          onDismiss={() => {
+            vazgec('kapat');
+          }}
+        />
+      </View>
+    );
+  }
+
+  // Offering yüklenirken geçici bekleme durumu
+  if (offering === undefined) {
+    return (
+      <View style={[stil.ekran, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+        <View style={stil.yukleniyorHeader}>
+          <IconButton
+            icon="x"
+            accessibilityLabel={t['eylem.kapat']}
+            tone="#FFFFFF"
+            background={color.navGlassBg}
+            pressedBackground={color.navGlassBgPressed}
+            onPress={() => vazgec('kapat')}
+          />
+        </View>
+        <View style={stil.yukleniyorMerkez}>
+          <ActivityIndicator size="large" color="#FFFFFF" />
+          <View style={{ height: rhythm.group }} />
+          <Txt role="body" tone="#FFFFFF">
+            {t['premium.isleniyor']}
+          </Txt>
+        </View>
+      </View>
+    );
+  }
+
+  // Offering yüklenemezse veya çevrimdışıysa çalışan yedek paywall
+  return (
+    <FallbackPaywall
+      tur={tur}
+      kaynak={kaynak}
+      insets={insets}
+      premium={premium}
+      onTekrarDene={() => {
+        setOffering(undefined);
+        setDeneme((n) => n + 1);
+      }}
+      onVazgec={vazgec}
+      onDevamEt={() => devamEt(kaynak)}
+    />
+  );
+}
+
+function PremiumKutlamaEkrani({
+  insets,
+  onDevam,
+}: {
+  insets: EdgeInsets;
+  onDevam: () => void;
+}) {
+  useEffect(() => {
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+  }, []);
+
+  return (
+    <View style={stil.ekran}>
+      <View style={{ height: insets.top, backgroundColor: color.navDark }} />
+      <ScrollView
+        style={stil.kaydir}
+        contentContainerStyle={stil.kutlamaKaydirIcerik}
+        showsVerticalScrollIndicator={false}>
+        <View style={stil.kutlamaKahraman}>
+          <View style={stil.kutlamaAuraKapsayici}>
+            <View style={stil.kutlamaAuraGlowDis} />
+            <View style={stil.kutlamaAuraGlowIc} />
+            <View style={stil.kutlamaTacKapsayici}>
+              <Icon name="crown" size={32} color={color.warning} />
+            </View>
+          </View>
+
+          <View style={{ height: rhythm.blockInCard }} />
+
+          <View style={stil.kutlamaVipRozet}>
+            <Icon name="sparkles" size={14} color={color.warning} />
+            <Txt role="label" tone={color.warning}>
+              {t['premium.baslik'].toLocaleUpperCase(aktifEtiket())}
+            </Txt>
+          </View>
+
+          <View style={{ height: rhythm.group }} />
+
+          <Txt role="h1" tone="#FFFFFF" style={stil.ortaliMetin}>
+            {t['premium.aktif.baslik']}
+          </Txt>
+
+          <View style={{ height: rhythm.sameObject }} />
+
+          <Txt role="body" tone={color.navMuted} style={stil.ortaliMetin}>
+            {t['premium.aktif.govde']}
+          </Txt>
+        </View>
+
+        <View style={stil.kutlamaPanel}>
+          <View style={stil.kutlamaPanelBaslikSatiri}>
+            <Icon name="sparkles" size={16} color={color.warning} />
+            <Txt role="label" tone={color.text2}>
+              {t['premium.ayar.aktif'].toLocaleUpperCase(aktifEtiket())}
+            </Txt>
+          </View>
+
+          <View style={{ height: rhythm.group }} />
+
+          <PremiumOzellikleri />
+
+          <View style={{ height: rhythm.section }} />
+
+          <View style={stil.guvenceSatiri}>
+            <Icon name="shield-check" size={14} color={color.text3} />
+            <Txt role="micro" tone={color.text3} style={stil.ortaliMetin}>
+              {metin('premium.guvence.iptal', { magaza: MAGAZA_ADI })}
+            </Txt>
+          </View>
+        </View>
+      </ScrollView>
+
+      <View style={[stil.altSabit, { paddingBottom: Math.max(insets.bottom, rhythm.group) }]}>
+        <Button
+          variant="primary"
+          icon="sparkles"
+          label={t['premium.eylem.devam']}
+          onPress={onDevam}
+        />
+      </View>
+    </View>
+  );
+}
+
+function FallbackPaywall({
+  tur,
+  kaynak,
+  insets,
+  premium,
+  onTekrarDene,
+  onVazgec,
+  onDevamEt,
+}: {
+  tur: PaywallTuru;
+  kaynak: Kaynak;
+  insets: EdgeInsets;
+  premium: boolean;
+  onTekrarDene: () => void;
+  onVazgec: (eylem: 'atla' | 'kapat') => void;
+  onDevamEt: () => void;
+}) {
   const [paketler, setPaketler] = useState<PaywallPaketi[] | null>(null);
   const [yuklemeHatasi, setYuklemeHatasi] = useState(false);
   const [yuklemeDenemesi, setYuklemeDenemesi] = useState(0);
@@ -83,234 +328,215 @@ export default function PremiumEkrani() {
     };
   }, [tur, yuklemeDenemesi]);
 
-  useEffect(() => {
-    if (kaynak === 'kayit') standartPaywallGosterildi();
-  posthog?.capture('paywall_viewed', {
-    paywall_type: tur,
-    paywall_source: kaynak,
-  });
-}, [kaynak, tur]);
+  const secili = paketler?.find((paket) => paket.kimlik === seciliKimlik) ?? paketler?.[0] ?? null;
+  const denemeGunu = secili?.denemeGunu ?? null;
+  const rozetYuzdesi = tur === 'indirim' ? (paketler?.find((paket) => paket.indirimYuzdesi !== null)?.indirimYuzdesi ?? null) : null;
+  const ikincilEtiket =
+    kaynak === 'kayit' ? t['premium.eylem.atla'] : kaynak === 'onboarding' ? t['premium.eylem.ucretsiz_devam'] : t['eylem.simdi_degil'];
 
-function vazgec(eylemTuru: 'atla' | 'kapat') {
-  posthog?.capture('paywall_dismissed', {
-    paywall_type: tur,
-    paywall_source: kaynak,
-    dismiss_action: eylemTuru,
-    selected_package: secili?.donem ?? null,
-    has_trial: secili?.denemeGunu !== null,
-  });
-  devamEt(kaynak);
-}
-
-function tekrarDene() {
-  setYuklemeHatasi(false);
-  setPaketler(null);
-  setYuklemeDenemesi((n) => n + 1);
-}
-
-const secili = paketler?.find((paket) => paket.kimlik === seciliKimlik) ?? paketler?.[0] ?? null;
-const denemeGunu = secili?.denemeGunu ?? null;
-const rozetYuzdesi = tur === 'indirim' ? (paketler?.find((paket) => paket.indirimYuzdesi !== null)?.indirimYuzdesi ?? null) : null;
-const ikincilEtiket =
-  kaynak === 'kayit' ? t['premium.eylem.atla'] : kaynak === 'onboarding' ? t['premium.eylem.ucretsiz_devam'] : t['eylem.simdi_degil'];
-
-async function satinAlmayiBaslat() {
-  if (!secili || mesgul) return;
-  posthog?.capture('paywall_purchase_started', {
-    billing_period: secili.donem,
-    paywall_source: kaynak,
-    paywall_type: tur,
-    has_trial: secili.denemeGunu !== null,
-  });
-  setMesgul('satin');
-  setSatinAlmaHatasi(false);
-  const sonuc = await satinAl(secili.paket);
-  setMesgul(null);
-  if (sonuc === 'premium') {
-    posthog?.capture('premium_purchased', { billing_period: secili.donem, paywall_source: kaynak, has_trial: secili.denemeGunu !== null });
-    toastGoster({ tur: 'info', metin: t['premium.toast.basarili'] });
-    devamEt(kaynak);
-  } else if (sonuc === 'beklemede') {
-    toastGoster({ tur: 'info', metin: t['premium.toast.beklemede'] });
-    devamEt(kaynak);
-  } else if (sonuc === 'iptal') {
-    posthog?.capture('paywall_purchase_cancelled', { billing_period: secili.donem, paywall_source: kaynak });
-  } else if (sonuc === 'hata') {
-    posthog?.capture('paywall_purchase_failed', { billing_period: secili.donem, paywall_source: kaynak });
-    setSatinAlmaHatasi(true);
+  function tekrarDene() {
+    setYuklemeHatasi(false);
+    setPaketler(null);
+    setYuklemeDenemesi((n) => n + 1);
+    onTekrarDene();
   }
-}
 
-async function geriYuklemeyiBaslat() {
-  if (mesgul) return;
-  setMesgul('geri');
-  try {
-    const acildi = await geriYukle();
-    toastGoster({ tur: 'info', metin: acildi ? t['premium.toast.geri_yuklendi'] : t['premium.toast.geri_yukleme_yok'] });
-    if (acildi) devamEt(kaynak);
-  } catch {
-    toastGoster({ tur: 'warning', metin: t['premium.toast.geri_yukleme_hata'] });
-  } finally {
+  async function satinAlmayiBaslat() {
+    if (!secili || mesgul) return;
+    posthog?.capture('paywall_purchase_started', {
+      billing_period: secili.donem,
+      paywall_source: kaynak,
+      paywall_type: tur,
+      has_trial: secili.denemeGunu !== null,
+    });
+    setMesgul('satin');
+    setSatinAlmaHatasi(false);
+    const sonuc = await satinAl(secili.paket);
     setMesgul(null);
+    if (sonuc === 'premium') {
+      posthog?.capture('premium_purchased', { billing_period: secili.donem, paywall_source: kaynak, has_trial: secili.denemeGunu !== null });
+      toastGoster({ tur: 'info', metin: t['premium.toast.basarili'] });
+      onDevamEt();
+    } else if (sonuc === 'beklemede') {
+      toastGoster({ tur: 'info', metin: t['premium.toast.beklemede'] });
+      onDevamEt();
+    } else if (sonuc === 'iptal') {
+      posthog?.capture('paywall_purchase_cancelled', { billing_period: secili.donem, paywall_source: kaynak });
+    } else if (sonuc === 'hata') {
+      posthog?.capture('paywall_purchase_failed', { billing_period: secili.donem, paywall_source: kaynak });
+      setSatinAlmaHatasi(true);
+    }
   }
-}
 
-return (
-  <View style={stil.ekran}>
-    <View style={{ height: insets.top, backgroundColor: color.navDark }} />
-    <ScrollView style={stil.kaydir} contentContainerStyle={stil.kaydirIcerik} showsVerticalScrollIndicator={false}>
-      <View style={stil.kahraman}>
-        {kapatilabilir ? (
-          <View style={stil.kapatSatiri}>
+  async function geriYuklemeyiBaslat() {
+    if (mesgul) return;
+    setMesgul('geri');
+    try {
+      const acildi = await geriYukle();
+      toastGoster({ tur: 'info', metin: acildi ? t['premium.toast.geri_yuklendi'] : t['premium.toast.geri_yukleme_yok'] });
+      if (acildi) onDevamEt();
+    } catch {
+      toastGoster({ tur: 'warning', metin: t['premium.toast.geri_yukleme_hata'] });
+    } finally {
+      setMesgul(null);
+    }
+  }
+
+  return (
+    <View style={stil.ekran}>
+      <View style={{ height: insets.top, backgroundColor: color.navDark }} />
+      <ScrollView style={stil.kaydir} contentContainerStyle={stil.kaydirIcerik} showsVerticalScrollIndicator={false}>
+        <View style={stil.kahraman}>
+          <View style={stil.heroUstSatir}>
+            <View style={stil.heroSolGrup}>
+              <View style={stil.heroIkonKapsayici}>
+                <View style={stil.heroIkonGlow} />
+                <View style={stil.tac}>
+                  <Icon name="crown" size={24} color={color.warning} />
+                </View>
+              </View>
+              {rozetYuzdesi !== null && !premium ? (
+                <View style={stil.indirimRozet}>
+                  <Icon name="sparkles" size={14} color={color.warning} />
+                  <Txt role="label" tone={color.warning}>
+                    {metin('premium.rozet.indirim', { yuzde: rozetYuzdesi }).toLocaleUpperCase(aktifEtiket())}
+                  </Txt>
+                </View>
+              ) : null}
+            </View>
             <IconButton
               icon="x"
               accessibilityLabel={t['eylem.kapat']}
               tone="#FFFFFF"
               background={color.navGlassBg}
               pressedBackground={color.navGlassBgPressed}
-              onPress={() => vazgec('kapat')}
+              onPress={() => onVazgec('kapat')}
             />
           </View>
-        ) : null}
 
-        <View style={stil.heroRozetSatiri}>
-          <View style={stil.heroIkonKapsayici}>
-            <View style={stil.heroIkonGlow} />
-            <View style={stil.tac}>
-              <Icon name="crown" size={28} color={color.warning} />
-            </View>
-          </View>
-          {rozetYuzdesi !== null && !premium ? (
-            <View style={stil.indirimRozet}>
-              <Icon name="sparkles" size={14} color={color.warning} />
-              <Txt role="label" tone={color.warning}>
-                {metin('premium.rozet.indirim', { yuzde: rozetYuzdesi }).toUpperCase()}
-              </Txt>
-            </View>
-          ) : null}
+          <View style={{ height: rhythm.blockInCard }} />
+          <Txt role="h1" tone="#FFFFFF">
+            {t['premium.baslik']}
+          </Txt>
+          <View style={{ height: rhythm.group }} />
+          <Txt role="body" tone={color.navMuted}>
+            {t[tur === 'indirim' ? 'premium.alt.indirim' : 'premium.alt.standart']}
+          </Txt>
         </View>
 
-        <View style={{ height: rhythm.group }} />
-        <Txt role="h1" tone="#FFFFFF">
-          {t['premium.baslik']}
-        </Txt>
-        <View style={{ height: rhythm.group }} />
-        <Txt role="body" tone={color.navMuted}>
-          {t[tur === 'indirim' ? 'premium.alt.indirim' : 'premium.alt.standart']}
-        </Txt>
-      </View>
+        <View style={stil.panel}>
+          {premium ? (
+            <View style={stil.aktifKart}>
+              <Icon name="check" size={24} color={color.successInk} />
+              <View style={{ height: rhythm.group }} />
+              <Txt role="h2">{t['premium.aktif.baslik']}</Txt>
+              <View style={{ height: rhythm.sameObject }} />
+              <Txt role="body" tone={color.text2}>
+                {t['premium.aktif.govde']}
+              </Txt>
+            </View>
+          ) : (
+            <>
+              <PremiumOzellikleri compact />
+              <View style={{ height: rhythm.section }} />
+              {yuklemeHatasi ? (
+                <View style={stil.hataBlok}>
+                  <InfoStrip variant="warning" icon="wifi-off" metin={t['premium.hata.yukleme']} />
+                  <Button variant="secondary" icon="refresh-cw" label={t['genel.yeniden_dene']} onPress={tekrarDene} />
+                </View>
+              ) : paketler === null ? (
+                <View style={stil.planlar}>
+                  <Skeleton width="100%" height={96} borderRadius={radius.card} />
+                  <Skeleton width="100%" height={84} borderRadius={radius.card} />
+                </View>
+              ) : (
+                <View style={stil.planlar}>
+                  {paketler.map((paket) => (
+                    <PlanKarti
+                      key={paket.kimlik}
+                      paket={paket}
+                      secili={paket.kimlik === secili?.kimlik}
+                      onPress={() => {
+                        setSeciliKimlik(paket.kimlik);
+                        posthog?.capture('paywall_package_selected', {
+                          billing_period: paket.donem,
+                          has_trial: paket.denemeGunu !== null,
+                          is_discounted: paket.indirimYuzdesi !== null,
+                        });
+                      }}
+                    />
+                  ))}
+                </View>
+              )}
 
-      <View style={stil.panel}>
+              {secili ? (
+                <>
+                  <View style={{ height: rhythm.blockInCard }} />
+                  <Txt role="micro" tone={color.text2} style={stil.ortaliMetin}>
+                    {denemeGunu !== null
+                      ? metin('premium.not.deneme', { gun: denemeGunu, fiyat: donemliFiyat(secili), magaza: MAGAZA_ADI })
+                      : metin('premium.not.abonelik', { fiyat: donemliFiyat(secili), magaza: MAGAZA_ADI })}
+                  </Txt>
+                </>
+              ) : null}
+
+              <View style={stil.panelAltBaglantilar}>
+                <Button
+                  variant="ghost"
+                  auto
+                  icon="refresh-cw"
+                  label={t['premium.eylem.geri_yukle']}
+                  loading={mesgul === 'geri'}
+                  loadingLabel={t['premium.isleniyor']}
+                  disabled={mesgul === 'satin'}
+                  onPress={() => void geriYuklemeyiBaslat()}
+                />
+                <LegalConsentText
+                  align="center"
+                  metin={t['premium.yasal']}
+                  onLinkPress={(indeks) => router.push({ pathname: '/legal', params: { belge: indeks === 0 ? 'kosullar' : 'gizlilik' } })}
+                />
+              </View>
+            </>
+          )}
+        </View>
+      </ScrollView>
+
+      <View style={[stil.altSabit, { paddingBottom: Math.max(insets.bottom, rhythm.group) }]}>
         {premium ? (
-          <View style={stil.aktifKart}>
-            <Icon name="check" size={24} color={color.successInk} />
-            <View style={{ height: rhythm.group }} />
-            <Txt role="h2">{t['premium.aktif.baslik']}</Txt>
-            <View style={{ height: rhythm.sameObject }} />
-            <Txt role="body" tone={color.text2}>
-              {t['premium.aktif.govde']}
-            </Txt>
-          </View>
+          <Button variant="primary" label={t['premium.eylem.devam']} onPress={onDevamEt} />
         ) : (
           <>
-            <PremiumOzellikleri compact />
-            <View style={{ height: rhythm.section }} />
-            {yuklemeHatasi ? (
+            {satinAlmaHatasi ? (
               <>
-                <InfoStrip variant="warning" icon="wifi-off" metin={t['premium.hata.yukleme']} />
-                <View style={{ height: rhythm.blockInCard }} />
-                <Button variant="secondary" icon="refresh-cw" label={t['genel.yeniden_dene']} onPress={tekrarDene} />
-              </>
-            ) : paketler === null ? (
-              <View style={stil.planlar}>
-                <Skeleton width="100%" height={92} borderRadius={radius.card} />
-                <Skeleton width="100%" height={76} borderRadius={radius.card} />
-              </View>
-            ) : (
-              <View style={stil.planlar}>
-                {paketler.map((paket) => (
-                  <PlanKarti
-                    key={paket.kimlik}
-                    paket={paket}
-                    secili={paket.kimlik === secili?.kimlik}
-                    onPress={() => {
-                      setSeciliKimlik(paket.kimlik);
-                      posthog?.capture('paywall_package_selected', {
-                        billing_period: paket.donem,
-                        has_trial: paket.denemeGunu !== null,
-                        is_discounted: paket.indirimYuzdesi !== null,
-                      });
-                    }}
-                  />
-                ))}
-              </View>
-            )}
-            {secili ? (
-              <>
-                <View style={{ height: rhythm.blockInCard }} />
-                <Txt role="micro">
-                  {denemeGunu !== null
-                    ? metin('premium.not.deneme', { gun: denemeGunu, fiyat: donemliFiyat(secili), magaza: MAGAZA_ADI })
-                    : metin('premium.not.abonelik', { fiyat: donemliFiyat(secili), magaza: MAGAZA_ADI })}
+                <Txt role="caption" tone={color.warningInk} style={stil.ortaliMetin}>
+                  {t['premium.hata.satin_alma']}
                 </Txt>
+                <View style={{ height: rhythm.group }} />
               </>
             ) : null}
-            <View style={{ height: rhythm.section }} />
+            <View style={stil.guvenceSatiri}>
+              <Icon name="shield-check" size={14} color={color.text3} />
+              <Txt role="micro" tone={color.text3}>
+                {metin('premium.guvence.iptal', { magaza: MAGAZA_ADI })}
+              </Txt>
+            </View>
             <Button
-              variant="ghost"
-              auto
-              icon="refresh-cw"
-              label={t['premium.eylem.geri_yukle']}
-              loading={mesgul === 'geri'}
+              variant="primary"
+              icon="crown"
+              label={denemeGunu !== null ? metin('premium.eylem.deneme', { gun: denemeGunu }) : t['premium.eylem.satin_al']}
+              loading={mesgul === 'satin'}
               loadingLabel={t['premium.isleniyor']}
-              disabled={mesgul === 'satin'}
-              onPress={() => void geriYuklemeyiBaslat()}
+              disabled={secili === null || mesgul === 'geri'}
+              onPress={() => void satinAlmayiBaslat()}
             />
-            <View style={{ height: rhythm.group }} />
-            <LegalConsentText
-              metin={t['premium.yasal']}
-              onLinkPress={(indeks) => router.push({ pathname: '/legal', params: { belge: indeks === 0 ? 'kosullar' : 'gizlilik' } })}
-            />
+            <View style={{ height: rhythm.sameObject }} />
+            <Button variant="ghost" label={ikincilEtiket} disabled={mesgul !== null} onPress={() => onVazgec('atla')} />
           </>
         )}
       </View>
-    </ScrollView>
-
-    <View style={[stil.altSabit, { paddingBottom: Math.max(insets.bottom, rhythm.group) }]}>
-      {premium ? (
-        <Button variant="primary" label={t['premium.eylem.devam']} onPress={() => devamEt(kaynak)} />
-      ) : (
-        <>
-          {satinAlmaHatasi ? (
-            <>
-              <Txt role="caption" tone={color.warningInk}>
-                {t['premium.hata.satin_alma']}
-              </Txt>
-              <View style={{ height: rhythm.group }} />
-            </>
-          ) : null}
-          <View style={stil.guvenceSatiri}>
-            <Icon name="shield-check" size={14} color={color.text3} />
-            <Txt role="micro" tone={color.text3}>
-              İstediğin zaman {MAGAZA_ADI} üzerinden tek tıkla iptal et
-            </Txt>
-          </View>
-          <Button
-            variant="primary"
-            icon="crown"
-            label={denemeGunu !== null ? metin('premium.eylem.deneme', { gun: denemeGunu }) : t['premium.eylem.satin_al']}
-            loading={mesgul === 'satin'}
-            loadingLabel={t['premium.isleniyor']}
-            disabled={secili === null || mesgul === 'geri'}
-            onPress={() => void satinAlmayiBaslat()}
-          />
-          <View style={{ height: rhythm.group }} />
-          <Button variant="ghost" label={ikincilEtiket} disabled={mesgul !== null} onPress={() => vazgec('atla')} />
-        </>
-      )}
     </View>
-  </View>
-);
+  );
 }
 
 function PlanKarti({ paket, secili, onPress }: { paket: PaywallPaketi; secili: boolean; onPress: () => void }) {
@@ -319,80 +545,100 @@ function PlanKarti({ paket, secili, onPress }: { paket: PaywallPaketi; secili: b
   const fiyat = donemliFiyat(paket);
   const deneme = paket.denemeGunu !== null ? metin('premium.deneme.gun', { gun: paket.denemeGunu }) : null;
   const ustuCizili = paket.indirimYuzdesi !== null ? paket.standartFiyat : null;
+  const altBilgi = deneme ?? t[yillik ? 'premium.plan.yenileme.yillik' : 'premium.plan.yenileme.aylik'];
 
   return (
-    <ClayPressable
-      onPress={onPress}
-      selected={secili}
-      accessibilityLabel={[etiket, fiyat, deneme].filter(Boolean).join(', ')}
-      borderRadius={radius.card}
-      background={secili ? '#F5F6FF' : color.surface}
-      pressedBackground={color.groove}
-      shadow={secili ? clay.raised : clay.raised}
-      pressedShadow={clay.pressed}
-      style={[stil.plan, secili ? stil.planSecili : stil.planSeciliDegil]}>
+    <View style={[stil.planSarmal, yillik ? stil.planSarmalRozetli : null]}>
       {yillik ? (
-        <View style={stil.avantajBadge}>
+        <View style={[stil.avantajBadge, !secili ? stil.avantajBadgeSeciliDegil : null]} pointerEvents="none">
           <Icon name="sparkles" size={14} color="#FFFFFF" />
           <Txt role="micro" tone="#FFFFFF">
-            {t['premium.plan.en_avantajli'].toUpperCase()}
+            {t['premium.plan.en_avantajli'].toLocaleUpperCase(aktifEtiket())}
           </Txt>
         </View>
       ) : null}
 
-      <View style={[stil.secimGostergesi, secili ? stil.secimGostergesiSecili : null]}>
-        {secili ? <Icon name="check" size={14} color="#FFFFFF" strokeWidth={2.5} /> : null}
-      </View>
-
-      <View style={stil.planOrta}>
-        <View style={stil.planBaslik}>
-          <Txt role="bodyStrong">{etiket}</Txt>
+      <ClayPressable
+        onPress={onPress}
+        selected={secili}
+        accessibilityLabel={[etiket, fiyat, deneme].filter(Boolean).join(', ')}
+        borderRadius={radius.card}
+        background={secili ? '#F5F6FF' : color.surface}
+        pressedBackground={color.groove}
+        shadow={clay.raised}
+        pressedShadow={clay.pressed}
+        style={[stil.plan, secili ? stil.planSecili : stil.planSeciliDegil]}>
+        <View style={[stil.secimGostergesi, secili ? stil.secimGostergesiSecili : null]}>
+          {secili ? <Icon name="check" size={14} color="#FFFFFF" strokeWidth={2.5} /> : null}
         </View>
-        {yillik && paket.aylikKarsilik ? (
-          <Txt role="caption" tone={color.primaryText}>
-            {metin('premium.fiyat.aylik_karsilik', { fiyat: paket.aylikKarsilik })}
-          </Txt>
-        ) : null}
-        {deneme ? (
-          <Txt role="caption" tone={color.successInk}>
-            {deneme}
-          </Txt>
-        ) : (
-          <Txt role="caption" tone={color.text3}>
-            {yillik ? 'Yıllık faturalandırılır' : 'Aylık yenilenir'}
-          </Txt>
-        )}
-      </View>
 
-      <View style={stil.planFiyat}>
-        {ustuCizili ? (
-          <Txt role="caption" tone={color.text3} style={stil.ustuCizili}>
-            {ustuCizili}
+        <View style={stil.planOrta}>
+          <View style={stil.planBaslik}>
+            <Txt role="bodyStrong">{etiket}</Txt>
+            {paket.indirimYuzdesi !== null ? (
+              <View style={stil.planIndirimHap}>
+                <Txt role="micro" tone={color.successInk}>
+                  {metin('premium.rozet.indirim', { yuzde: paket.indirimYuzdesi })}
+                </Txt>
+              </View>
+            ) : null}
+          </View>
+          {yillik && paket.aylikKarsilik ? (
+            <Txt role="caption" tone={color.primaryText}>
+              {metin('premium.fiyat.aylik_karsilik', { fiyat: paket.aylikKarsilik })}
+            </Txt>
+          ) : null}
+          <Txt role="caption" tone={deneme ? color.successInk : color.text2}>
+            {altBilgi}
           </Txt>
-        ) : null}
-        <Txt role="amount" tone={secili ? color.primary : color.text}>
-          {fiyat}
-        </Txt>
-      </View>
-    </ClayPressable>
+        </View>
+
+        <View style={stil.planFiyat}>
+          {ustuCizili ? (
+            <Txt role="caption" tone={color.text3} style={stil.ustuCizili}>
+              {ustuCizili}
+            </Txt>
+          ) : null}
+          <Txt role="amount" tone={secili ? color.primary : color.text}>
+            {fiyat}
+          </Txt>
+        </View>
+      </ClayPressable>
+    </View>
   );
 }
 
 const stil = StyleSheet.create({
   ekran: { flex: 1, backgroundColor: color.navDark },
-  kaydir: { flex: 1, minHeight: 0, backgroundColor: color.navDark },
-  kaydirIcerik: { flexGrow: 1 },
-  kahraman: {
+  tamEkran: { flex: 1, backgroundColor: color.navDark },
+  yukleniyorHeader: {
     paddingHorizontal: layout.screenPaddingX,
     paddingTop: layout.headerPadTop,
-    paddingBottom: rhythm.pad,
+    alignItems: 'flex-end',
   },
-  kapatSatiri: { flexDirection: 'row', justifyContent: 'flex-end', marginBottom: rhythm.group },
-  heroRozetSatiri: {
+  yukleniyorMerkez: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  kaydir: { flex: 1, minHeight: 0, backgroundColor: color.bg },
+  kaydirIcerik: { flexGrow: 1, backgroundColor: color.bg },
+  kahraman: {
+    backgroundColor: color.navDark,
+    paddingHorizontal: layout.screenPaddingX,
+    paddingTop: layout.headerPadTop,
+    paddingBottom: rhythm.section + rhythm.pad,
+  },
+  heroUstSatir: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: rhythm.blockInCard,
+  },
+  heroSolGrup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: rhythm.blockInCard,
+    flexShrink: 1,
   },
   heroIkonKapsayici: {
     position: 'relative',
@@ -401,14 +647,14 @@ const stil = StyleSheet.create({
   },
   heroIkonGlow: {
     position: 'absolute',
-    width: 58,
-    height: 58,
+    width: 54,
+    height: 54,
     borderRadius: radius.pill,
     backgroundColor: 'rgba(245, 158, 11, 0.16)',
   },
   tac: {
-    width: 52,
-    height: 52,
+    width: 48,
+    height: 48,
     borderRadius: radius.pill,
     backgroundColor: 'rgba(255, 255, 255, 0.08)',
     borderWidth: 1,
@@ -429,80 +675,192 @@ const stil = StyleSheet.create({
   },
   panel: {
     flex: 1,
+    marginTop: -rhythm.section,
     backgroundColor: color.bg,
     borderTopLeftRadius: radius.hero,
     borderTopRightRadius: radius.hero,
     paddingHorizontal: layout.screenPaddingX,
     paddingTop: rhythm.section,
-    paddingBottom: rhythm.section,
+    paddingBottom: rhythm.pad,
   },
-  aktifKart: { padding: rhythm.pad, borderRadius: radius.card, backgroundColor: color.successSoft },
-  planlar: { gap: rhythm.pad },
+  aktifKart: {
+    padding: rhythm.pad,
+    borderRadius: radius.card,
+    backgroundColor: color.successSoft,
+    borderWidth: 1,
+    borderColor: color.success,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: layout.screenPaddingX,
+  },
+  hataBlok: {
+    gap: rhythm.group,
+  },
+  planlar: {
+    gap: rhythm.group,
+  },
+  planSarmal: {
+    position: 'relative',
+  },
+  planSarmalRozetli: {
+    paddingTop: 10,
+  },
+  avantajBadge: {
+    position: 'absolute',
+    top: 0,
+    right: 16,
+    zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.pill,
+    backgroundColor: color.primary,
+  },
+  avantajBadgeSeciliDegil: {
+    backgroundColor: color.text2,
+  },
   plan: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: rhythm.blockInCard,
-    padding: rhythm.pad,
-    paddingVertical: 18,
+    padding: rhythm.group,
     borderRadius: radius.card,
-    position: 'relative',
+    gap: rhythm.group,
   },
   planSecili: {
-    borderWidth: 2,
     borderColor: color.primary,
+    borderWidth: 1.5,
   },
   planSeciliDegil: {
-    borderWidth: 1.5,
-    borderColor: 'rgba(23, 28, 66, 0.08)',
+    borderColor: color.line,
+    borderWidth: 1,
   },
   secimGostergesi: {
-    width: 24,
-    height: 24,
+    width: 22,
+    height: 22,
     borderRadius: radius.pill,
-    borderWidth: 2,
-    borderColor: '#CBD5E1',
+    borderWidth: 1.5,
+    borderColor: color.text3,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
   },
   secimGostergesiSecili: {
     borderColor: color.primary,
     backgroundColor: color.primary,
   },
-  avantajBadge: {
-    position: 'absolute',
-    top: -10,
-    right: 16,
+  planOrta: {
+    flex: 1,
+    gap: 2,
+  },
+  planBaslik: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: rhythm.group,
-    paddingVertical: 3,
-    borderRadius: radius.pill,
-    backgroundColor: color.primary,
-    zIndex: 2,
-    shadowColor: '#5C5AF6',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 3,
+    gap: rhythm.sameObject,
   },
-  planOrta: { flex: 1, minWidth: 0, gap: 2 },
-  planBaslik: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: rhythm.group },
-  planFiyat: { alignItems: 'flex-end', flexShrink: 0 },
-  ustuCizili: { textDecorationLine: 'line-through' },
+  planIndirimHap: {
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: radius.pill,
+    backgroundColor: color.successSoft,
+  },
+  planFiyat: {
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  ustuCizili: {
+    textDecorationLine: 'line-through',
+  },
+  ortaliMetin: {
+    textAlign: 'center',
+  },
+  panelAltBaglantilar: {
+    marginTop: rhythm.section,
+    gap: rhythm.group,
+    alignItems: 'center',
+  },
   altSabit: {
-    paddingHorizontal: layout.screenPaddingX,
-    paddingTop: rhythm.blockInCard,
-    backgroundColor: color.bg,
+    backgroundColor: color.surface,
     borderTopWidth: 1,
     borderTopColor: color.line,
+    paddingHorizontal: layout.screenPaddingX,
+    paddingTop: rhythm.group,
   },
   guvenceSatiri: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 4,
     marginBottom: rhythm.group,
+  },
+  kutlamaKaydirIcerik: {
+    flexGrow: 1,
+    backgroundColor: color.bg,
+  },
+  kutlamaKahraman: {
+    backgroundColor: color.navDark,
+    paddingHorizontal: layout.screenPaddingX,
+    paddingTop: layout.headerPadTop,
+    paddingBottom: rhythm.section + rhythm.pad,
+    alignItems: 'center',
+  },
+  kutlamaAuraKapsayici: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 96,
+    height: 96,
+    marginVertical: rhythm.group,
+  },
+  kutlamaAuraGlowDis: {
+    position: 'absolute',
+    width: 96,
+    height: 96,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+  },
+  kutlamaAuraGlowIc: {
+    position: 'absolute',
+    width: 76,
+    height: 76,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(245, 158, 11, 0.22)',
+  },
+  kutlamaTacKapsayici: {
+    width: 64,
+    height: 64,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(245, 158, 11, 0.45)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  kutlamaVipRozet: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: rhythm.pad,
+    paddingVertical: rhythm.sameObject,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(245, 158, 11, 0.16)',
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.40)',
+  },
+  kutlamaPanel: {
+    flex: 1,
+    marginTop: -rhythm.section,
+    backgroundColor: color.bg,
+    borderTopLeftRadius: radius.hero,
+    borderTopRightRadius: radius.hero,
+    paddingHorizontal: layout.screenPaddingX,
+    paddingTop: rhythm.section,
+    paddingBottom: rhythm.pad,
+  },
+  kutlamaPanelBaslikSatiri: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: rhythm.sameObject,
   },
 });

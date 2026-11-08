@@ -5,17 +5,22 @@
     
     
       
-      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000151">
+      <testcase classname="fastlane.lanes" name="0: default_platform" time="0.000172">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="1: Switch to android upload_test_release lane" time="5.8e-05">
+      <testcase classname="fastlane.lanes" name="1: Switch to ios asc_api_key lane" time="7.0e-05">
         
       </testcase>
     
       
-      <testcase classname="fastlane.lanes" name="2: upload_to_play_store" time="95.831812">
+      <testcase classname="fastlane.lanes" name="2: app_store_connect_api_key" time="0.00283">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="3: upload_to_testflight" time="174.650477">
         
       </testcase>
     

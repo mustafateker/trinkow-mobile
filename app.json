@@ -2,7 +2,7 @@
   "expo": {
     "name": "Trinkow",
     "slug": "trinkow",
-    "version": "0.1.13",
+    "version": "0.1.14",
     "orientation": "default",
     "scheme": "trinkow",
     "userInterfaceStyle": "light",
@@ -13,11 +13,19 @@
     "icon": "./assets/images/trinkow-app-icon.png",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.trinkow.app"
+      "bundleIdentifier": "com.triworkster.trinkow",
+      "buildNumber": "17",
+      "usesAppleSignIn": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "Trinkow'un harcama fişi veya profil görseli seçebilmeniz için fotoğraf arşivinize erişmesine izin verin.",
+        "NSPhotoLibraryAddUsageDescription": "Trinkow'un bütçe ve harcama özeti görsellerini fotoğraf arşivinize kaydedebilmesine izin verin.",
+        "NSFaceIDUsageDescription": "Trinkow'un güvenli oturum bilgilerinizi korumak için Face ID kullanmasına izin verin."
+      }
     },
     "android": {
       "package": "com.triworkster.trinkow",
-      "versionCode": 14,
+      "versionCode": 15,
       "blockedPermissions": [
         "com.google.android.gms.permission.AD_ID"
       ],
@@ -29,15 +37,7 @@
     },
     "plugins": [
       "expo-router",
-      [
-        "expo-localization",
-        {
-          "supportedLocales": [
-            "tr",
-            "en"
-          ]
-        }
-      ],
+      "expo-apple-authentication",
       [
         "expo-splash-screen",
         {
