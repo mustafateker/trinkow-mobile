@@ -18,13 +18,22 @@ import Purchases, {
   PURCHASES_ERROR_CODE,
   type CustomerInfo,
   type PurchasesError,
+  type PurchasesOffering,
   type PurchasesPackage,
 } from 'react-native-purchases';
+import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
 
 import { denemeGunSayisi, indirimYuzdesi } from '@/lib/uyelikFiyat';
 
+export { default as RevenueCatUI, PAYWALL_RESULT } from 'react-native-purchases-ui';
+export type { PurchasesOffering };
+
 /** RevenueCat public SDK anahtarı. Gizli değildir, uygulamaya gömülmek için üretilir. */
-const API_ANAHTARI = Platform.OS === 'android' ? 'goog_DCSiecagjgXrYhJtxhErhZYwxIZ' : null;
+const API_ANAHTARI = Platform.select({
+  android: 'goog_DCSiecagjgXrYhJtxhErhZYwxIZ',
+  ios: 'appl_krVEcAgEloxSUPgCApuAuINCUwx',
+  default: null,
+});
 
 /** Bu platformda satın alma ve Premium kilitleri açık mı? */
 export const uyelikEtkin = API_ANAHTARI !== null;
@@ -220,7 +229,7 @@ export async function geriYukle(): Promise<boolean> {
   return premiumMu(bilgi);
 }
 
-/** Aboneliği yönetme/iptal sayfası (mağazanın kendi sayfası). */
+/** Aboneliğin yönetildiği ve iptal edildiği mağaza (mağazanın kendi sayfası). */
 export async function abonelikYonetimAdresi(): Promise<string> {
   if (!yapilandirildi) return YONETIM_ADRESI;
   try {
@@ -228,6 +237,67 @@ export async function abonelikYonetimAdresi(): Promise<string> {
   } catch {
     return YONETIM_ADRESI;
   }
+}
+
+/**
+ * RevenueCat Paywall UI'ını modal olarak açar.
+ * @param tur İsteğe bağlı 'standart' veya 'indirim' offering'i; boş bırakılırsa varsayılan offering kullanılır.
+ */
+export async function revenueCatPaywallGoster(tur?: PaywallTuru): Promise<PAYWALL_RESULT> {
+  await sira;
+  if (!yapilandirildi) throw new Error('RevenueCat yapılandırılmadı');
+  let offering;
+  if (tur) {
+    const teklifler = await Purchases.getOfferings();
+    offering = teklifler.all[TEKLIF_KIMLIGI[tur]];
+  }
+  const sonuc = await RevenueCatUI.presentPaywall(offering ? { offering } : undefined);
+  if (sonuc === PAYWALL_RESULT.PURCHASED || sonuc === PAYWALL_RESULT.RESTORED) {
+    bilgiyiUygula(await Purchases.getCustomerInfo());
+  }
+  return sonuc;
+}
+
+/**
+ * Kullanıcı henüz Premium değilse RevenueCat Paywall UI'ını açar.
+ */
+export async function revenueCatPaywallGerekiyorsaGoster(tur?: PaywallTuru): Promise<PAYWALL_RESULT> {
+  await sira;
+  if (!yapilandirildi) throw new Error('RevenueCat yapılandırılmadı');
+  let offering;
+  if (tur) {
+    const teklifler = await Purchases.getOfferings();
+    offering = teklifler.all[TEKLIF_KIMLIGI[tur]];
+  }
+  const sonuc = await RevenueCatUI.presentPaywallIfNeeded({
+    requiredEntitlementIdentifier: PREMIUM_HAKKI,
+    offering,
+  });
+  if (sonuc === PAYWALL_RESULT.PURCHASED || sonuc === PAYWALL_RESULT.RESTORED) {
+    bilgiyiUygula(await Purchases.getCustomerInfo());
+  }
+  return sonuc;
+}
+
+/**
+ * Belirtilen türe ('standart' | 'indirim') ait RevenueCat offering nesnesini getirir.
+ */
+export async function teklifGetir(tur: PaywallTuru): Promise<PurchasesOffering | null> {
+  await sira;
+  if (!yapilandirildi) throw new Error('RevenueCat yapılandırılmadı');
+  try {
+    const teklifler = await Purchases.getOfferings();
+    return teklifler.all[TEKLIF_KIMLIGI[tur]] ?? teklifler.current ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Dışarıdan (ör. RevenueCat UI callback'lerinden) gelen CustomerInfo ile uygulamanın Premium durumunu eşitler.
+ */
+export function musteriBilgisiniGuncelle(bilgi: CustomerInfo): void {
+  bilgiyiUygula(bilgi);
 }
 
 /* ------------------------------------------------------------ akış kararı */

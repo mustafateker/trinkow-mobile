@@ -1,7 +1,8 @@
+import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, BackHandler, ScrollView, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets, type EdgeInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
 import { ClayPressable } from '@/components/ClayPressable';
@@ -19,13 +20,17 @@ import { useDil } from '@/i18n/useDil';
 import { toastGoster } from '@/lib/toastBus';
 import {
   MAGAZA_ADI,
+  RevenueCatUI,
   geriYukle,
+  musteriBilgisiniGuncelle,
   paywallPaketleri,
   satinAl,
   standartPaywallGosterildi,
+  teklifGetir,
   useUyelik,
   type PaywallPaketi,
   type PaywallTuru,
+  type PurchasesOffering,
 } from '@/lib/uyelik';
 import { clay, color, layout, radius, rhythm } from '@/theme/tokens';
 
@@ -61,6 +66,247 @@ export default function PremiumEkrani() {
   const kaynak: Kaynak = KAYNAKLAR.find((k) => k === parametreler.kaynak) ?? 'kayit';
   const { premium } = useUyelik();
 
+  const [offering, setOffering] = useState<PurchasesOffering | null | undefined>(undefined);
+  const [deneme, setDeneme] = useState(0);
+
+  useEffect(() => {
+    if (kaynak === 'kayit') standartPaywallGosterildi();
+    posthog?.capture('paywall_viewed', {
+      paywall_type: tur,
+      paywall_source: kaynak,
+    });
+  }, [kaynak, tur]);
+
+  const vazgec = useCallback((eylemTuru: 'atla' | 'kapat') => {
+    posthog?.capture('paywall_dismissed', {
+      paywall_type: tur,
+      paywall_source: kaynak,
+      dismiss_action: eylemTuru,
+    });
+    devamEt(kaynak);
+  }, [kaynak, tur]);
+
+  useEffect(() => {
+    const sub = BackHandler.addEventListener('hardwareBackPress', () => {
+      vazgec('kapat');
+      return true;
+    });
+    return () => sub.remove();
+  }, [vazgec]);
+
+  useEffect(() => {
+    let iptal = false;
+    teklifGetir(tur)
+      .then((sonuc) => {
+        if (!iptal) setOffering(sonuc);
+      })
+      .catch(() => {
+        if (!iptal) setOffering(null);
+      });
+    return () => {
+      iptal = true;
+    };
+  }, [tur, deneme]);
+
+  if (premium) {
+    return <PremiumKutlamaEkrani insets={insets} onDevam={() => devamEt(kaynak)} />;
+  }
+
+  // RevenueCat Paywall bileşeni: Offering hazırsa doğrudan RevenueCat üzerinde tasarlanan paywall gösterilir.
+  if (offering !== undefined && offering !== null) {
+    return (
+      <View style={stil.ekran}>
+        <RevenueCatUI.Paywall
+          style={stil.tamEkran}
+          options={{
+            offering,
+            displayCloseButton: true,
+          }}
+          onPurchaseStarted={({ packageBeingPurchased }) => {
+            posthog?.capture('paywall_purchase_started', {
+              billing_period: packageBeingPurchased.packageType,
+              paywall_source: kaynak,
+              paywall_type: tur,
+            });
+          }}
+          onPurchaseCompleted={({ customerInfo }) => {
+            musteriBilgisiniGuncelle(customerInfo);
+            posthog?.capture('premium_purchased', {
+              paywall_source: kaynak,
+              paywall_type: tur,
+            });
+            toastGoster({ tur: 'info', metin: t['premium.toast.basarili'] });
+          }}
+          onPurchaseCancelled={() => {
+            posthog?.capture('paywall_purchase_cancelled', { paywall_source: kaynak, paywall_type: tur });
+          }}
+          onPurchaseError={({ error }) => {
+            posthog?.capture('paywall_purchase_failed', { paywall_source: kaynak, paywall_type: tur, error_code: error.code });
+            toastGoster({ tur: 'warning', metin: t['premium.hata.satin_alma'] });
+          }}
+          onRestoreCompleted={({ customerInfo }) => {
+            musteriBilgisiniGuncelle(customerInfo);
+            const aktif = customerInfo.entitlements.active['premium'] !== undefined;
+            toastGoster({
+              tur: 'info',
+              metin: aktif ? t['premium.toast.geri_yuklendi'] : t['premium.toast.geri_yukleme_yok'],
+            });
+            if (aktif) devamEt(kaynak);
+          }}
+          onRestoreError={() => {
+            toastGoster({ tur: 'warning', metin: t['premium.toast.geri_yukleme_hata'] });
+          }}
+          onDismiss={() => {
+            vazgec('kapat');
+          }}
+        />
+      </View>
+    );
+  }
+
+  // Offering yüklenirken geçici bekleme durumu
+  if (offering === undefined) {
+    return (
+      <View style={[stil.ekran, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+        <View style={stil.yukleniyorHeader}>
+          <IconButton
+            icon="x"
+            accessibilityLabel={t['eylem.kapat']}
+            tone="#FFFFFF"
+            background={color.navGlassBg}
+            pressedBackground={color.navGlassBgPressed}
+            onPress={() => vazgec('kapat')}
+          />
+        </View>
+        <View style={stil.yukleniyorMerkez}>
+          <ActivityIndicator size="large" color="#FFFFFF" />
+          <View style={{ height: rhythm.group }} />
+          <Txt role="body" tone="#FFFFFF">
+            {t['premium.isleniyor']}
+          </Txt>
+        </View>
+      </View>
+    );
+  }
+
+  // Offering yüklenemezse veya çevrimdışıysa çalışan yedek paywall
+  return (
+    <FallbackPaywall
+      tur={tur}
+      kaynak={kaynak}
+      insets={insets}
+      premium={premium}
+      onTekrarDene={() => {
+        setOffering(undefined);
+        setDeneme((n) => n + 1);
+      }}
+      onVazgec={vazgec}
+      onDevamEt={() => devamEt(kaynak)}
+    />
+  );
+}
+
+function PremiumKutlamaEkrani({
+  insets,
+  onDevam,
+}: {
+  insets: EdgeInsets;
+  onDevam: () => void;
+}) {
+  useEffect(() => {
+    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+  }, []);
+
+  return (
+    <View style={stil.ekran}>
+      <View style={{ height: insets.top, backgroundColor: color.navDark }} />
+      <ScrollView
+        style={stil.kaydir}
+        contentContainerStyle={stil.kutlamaKaydirIcerik}
+        showsVerticalScrollIndicator={false}>
+        <View style={stil.kutlamaKahraman}>
+          <View style={stil.kutlamaAuraKapsayici}>
+            <View style={stil.kutlamaAuraGlowDis} />
+            <View style={stil.kutlamaAuraGlowIc} />
+            <View style={stil.kutlamaTacKapsayici}>
+              <Icon name="crown" size={32} color={color.warning} />
+            </View>
+          </View>
+
+          <View style={{ height: rhythm.blockInCard }} />
+
+          <View style={stil.kutlamaVipRozet}>
+            <Icon name="sparkles" size={14} color={color.warning} />
+            <Txt role="label" tone={color.warning}>
+              {t['premium.baslik'].toLocaleUpperCase(aktifEtiket())}
+            </Txt>
+          </View>
+
+          <View style={{ height: rhythm.group }} />
+
+          <Txt role="h1" tone="#FFFFFF" style={stil.ortaliMetin}>
+            {t['premium.aktif.baslik']}
+          </Txt>
+
+          <View style={{ height: rhythm.sameObject }} />
+
+          <Txt role="body" tone={color.navMuted} style={stil.ortaliMetin}>
+            {t['premium.aktif.govde']}
+          </Txt>
+        </View>
+
+        <View style={stil.kutlamaPanel}>
+          <View style={stil.kutlamaPanelBaslikSatiri}>
+            <Icon name="sparkles" size={16} color={color.warning} />
+            <Txt role="label" tone={color.text2}>
+              {t['premium.ayar.aktif'].toLocaleUpperCase(aktifEtiket())}
+            </Txt>
+          </View>
+
+          <View style={{ height: rhythm.group }} />
+
+          <PremiumOzellikleri />
+
+          <View style={{ height: rhythm.section }} />
+
+          <View style={stil.guvenceSatiri}>
+            <Icon name="shield-check" size={14} color={color.text3} />
+            <Txt role="micro" tone={color.text3} style={stil.ortaliMetin}>
+              {metin('premium.guvence.iptal', { magaza: MAGAZA_ADI })}
+            </Txt>
+          </View>
+        </View>
+      </ScrollView>
+
+      <View style={[stil.altSabit, { paddingBottom: Math.max(insets.bottom, rhythm.group) }]}>
+        <Button
+          variant="primary"
+          icon="sparkles"
+          label={t['premium.eylem.devam']}
+          onPress={onDevam}
+        />
+      </View>
+    </View>
+  );
+}
+
+function FallbackPaywall({
+  tur,
+  kaynak,
+  insets,
+  premium,
+  onTekrarDene,
+  onVazgec,
+  onDevamEt,
+}: {
+  tur: PaywallTuru;
+  kaynak: Kaynak;
+  insets: EdgeInsets;
+  premium: boolean;
+  onTekrarDene: () => void;
+  onVazgec: (eylem: 'atla' | 'kapat') => void;
+  onDevamEt: () => void;
+}) {
   const [paketler, setPaketler] = useState<PaywallPaketi[] | null>(null);
   const [yuklemeHatasi, setYuklemeHatasi] = useState(false);
   const [yuklemeDenemesi, setYuklemeDenemesi] = useState(0);
@@ -82,35 +328,17 @@ export default function PremiumEkrani() {
     };
   }, [tur, yuklemeDenemesi]);
 
-  useEffect(() => {
-    if (kaynak === 'kayit') standartPaywallGosterildi();
-    posthog?.capture('paywall_viewed', {
-      paywall_type: tur,
-      paywall_source: kaynak,
-    });
-  }, [kaynak, tur]);
-
   const secili = paketler?.find((paket) => paket.kimlik === seciliKimlik) ?? paketler?.[0] ?? null;
   const denemeGunu = secili?.denemeGunu ?? null;
   const rozetYuzdesi = tur === 'indirim' ? (paketler?.find((paket) => paket.indirimYuzdesi !== null)?.indirimYuzdesi ?? null) : null;
   const ikincilEtiket =
     kaynak === 'kayit' ? t['premium.eylem.atla'] : kaynak === 'onboarding' ? t['premium.eylem.ucretsiz_devam'] : t['eylem.simdi_degil'];
 
-  function vazgec(eylemTuru: 'atla' | 'kapat') {
-    posthog?.capture('paywall_dismissed', {
-      paywall_type: tur,
-      paywall_source: kaynak,
-      dismiss_action: eylemTuru,
-      selected_package: secili?.donem ?? null,
-      has_trial: secili?.denemeGunu !== null,
-    });
-    devamEt(kaynak);
-  }
-
   function tekrarDene() {
     setYuklemeHatasi(false);
     setPaketler(null);
     setYuklemeDenemesi((n) => n + 1);
+    onTekrarDene();
   }
 
   async function satinAlmayiBaslat() {
@@ -128,10 +356,10 @@ export default function PremiumEkrani() {
     if (sonuc === 'premium') {
       posthog?.capture('premium_purchased', { billing_period: secili.donem, paywall_source: kaynak, has_trial: secili.denemeGunu !== null });
       toastGoster({ tur: 'info', metin: t['premium.toast.basarili'] });
-      devamEt(kaynak);
+      onDevamEt();
     } else if (sonuc === 'beklemede') {
       toastGoster({ tur: 'info', metin: t['premium.toast.beklemede'] });
-      devamEt(kaynak);
+      onDevamEt();
     } else if (sonuc === 'iptal') {
       posthog?.capture('paywall_purchase_cancelled', { billing_period: secili.donem, paywall_source: kaynak });
     } else if (sonuc === 'hata') {
@@ -146,7 +374,7 @@ export default function PremiumEkrani() {
     try {
       const acildi = await geriYukle();
       toastGoster({ tur: 'info', metin: acildi ? t['premium.toast.geri_yuklendi'] : t['premium.toast.geri_yukleme_yok'] });
-      if (acildi) devamEt(kaynak);
+      if (acildi) onDevamEt();
     } catch {
       toastGoster({ tur: 'warning', metin: t['premium.toast.geri_yukleme_hata'] });
     } finally {
@@ -182,7 +410,7 @@ export default function PremiumEkrani() {
               tone="#FFFFFF"
               background={color.navGlassBg}
               pressedBackground={color.navGlassBgPressed}
-              onPress={() => vazgec('kapat')}
+              onPress={() => onVazgec('kapat')}
             />
           </View>
 
@@ -276,7 +504,7 @@ export default function PremiumEkrani() {
 
       <View style={[stil.altSabit, { paddingBottom: Math.max(insets.bottom, rhythm.group) }]}>
         {premium ? (
-          <Button variant="primary" label={t['premium.eylem.devam']} onPress={() => devamEt(kaynak)} />
+          <Button variant="primary" label={t['premium.eylem.devam']} onPress={onDevamEt} />
         ) : (
           <>
             {satinAlmaHatasi ? (
@@ -303,7 +531,7 @@ export default function PremiumEkrani() {
               onPress={() => void satinAlmayiBaslat()}
             />
             <View style={{ height: rhythm.sameObject }} />
-            <Button variant="ghost" label={ikincilEtiket} disabled={mesgul !== null} onPress={() => vazgec('atla')} />
+            <Button variant="ghost" label={ikincilEtiket} disabled={mesgul !== null} onPress={() => onVazgec('atla')} />
           </>
         )}
       </View>
@@ -382,6 +610,17 @@ function PlanKarti({ paket, secili, onPress }: { paket: PaywallPaketi; secili: b
 
 const stil = StyleSheet.create({
   ekran: { flex: 1, backgroundColor: color.navDark },
+  tamEkran: { flex: 1, backgroundColor: color.navDark },
+  yukleniyorHeader: {
+    paddingHorizontal: layout.screenPaddingX,
+    paddingTop: layout.headerPadTop,
+    alignItems: 'flex-end',
+  },
+  yukleniyorMerkez: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   kaydir: { flex: 1, minHeight: 0, backgroundColor: color.bg },
   kaydirIcerik: { flexGrow: 1, backgroundColor: color.bg },
   kahraman: {
@@ -448,12 +687,17 @@ const stil = StyleSheet.create({
     padding: rhythm.pad,
     borderRadius: radius.card,
     backgroundColor: color.successSoft,
+    borderWidth: 1,
+    borderColor: color.success,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: layout.screenPaddingX,
   },
   hataBlok: {
-    gap: rhythm.blockInCard,
+    gap: rhythm.group,
   },
   planlar: {
-    gap: rhythm.blockInCard,
+    gap: rhythm.group,
   },
   planSarmal: {
     position: 'relative',
@@ -461,74 +705,68 @@ const stil = StyleSheet.create({
   planSarmalRozetli: {
     paddingTop: 10,
   },
+  avantajBadge: {
+    position: 'absolute',
+    top: 0,
+    right: 16,
+    zIndex: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: radius.pill,
+    backgroundColor: color.primary,
+  },
+  avantajBadgeSeciliDegil: {
+    backgroundColor: color.text2,
+  },
   plan: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: rhythm.blockInCard,
-    paddingHorizontal: rhythm.pad,
-    paddingVertical: 18,
+    padding: rhythm.group,
     borderRadius: radius.card,
+    gap: rhythm.group,
   },
   planSecili: {
-    borderWidth: 2,
     borderColor: color.primary,
+    borderWidth: 1.5,
   },
   planSeciliDegil: {
-    borderWidth: 1.5,
     borderColor: color.line,
+    borderWidth: 1,
   },
   secimGostergesi: {
-    width: 24,
-    height: 24,
+    width: 22,
+    height: 22,
     borderRadius: radius.pill,
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: color.text3,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: color.surface,
   },
   secimGostergesiSecili: {
     borderColor: color.primary,
     backgroundColor: color.primary,
   },
-  avantajBadge: {
-    position: 'absolute',
-    top: 0,
-    right: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: radius.pill,
-    backgroundColor: color.primary,
-    zIndex: 2,
-    boxShadow: clay.raised,
-  },
-  avantajBadgeSeciliDegil: {
-    backgroundColor: color.primaryDeep,
-  },
   planOrta: {
     flex: 1,
-    minWidth: 0,
     gap: 2,
   },
   planBaslik: {
     flexDirection: 'row',
     alignItems: 'center',
-    flexWrap: 'wrap',
-    gap: rhythm.group,
+    gap: rhythm.sameObject,
   },
   planIndirimHap: {
-    paddingHorizontal: rhythm.group,
-    paddingVertical: 2,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
     borderRadius: radius.pill,
     backgroundColor: color.successSoft,
   },
   planFiyat: {
     alignItems: 'flex-end',
-    flexShrink: 0,
-    gap: 2,
+    justifyContent: 'center',
   },
   ustuCizili: {
     textDecorationLine: 'line-through',
@@ -537,22 +775,92 @@ const stil = StyleSheet.create({
     textAlign: 'center',
   },
   panelAltBaglantilar: {
-    marginTop: rhythm.pad,
+    marginTop: rhythm.section,
+    gap: rhythm.group,
     alignItems: 'center',
-    gap: rhythm.sameObject,
   },
   altSabit: {
-    paddingHorizontal: layout.screenPaddingX,
-    paddingTop: rhythm.blockInCard,
-    backgroundColor: color.bg,
+    backgroundColor: color.surface,
     borderTopWidth: 1,
     borderTopColor: color.line,
+    paddingHorizontal: layout.screenPaddingX,
+    paddingTop: rhythm.group,
   },
   guvenceSatiri: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 4,
     marginBottom: rhythm.group,
+  },
+  kutlamaKaydirIcerik: {
+    flexGrow: 1,
+    backgroundColor: color.bg,
+  },
+  kutlamaKahraman: {
+    backgroundColor: color.navDark,
+    paddingHorizontal: layout.screenPaddingX,
+    paddingTop: layout.headerPadTop,
+    paddingBottom: rhythm.section + rhythm.pad,
+    alignItems: 'center',
+  },
+  kutlamaAuraKapsayici: {
+    position: 'relative',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 96,
+    height: 96,
+    marginVertical: rhythm.group,
+  },
+  kutlamaAuraGlowDis: {
+    position: 'absolute',
+    width: 96,
+    height: 96,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(245, 158, 11, 0.12)',
+  },
+  kutlamaAuraGlowIc: {
+    position: 'absolute',
+    width: 76,
+    height: 76,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(245, 158, 11, 0.22)',
+  },
+  kutlamaTacKapsayici: {
+    width: 64,
+    height: 64,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(255, 255, 255, 0.10)',
+    borderWidth: 1.5,
+    borderColor: 'rgba(245, 158, 11, 0.45)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  kutlamaVipRozet: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: rhythm.pad,
+    paddingVertical: rhythm.sameObject,
+    borderRadius: radius.pill,
+    backgroundColor: 'rgba(245, 158, 11, 0.16)',
+    borderWidth: 1,
+    borderColor: 'rgba(245, 158, 11, 0.40)',
+  },
+  kutlamaPanel: {
+    flex: 1,
+    marginTop: -rhythm.section,
+    backgroundColor: color.bg,
+    borderTopLeftRadius: radius.hero,
+    borderTopRightRadius: radius.hero,
+    paddingHorizontal: layout.screenPaddingX,
+    paddingTop: rhythm.section,
+    paddingBottom: rhythm.pad,
+  },
+  kutlamaPanelBaslikSatiri: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginBottom: rhythm.sameObject,
   },
 });
