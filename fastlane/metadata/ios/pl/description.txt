@@ -27,4 +27,4 @@ Trinkow nigdy nie pyta o hasła bankowe ani numery kart. Twoje dane finansowe s�
 
 Warunki użytkowania (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Polityka prywatności: https://trinkow-backend.triworkster.com/gizlilik
-Wsparcie: https://trinkow-backend.triworkster.com/hesap-silme
+Wsparcie: https://trinkow-backend.triworkster.com/destek

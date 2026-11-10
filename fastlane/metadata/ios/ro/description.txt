@@ -27,4 +27,4 @@ Trinkow nu solicită niciodată parole bancare sau datele cardurilor tale. Infor
 
 Termeni de utilizare (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Politica de confidențialitate: https://trinkow-backend.triworkster.com/gizlilik
-Asistență: https://trinkow-backend.triworkster.com/hesap-silme
+Asistență: https://trinkow-backend.triworkster.com/destek

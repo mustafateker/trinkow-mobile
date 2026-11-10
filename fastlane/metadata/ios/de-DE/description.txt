@@ -27,4 +27,4 @@ Trinkow verlangt weder Bankpasswörter noch Kartennummern. Deine Daten bleiben s
 
 Nutzungsbedingungen (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Datenschutzrichtlinie: https://trinkow-backend.triworkster.com/gizlilik
-Support: https://trinkow-backend.triworkster.com/hesap-silme
+Support: https://trinkow-backend.triworkster.com/destek

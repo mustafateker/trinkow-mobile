@@ -27,4 +27,4 @@ O Trinkow nunca pede senhas bancárias ou dados de cartão. Suas informações f
 
 Termos de Uso (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Política de Privacidade: https://trinkow-backend.triworkster.com/gizlilik
-Suporte: https://trinkow-backend.triworkster.com/hesap-silme
+Suporte: https://trinkow-backend.triworkster.com/destek

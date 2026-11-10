@@ -20,6 +20,7 @@ platform :android do
       skip_upload_changelogs: true,
       skip_upload_images: true,
       skip_upload_screenshots: true,
+      changes_not_sent_for_review: options[:changes_not_sent_for_review] || false,
       timeout: 600
     )
   end
@@ -36,7 +37,11 @@ platform :android do
 
   desc "Native AAB'yi Google Play production kanalında yayınlar"
   lane :production do
-    upload_test_release(track: "production", release_status: ENV.fetch("ANDROID_RELEASE_STATUS", "completed"))
+    upload_test_release(
+      track: "production",
+      release_status: ENV.fetch("ANDROID_RELEASE_STATUS", "completed"),
+      changes_not_sent_for_review: true
+    )
   end
 end
 

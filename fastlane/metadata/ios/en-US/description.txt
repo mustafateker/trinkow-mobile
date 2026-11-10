@@ -10,7 +10,7 @@ End the end-of-month stress. Watch your daily limit adjust in real time on an in
 • Voice-Powered & One-Tap Expense Logging:
 No more manual forms! Tap the microphone and say “$35 groceries by card” or “$12 lunch”—Trinkow instantly identifies the amount, category, item, and payment method.
 
-• Routine Savings & Real Accumulationa:
+• Routine Savings Routine Savings & Real Accumulationa: Real Accumulation:
 Set up recurring daily habits like coffee, takeout, or snacks. When you skip a habit, see your unspent money turn into real savings right away.
 
 • Subscription & Bill Management:
@@ -27,4 +27,4 @@ Trinkow never asks for your bank credentials or card numbers. Your financial dat
 
 Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Privacy Policy: https://trinkow-backend.triworkster.com/gizlilik
-Support: https://trinkow-backend.triworkster.com/hesap-silme
+Support: https://trinkow-backend.triworkster.com/destek

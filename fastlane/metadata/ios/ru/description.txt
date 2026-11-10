@@ -27,4 +27,4 @@ Trinkow никогда не запрашивает пароли от банко�
 
 Условия использования (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Политика конфиденциальности: https://trinkow-backend.triworkster.com/gizlilik
-Поддержка: https://trinkow-backend.triworkster.com/hesap-silme
+Поддержка: https://trinkow-backend.triworkster.com/destek

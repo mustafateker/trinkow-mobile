@@ -27,4 +27,4 @@ Trinkow banka hesap şifreni veya kart numaranı asla istemez. Tüm verilerin g�
 
 Kullanım Şartları (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Gizlilik Politikası: https://trinkow-backend.triworkster.com/gizlilik
-Destek: https://trinkow-backend.triworkster.com/hesap-silme
+Destek: https://trinkow-backend.triworkster.com/destek

@@ -27,4 +27,4 @@ Trinkow nikdy nevyžaduje hesla k bankovním účtům ani čísla karet. Tvá da
 
 Podmínky použití (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 Zásady ochrany osobních údajů: https://trinkow-backend.triworkster.com/gizlilik
-Podpora: https://trinkow-backend.triworkster.com/hesap-silme
+Podpora: https://trinkow-backend.triworkster.com/destek
