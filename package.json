@@ -1,7 +1,7 @@
 {
   "name": "trinkow",
   "main": "index.js",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "private": true,
   "scripts": {
     "dev": "python3 ../dev.py",
@@ -17,7 +17,10 @@
     "release:internal": "node scripts/release.mjs internal",
     "release:closed": "node scripts/release.mjs closed",
     "release:ios": "node scripts/release-ios.mjs build",
-    "release:ios:testflight": "node scripts/release-ios.mjs testflight"
+    "release:ios:testflight": "node scripts/release-ios.mjs testflight",
+    "release:internal-testflight": "node scripts/release-all.mjs internal-testflight",
+    "release:internal-testfight": "node scripts/release-all.mjs internal-testflight",
+    "release:production": "node scripts/release-all.mjs production"
   },
   "expo": {
     "autolinking": {

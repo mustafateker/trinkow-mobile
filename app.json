@@ -2,7 +2,7 @@
   "expo": {
     "name": "Trinkow",
     "slug": "trinkow",
-    "version": "0.1.14",
+    "version": "0.1.15",
     "orientation": "default",
     "scheme": "trinkow",
     "userInterfaceStyle": "light",
@@ -25,7 +25,7 @@
     },
     "android": {
       "package": "com.triworkster.trinkow",
-      "versionCode": 15,
+      "versionCode": 16,
       "blockedPermissions": [
         "com.google.android.gms.permission.AD_ID"
       ],

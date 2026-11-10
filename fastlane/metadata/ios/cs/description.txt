@@ -1,0 +1,30 @@
+Měj své peníze pevně pod kontrolou! Trinkow je chytrý asistent pro denní rozpočet, sledování výdajů a úspory, který ti za 10 sekund ukáže, kolik můžeš dnes bezpečně utratit – bez tabulek a připojování bankovních účtů.
+
+Zadej svůj měsíční příjem, fixní výdaje (nájem, účty, splátky) a cíl úspor; Trinkow automaticky spočítá tvůj bezpečný denní limit až do další výplaty.
+
+HLAVNÍ FUNKCE
+
+• Denní limit výdajů v reálném čase:
+Konec stresu na konci měsíce. Sleduj zbývající denní rozpočet na přehledném kruhovém ukazateli s každou zaznamenanou platbou.
+
+• Rychlé hlasové zadávání výdajů:
+Neztrácej čas formuláři! Klepni na mikrofon a řekni: „350 Kč v obchodě kartou“ – Trinkow okamžitě rozpozná částku, kategorii i platební metodu.
+
+• Úspory z rutin a reálné šetření:
+Nastav si každodenní návyky, jako je káva s sebou nebo obědy venku. Když rutinu vynecháš, uvidíš, jak neutracené peníze okamžitě rostou ve tvých úsporách.
+
+• Přehled předplatných a stálých plateb:
+Měj Netflix, Spotify, iCloud i všechny pravidelné platby na jednom místě. Předejdi nečekaným platbám díky přehlednému kalendáři obnovení.
+
+• Chytré analýzy a přehledné grafy:
+Prohlížej si týdenní, měsíční a roční statistiky. Zjisti, které kategorie odčerpávají největší podíl z tvých příjmów.
+
+• Splátky a denní série finančního přehledu:
+Sleduj nákupy na splátky a posiluj své finanční návyky díky pravidelným denním záznamům.
+
+• Důraz na soukromí a bezpečí:
+Trinkow nikdy nevyžaduje hesla k bankovním účtům ani čísla karet. Tvá data jsou v bezpečí a můžeš je kdykoli exportovat nebo smazat.
+
+Podmínky použití (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Zásady ochrany osobních údajů: https://trinkow-backend.triworkster.com/gizlilik
+Podpora: https://trinkow-backend.triworkster.com/hesap-silme

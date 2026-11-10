@@ -33,6 +33,11 @@ platform :android do
   lane :closed do
     upload_test_release(track: "alpha", release_status: "draft")
   end
+
+  desc "Native AAB'yi Google Play production kanalında yayınlar"
+  lane :production do
+    upload_test_release(track: "production", release_status: ENV.fetch("ANDROID_RELEASE_STATUS", "completed"))
+  end
 end
 
 platform :ios do
@@ -60,6 +65,24 @@ platform :ios do
       api_key: asc_api_key,
       ipa: ipa_path,
       app_identifier: "com.triworkster.trinkow",
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  desc "Native IPA'yı App Store Connect (Production / App Store) kanalına yükler"
+  lane :appstore do
+    ipa_path = ENV.fetch("IOS_IPA_PATH")
+    UI.user_error!("IPA bulunamadı: #{ipa_path}") unless File.exist?(ipa_path)
+
+    upload_to_app_store(
+      api_key: asc_api_key,
+      ipa: ipa_path,
+      app_identifier: "com.triworkster.trinkow",
+      force: true,
+      skip_metadata: true,
+      skip_screenshots: true,
+      submit_for_review: false,
+      automatic_release: false,
       skip_waiting_for_build_processing: true
     )
   end

@@ -1,0 +1,30 @@
+Maîtrisez votre budget sans stress ! Trinkow est l'assistant intelligent de budget quotidien, suivi des dépenses et épargne qui vous indique en 10 secondes combien vous pouvez dépenser aujourd'hui, sans feuilles de calcul ni connexion bancaire.
+
+Renseignez vos revenus, vos charges fixes (loyer, factures, crédits) et votre objectif d'épargne. Trinkow calcule automatiquement votre limite quotidienne sécurisée jusqu'à la prochaine paie.
+
+FONCTIONNALITÉS CLÉS
+
+• Limite de dépense quotidienne en temps réel :
+Fini l'angoisse des fins de mois difficiles. Suivez l'évolution de votre budget restant sur une jauge circulaire intuitive à chaque dépense enregistrée.
+
+• Saisie vocale et instantanée :
+Gagnez du temps ! Appuyez sur le micro et dites simplement « 25 euros courses par carte » : Trinkow détecte automatiquement le montant, la catégorie et le moyen de paiement.
+
+• Épargne sur vos routines quotidiennes :
+Définissez vos habitudes (café, repas à emporter, snacks). Chaque fois que vous y renoncez, voyez concrètement ces sommes non dépensées alimenter votre épargne.
+
+• Gestion des abonnements et charges récurrentes :
+Centralisez Netflix, Spotify, iCloud et tous vos prélèvements mensuels. Anticipez les renouvellements et évitez les frais imprévus.
+
+• Analyses détaillées et graphiques clairs :
+Consultez vos graphiques hebdomadaires, mensuels et annuels pour découvrir les postes de dépenses qui pèsent le plus lourd sur vos revenus.
+
+• Suivi des paiements échelonnés et séries de suivi :
+Gérez vos échéances de cartes et renforcez votre discipline financière grâce aux séries d'enregistrement quotidiennes.
+
+• Confidentialité et sécurité totales :
+Trinkow ne demande aucun identifiant bancaire ni numéro de carte. Vos données sont sécurisées et restent entièrement sous votre contrôle.
+
+Conditions d'utilisation (EULA) : https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Politique de confidentialité : https://trinkow-backend.triworkster.com/gizlilik
+Assistance : https://trinkow-backend.triworkster.com/hesap-silme

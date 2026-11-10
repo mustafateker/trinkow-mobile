@@ -1,0 +1,30 @@
+¡Lleva el control de tu dinero sin complicaciones! Trinkow es el asistente inteligente de presupuesto diario, registro de gastos y ahorro personal que te dice en 10 segundos cuánto puedes gastar hoy con seguridad, sin tablas complejas ni conectar tu banco.
+
+Introduce tus ingresos mensuales, gastos fijos (alquiler, facturas, préstamos) y meta de ahorro; Trinkow calcula al instante tu límite diario disponible hasta el próximo cobro.
+
+CARACTERÍSTICAS DESTACADAS
+
+• Límite de gasto diario en tiempo real:
+Olvídate del estrés de final de mes. Observa cómo se ajusta tu límite en un indicador circular claro con cada compra que registres.
+
+• Registro por voz y en un toque:
+¡Ahorra tiempo! Toca el micrófono y di frases naturales como «45 euros en el súper con tarjeta» o «12 euros almuerzo»: Trinkow completa el importe, categoría y método de pago al instante.
+
+• Ahorro en rutinas y metas reales:
+Define tus hábitos diarios como café o comida fuera. Cuando decidas no gastar, comprueba de forma tangible cómo ese dinero se suma directamente a tus ahorros.
+
+• Control de suscripciones y pagos fijos:
+Reúne Netflix, Spotify, iCloud y todos tus pagos periódicos en una sola lista. Conoce tus fechas de renovación y evita cobros inesperados.
+
+• Análisis inteligentes de gastos:
+Explora gráficos semanales, mensuales y anuales interactivos. Descubre qué categorías consumen mayor porcentaje de tus ingresos.
+
+• Seguimiento de cuotas y rachas de control:
+Controla compras a plazos con tarjeta y consolida buenos hábitos financieros manteniendo tu racha diaria activa.
+
+• Privacidad y seguridad garantizadas:
+Trinkow nunca te pedirá contraseñas bancarias ni números de tarjeta. Tu información financiera está protegida y bajo tu control total.
+
+Términos de uso (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Política de privacidad: https://trinkow-backend.triworkster.com/gizlilik
+Soporte: https://trinkow-backend.triworkster.com/hesap-silme

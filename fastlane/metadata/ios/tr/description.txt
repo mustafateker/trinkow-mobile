@@ -1,0 +1,30 @@
+Evdeki hesabı çarşıya uydur! Trinkow; karmaşık muhasebe tabloları veya banka hesaplarına bağlanma zorunluluğu olmadan, bugün güvenle ne kadar harcayabileceğini 10 saniyede gösteren akıllı kişisel bütçe, harcama ve tasarruf asistanıdır.
+
+Aylık net gelirini, sabit giderlerini (kira, faturalar, ulaşım, kredi/taksit) ve aylık birikim hedefini gir; Trinkow maaş gününe kadar her gün harcayabileceğin net limiti otomatik hesaplasın.
+
+ÖNE ÇIKAN ÖZELLİKLER
+
+• Anlık Günlük Harcama Limiti:
+“Ay sonu nasıl gelecek?” stresine son ver. Gün içinde harcama ekledikçe kalan günlük bütçeni halka göstergede anlık olarak takip et.
+
+• Sesli ve Tek Dokunuşla Harcama Girişi:
+Uzun formlarla vakit kaybetme! Mikrofona dokunup “Markette kartla 450 lira” veya “Öğle menüsü 265 lira” gibi doğal bir cümle söyle; Trinkow tutarı, kategoriyi, ürünü ve ödeme yöntemini saniyeler içinde otomatik doldursun.
+
+• Rutin Tasarrufu ve Gerçek Birikim:
+Kahve, dışarıda yemek veya atıştırmalık gibi günlük rutinlerini tanımla. Rutinlerinden vazgeçtiğin günlerde harcamadığın tutarın “Rutin Tasarrufu” olarak birikimine nasıl dönüştüğünü somut olarak gör.
+
+• Abonelik ve Sabit Ödeme Takibi:
+Netflix, Spotify, iCloud, YouTube ve tüm aylık aboneliklerini tek listede topla. Aylık toplam abonelik yükünü ve yaklaşan yenilenme günlerini önceden görerek sürpriz ödemelerden kurtul.
+
+• Akıllı Kategori Tahmini ve Harcama Analizleri:
+Haftalık, aylık ve yıllık harcama grafiklerini incele. En çok hangi kategoride (Market, Restoran, Kafe, Ulaşım vb.) harcama yaptığını ve gelirinin yüzde kaçını kullandığını net pasta grafiklerle analiz et.
+
+• Taksit ve Seri Takibi:
+Kredi kartı taksitlerini aylara göre izle, her gün düzenli kayıt girerek finansal farkındalık serini koru.
+
+• Gizlilik ve Güvenlik Öncelikli:
+Trinkow banka hesap şifreni veya kart numaranı asla istemez. Tüm verilerin güvenli bulut altyapısında korunur ve dilediğin an Ayarlar menüsünden dışa aktarılabilir veya tamamen silinebilir.
+
+Kullanım Şartları (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Gizlilik Politikası: https://trinkow-backend.triworkster.com/gizlilik
+Destek: https://trinkow-backend.triworkster.com/hesap-silme

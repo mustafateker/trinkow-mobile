@@ -1,0 +1,30 @@
+Preia controlul banilor tăi fără stres! Trinkow este asistentul inteligent pentru buget zilnic, evidența cheltuielilor și economii care îți arată în 10 secunde exact cât poți cheltui astăzi în siguranță, fără tabele complicate și fără conectarea conturilor bancare.
+
+Introdu venitul lunar, cheltuielile fixe (chirie, facturi, rate) și obiectivul de economisire; Trinkow îți calculează automat limita zilnică sigură până la următorul salariu.
+
+FUNCȚIONALITĂȚI PRINCIPALE
+
+• Limită zilnică de cheltuieli în timp real:
+Scapă de grija sfârșitului de lună. Urmărește bugetul rămas pe un indicator circular intuitiv la fiecare cheltuială adăugată.
+
+• Înregistrare vocală rapidă:
+Nu mai pierde timpul completând formulare! Apasă microfonul și spune simplu: „65 lei la supermarket cu cardul” – Trinkow completează suma, categoria și metoda de plată instantaneu.
+
+• Economii din rutine și economisire reală:
+Setează-ți obiceiurile zilnice (cafea în oraș, comenzi de mâncare). Când renunți la o cheltuială, vezi direct cum banii necheltuiți se transformă în economii reale.
+
+• Gestionarea abonamentelor și plăților recurente:
+Adună Netflix, Spotify, iCloud și toate plățile lunare într-o singură listă. Vezi din timp datele de reînnoire și evită surprizele neplăcute.
+
+• Statistici inteligente și grafice detaliate:
+Consultă graficele săptămânale, lunare și anuale pentru a afla ce categorii consumă cea mai mare parte din venitul tău.
+
+• Monitorizare rate și serie zilnică de conștientizare:
+Ține evidența ratelor la card și creează-ți obiceiuri financiare sănătoase înregistrând tranzacțiile în fiecare zi.
+
+• Confidențialitate și securitate înainte de toate:
+Trinkow nu solicită niciodată parole bancare sau datele cardurilor tale. Informațiile tale rămân protejate și pot fi descărcate sau șterse oricând dorești.
+
+Termeni de utilizare (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Politica de confidențialitate: https://trinkow-backend.triworkster.com/gizlilik
+Asistență: https://trinkow-backend.triworkster.com/hesap-silme

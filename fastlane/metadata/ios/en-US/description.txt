@@ -1,0 +1,30 @@
+Take control of your money with confidence! Trinkow is the smart daily budget, expense tracker, and savings assistant that tells you in 10 seconds exactly how much you can spend today—without tedious spreadsheets or connecting your bank accounts.
+
+Enter your monthly income, fixed expenses (rent, bills, utilities, loan installments), and savings goal; Trinkow automatically calculates your safe daily spending limit until next payday.
+
+KEY FEATURES
+
+• Real-Time Daily Spending Limit:
+End the end-of-month stress. Watch your daily limit adjust in real time on an intuitive circular gauge with every expense you log.
+
+• Voice-Powered & One-Tap Expense Logging:
+No more manual forms! Tap the microphone and say “$35 groceries by card” or “$12 lunch”—Trinkow instantly identifies the amount, category, item, and payment method.
+
+• Routine Savings & Real Accumulationa:
+Set up recurring daily habits like coffee, takeout, or snacks. When you skip a habit, see your unspent money turn into real savings right away.
+
+• Subscription & Bill Management:
+Keep track of Netflix, Spotify, iCloud, YouTube, and all recurring payments. Avoid surprise renewals with clear payment schedules and monthly totals.
+
+• Smart Analytics & Visual Breakdown:
+Explore interactive weekly, monthly, and annual charts. See which categories take the biggest share of your income with beautiful breakdown graphs.
+
+• Installments & Daily Streak Tracking:
+Plan future credit card payments and build lifelong healthy financial habits with daily awareness streaks.
+
+• Privacy & Security First:
+Trinkow never asks for your bank credentials or card numbers. Your financial data is securely protected, never sold, and easily exportable or deletable anytime.
+
+Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Privacy Policy: https://trinkow-backend.triworkster.com/gizlilik
+Support: https://trinkow-backend.triworkster.com/hesap-silme

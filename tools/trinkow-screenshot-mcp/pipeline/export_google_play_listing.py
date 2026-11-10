@@ -1,0 +1,306 @@
+import csv
+import os
+import shutil
+
+METADATA = {
+    'tr-TR': {
+        'code': 'tr-TR',
+        'short_code': 'tr',
+        'title': 'Trinkow: Bütçe ve Harcama',
+        'short_description': 'Evdeki hesabı çarşıya uydurur. Günlük net harcama limiti ve tasarruf takibi.',
+        'full_description': """Trinkow – Evdeki Hesabı Çarşıya Uydurur!
+
+Karmaşık bütçe tablolarını, anlaşılmaz formülleri ve sıkıcı hesaplamaları unutun. Trinkow; aylık gelirinizi, kira ve fatura gibi sabit giderlerinizi ve belirlediğiniz birikim hedefini analiz ederek her gün güvenle harcayabileceğiniz net günlük limiti hesaplar.
+
+Böylece ay sonunda sürpriz faturalarla karşılaşmaz, bütçenizi aşmadan hayallerinize adım adım yaklaşırsınız.
+
+ÖNE ÇIKAN ÖZELLİKLER:
+
+• Günlük Güvenli Harcama Limiti: Her harcama eklediğinizde günün kalan kullanılabilir tutarını anında görün.
+• Sesli & Hızlı Harcama Kaydı: 'Kahve 90 TL' deyin, Trinkow anında kaydetsin. Sesli komut ve akıllı kategori tahminiyle saniyeler içinde ekleyin.
+• Rutin Tasarruf Takibi: Atladığınız kahve, dışarıdan yemek veya günlük alışkanlıklardan ne kadar tasarruf ettiğinizi tek ekranda takip edin ve birikime dönüştürün.
+• Akıllı Abonelik Yönetimi: Netflix, Spotify, spor salonu gibi tüm yinelenen ödemelerinizi takvimde görün, sürpriz çekimlerden önce bildirim alın.
+• Görsel Harcama Grafikleri: Paranızın nereye gittiğini kategori bazlı haftalık ve aylık renkli analizlerle tek bakışta keşfedin.
+• Tasarruf Hedefleri: Geleceğiniz veya tatil planınız için hedefler belirleyin, ilerlemenizi motive edici arayüzle izleyin.
+• Reklamsız & Güvenli: Finansal verileriniz tamamen gizlidir ve üçüncü taraflarla paylaşılmaz.
+
+Trinkow ile bütçenizi kolayca kontrol altına alın, evdeki hesabı çarşıya uydurun!"""
+    },
+    'en-US': {
+        'code': 'en-US',
+        'short_code': 'en',
+        'title': 'Trinkow: Daily Budget Tracker',
+        'short_description': 'Make money work for you. Smart daily budget, expense tracker & routine savings.',
+        'full_description': """Trinkow – Make Your Money Work For You!
+
+Forget complicated spreadsheets, messy financial tracking, and stressful budgeting formulas. Trinkow takes your monthly income, fixed bills, and savings goals and converts them into a crystal-clear, daily safe-to-spend limit.
+
+Spend confidently today knowing your rent, bills, and future goals are completely taken care of.
+
+KEY FEATURES:
+
+• Real-Time Daily Safe Limit: Know exactly how much you can spend every single day without derailing your savings goals.
+• Voice & Instant Expense Logging: Just speak your expense or use one-tap routine shortcuts. Smart category suggestions save you time.
+• Habit & Routine Savings: Skipped a takeaway coffee or an impulse purchase? Log it and watch skipped habits grow into real measurable savings.
+• Smart Subscription Tracker: Keep tabs on Netflix, Spotify, gym memberships, and cloud storage before unexpected renewals hit your card.
+• Crystal Clear Financial Charts: Visualize category breakdowns, weekly spending trends, and habits with beautiful, intuitive graphs.
+• Motivating Savings Targets: Set goals for vacations, emergency funds, or dreams and watch your progress step by step.
+• 100% Private & Ad-Free: Your data stays secure. No ads, no third-party tracking, no hassle.
+
+Take control of your personal finances today with Trinkow!"""
+    },
+    'de-DE': {
+        'code': 'de-DE',
+        'short_code': 'de',
+        'title': 'Trinkow: Haushaltsbuch Budget',
+        'short_description': 'Damit deine Rechnung aufgeht. Tägliches Ausgabenlimit & einfache Sparziele.',
+        'full_description': """Trinkow – Damit deine Rechnung aufgeht!
+
+Schluss mit unübersichtlichen Tabellen und stressigem Haushaltsbuchführen. Trinkow berechnet aus deinen monatlichen Einnahmen, Fixkosten und Sparzielen dein tägliches, sicheres Ausgabenlimit.
+
+So weißt du jeden Tag genau, was du ausgeben kannst, ohne am Monatsende böse Überraschungen zu erleben.
+
+HAUPTMERKMALE:
+
+• Tägliches Ausgabenlimit in Echtzeit: Sieh nach jedem Einkauf sofort, wie viel Budget dir heute noch sorgenfrei zur Verfügung steht.
+• Spracheingabe & Schnellerfassung: Halte Ausgaben per Sprachbefehl oder Schnelltipp in Sekunden fest.
+• Gewohnheiten in Ersparnisse verwandeln: Jeden eingesparten Kaffee oder Verzicht als echten Sparerfolg verbuchen.
+• Abo-Manager: Behalte alle Streaming-Dienste und regelmäßigen Zahlungen im Blick und verhindere unerwünschte Verlängerungen.
+• Detaillierte Finanzanalysen: Übersichtliche Diagramme nach Kategorien und wöchentlichen Trends.
+• Klare Sparziele: Erstelle Sparpläne für Anschaffungen oder Notgroschen und verfolge deinen Fortschritt.
+• Privat & Werbefrei: Deine Finanzdaten bleiben geschützt und werden nicht weitergegeben.
+
+Bring Ordnung in deine Finanzen mit Trinkow!"""
+    },
+    'fr-FR': {
+        'code': 'fr-FR',
+        'short_code': 'fr',
+        'title': 'Trinkow: Budget & Dépenses',
+        'short_description': 'Le budget qui colle à la réalité. Limite de dépense quotidienne et épargne.',
+        'full_description': """Trinkow – Le budget qui colle à la réalité !
+
+Oubliez les tableaux Excel complexes et le stress des fins de mois. Trinkow analyse vos revenus, vos charges fixes et vos objectifs d'épargne pour calculer votre budget quotidien net disponible.
+
+Dépensez en toute sérénité chaque jour sans jamais mettre en péril vos projets futurs.
+
+FONCTIONNALITÉS CLÉS :
+
+• Limite quotidienne en direct : Connaissez instantanément le montant exact que vous pouvez dépenser aujourd'hui.
+• Saisie vocale et instantanée : Ajoutez vos dépenses à la voix en quelques secondes grâce à la reconnaissance intelligente.
+• Épargne sur les habitudes : Chaque café ou repas évité à l'extérieur se transforme en véritable tirelire mesurable.
+• Suivi des abonnements : Anticipez les prélèvements de streaming, abonnements sportifs et éliminez les services inutiles.
+• Graphiques financiers clairs : Visualisez la répartition de vos dépenses par catégorie et maîtrisez vos tendances hebdomadaires.
+• Objectifs d'épargne motivants : Suivez l'avancement de vos projets étape par étape.
+• 100 % privé et sans publicité.
+
+Reprenez le contrôle de votre argent dès aujourd'hui avec Trinkow !"""
+    },
+    'es-ES': {
+        'code': 'es-ES',
+        'short_code': 'es',
+        'title': 'Trinkow: Presupuesto y Gastos',
+        'short_description': 'Hace que tus cuentas cuadren. Límite diario de gasto y control de ahorro.',
+        'full_description': """Trinkow – Hace que tus cuentas cuadren.
+
+Olvídate de las hojas de cálculo complicadas y las cuentas imposibles. Trinkow convierte tus ingresos mensuales, gastos fijos y metas de ahorro en un límite de gasto diario claro y seguro.
+
+Disfruta de tu día a día sabiendo exactamente cuánto puedes gastar sin comprometer tu colchón financiero.
+
+CARACTERÍSTICAS PRINCIPALES:
+
+• Límite diario seguro: Consulta tras cada compra el saldo restante disponible para el resto del día.
+• Registro por voz y atajos rápidos: Dicta tu gasto o usa atajos inteligentes en cuestión de segundos.
+• Ahorro de rutinas: Comprueba cómo renunciar a un café o a compras impulsivas suma dinero real a tus ahorros.
+• Control de suscripciones: Visualiza en el calendario todos tus pagos recurrentes y cancela lo que no uses.
+• Análisis visual de gastos: Descubre adónde va tu dinero mediante gráficos por categorías y tendencias semanales.
+• Metas de ahorro claras: Define objetivos para vacaciones o emergencias y celebra cada avance.
+• Privado y sin anuncios.
+
+Toma el control de tu economía personal con Trinkow."""
+    },
+    'it-IT': {
+        'code': 'it-IT',
+        'short_code': 'it',
+        'title': 'Trinkow: Spese e Budget',
+        'short_description': 'Fa quadrare i conti. Limite di spesa giornaliero, risparmio e abbonamenti.',
+        'full_description': """Trinkow – Fa quadrare i conti.
+
+Dimentica i fogli di calcolo complicati e i calcoli noiosi. Trinkow analizza le tue entrate mensili, le bollette fisse e i tuoi obiettivi per calcolare il limite netto di spesa che puoi concederti ogni giorno.
+
+Spendi con serenità sapendo che le spese importanti e i tuoi risparmi sono già al sicuro.
+
+CARATTERISTICHE PRINCIPALI:
+
+• Limite giornaliero in tempo reale: Scopri all'istante quanto puoi ancora spendere oggi dopo ogni acquisto.
+• Inserimento vocale immediato: Aggiungi spese pronunciando poche parole o con scorciatoie intelligenti in un attimo.
+• Risparmio sulle abitudini: Guarda come ogni caffè saltato o rinuncia quotidiana si trasforma in un gruzzolo reale.
+• Gestione abbonamenti: Monitora streaming, palestra e pagamenti ricorrenti prima dell'addebito automatico.
+• Grafici e statistiche intuitive: Visualizza con precisione dove finisce il tuo denaro con grafici settimanali e mensili.
+• Obiettivi finanziari dedicati: Crea salvadanai per i tuoi sogni e monitora i progressi passo dopo passo.
+• Sicuro, riservato e senza pubblicità.
+
+Fai quadrare i tuoi conti con facilità grazie a Trinkow!"""
+    },
+    'cs-CZ': {
+        'code': 'cs-CZ',
+        'short_code': 'cs',
+        'title': 'Trinkow: Rozpočet a Výdaje',
+        'short_description': 'Rozpočet, který vyjde i v obchodě. Denní limit výdajů a sledování úspor.',
+        'full_description': """Trinkow – Rozpočet, který vyjde i v obchodě!
+
+Zapomeňte na nepřehledné tabulky a složité výpočty. Trinkow propojí vaše příjmy, pravidelné platby za nájem či účty a cíl úspor do jednoho jasného a bezpečného denního limitu útrat.
+
+Utrácejte každý den s klidem a bez obav z nečekaných překvapení na konci měsíce.
+
+HLAVNÍ FUNKCE:
+
+• Denní limit výdajů v reálném čase: Hned po nákupu přesně víte, kolik vám na dnešek ještě zbývá.
+• Hlasové a okamžité zadávání: Řekněte svou útratu nahlas nebo použijte rychlé zkratky během pár sekund.
+• Úspory z návyků: Sledujte, kolik skutečně ušetříte, když vynecháte kávu s sebou nebo drobné nákupy.
+• Hlídač předplatných: Mějte přehled o všech streamovacích službách a pravidelných poplatcích na jednom místě.
+• Přehledné grafy a analýzy: Zjistěte v přehledných grafech, za které kategorie utrácíte nejvíce peněz.
+• Spořicí cíle: Stanovte si finanční cíle na dovolenou či rezervu a sledujte svůj pokrok.
+• Bezpečné a zcela bez reklam.
+
+Získejte kontrolu nad svými financemi s aplikací Trinkow!"""
+    },
+    'pt-PT': {
+        'code': 'pt-PT',
+        'short_code': 'pt',
+        'title': 'Trinkow: Orçamento e Gastos',
+        'short_description': 'Põe as contas a bater certo. Limite diário de gastos e poupança de rotinas.',
+        'full_description': """Trinkow – Põe as contas de casa a bater certo!
+
+Esqueça as folhas de cálculo complicadas e o stresse com as contas do mês. O Trinkow analisa o seu ordenado, despesas fixas e metas financeiras para calcular o limite diário seguro que pode gastar sem culpa.
+
+Gaste com tranquilidade hoje sabendo que as suas contas e o seu futuro estão salvaguardados.
+
+PRINCIPAIS FUNCIONALIDADES:
+
+• Limite diário seguro em tempo real: Saiba exatamente quanto pode gastar hoje após cada registo.
+• Registo rápido e por voz: Dite as suas despesas ou use atalhos inteligentes em poucos segundos.
+• Poupança com rotinas: Veja como abdicar de um café ou compras por impulso se transforma em poupança real.
+• Gestão de subscrições: Acompanhe as renovações de streaming e mensalidades antes de serem cobradas no cartão.
+• Gráficos financeiros detalhados: Descubra para onde vai o seu dinheiro com relatórios semanais e mensais claros.
+• Metas de poupança: Defina planos para férias ou fundo de emergência e atinja os seus objetivos.
+• 100 % privado e sem anúncios.
+
+Ponha as suas finanças pessoais a bater certo com o Trinkow!"""
+    },
+    'ru-RU': {
+        'code': 'ru-RU',
+        'short_code': 'ru',
+        'title': 'Trinkow: Бюджет и Расходы',
+        'short_description': 'Сводит планы с реальностью. Дневной лимит трат, учёт расходов и накопления.',
+        'full_description': """Trinkow – Сводит планы с реальностью!
+
+Забудьте о сложных таблицах, утомительных подсчётах и стрессе в конце месяца. Trinkow переводит ваши доходы, обязательные платежи и финансовые цели в понятный и безопасный дневной лимит расходов.
+
+Тратьте каждый день спокойно, точно зная, что все важные счета и накопления под контролем.
+
+ГЛАВНЫЕ ВОЗМОЖНОСТИ:
+
+• Дневной лимит трат в реальном времени: Моментально узнавайте остаток на сегодня после каждой совершённой покупки.
+• Голосовой и быстрый ввод: Назовите трату голосом или добавьте в пару касаний за несколько секунд.
+• Копилка привычек: Наблюдайте, как пропущенная чашка кофе или отказ от мелочей превращается в реальные накопления.
+• Контроль подписок: Отслеживайте дату списания за кино, музыку и спортзал заранее и убирайте лишнее.
+• Наглядная аналитика расходов: Подробные графики по категориям и еженедельная динамика бюджета.
+• Цели накоплений: Ставьте финансовые цели на отпуск или подушку безопасности и уверенно идите к ним.
+• Полная конфиденциальность и отсутствие рекламы.
+
+Возьмите личные финансы под уверенный контроль с Trinkow!"""
+    },
+    'ro-RO': {
+        'code': 'ro-RO',
+        'short_code': 'ro',
+        'title': 'Trinkow: Buget și Cheltuieli',
+        'short_description': 'Potrivește socoteala de acasă cu cea din târg. Limită zilnică și economii.',
+        'full_description': """Trinkow – Potrivește socoteala de acasă cu cea din târg!
+
+Uită de tabele complicate și calcule obositoare. Trinkow transformă venitul tău lunar, facturile fixe și obiectivele de economisire într-o limită zilnică sigură și limpede pentru cheltuieli.
+
+Cheltuiește relaxat în fiecare zi știind că toate plățile importante și economiile tale sunt pe deplin asigurate.
+
+FUNCȚIONALITĂȚI PRINCIPALE:
+
+• Limită zilnică sigură în timp real: Vezi imediat după fiecare plată câți bani mai ai disponibili pentru restul zilei.
+• Notare vocală și comenzi rapide: Înregistrează cheltuielile prin comandă vocală sau comenzi rapide în doar câteva secunde.
+• Economii din obiceiuri: Urmărește cum renunțarea la o cafea sau mici impulsuri se transformă în bani puși deoparte.
+• Gestiune inteligentă a abonamentelor: Păstrează evidența plăților recurente (streaming, sală) înainte de a fi debitat cardul.
+• Grafice financiare intuitive: Descoperă exact unde se duc banii tăi prin statistici săptămânale și lunare pe categorii.
+• Obiective de economisire: Stabilește ținte pentru vacanțe sau fond de urgență și urmărește progresul pas cu pas.
+• Confidențialitate totală și fără reclame.
+
+Preia controlul asupra finanțelor tale cu Trinkow!"""
+    },
+    'pl-PL': {
+        'code': 'pl-PL',
+        'short_code': 'pl',
+        'title': 'Trinkow: Budżet i Wydatki',
+        'short_description': 'Budżet, który zgadza się z życiem. Dzienny limit wydatków i oszczędzanie.',
+        'full_description': """Trinkow – Budżet, który zgadza się z życiem!
+
+Zapomnij o uciążliwych arkuszach kalkulacyjnych i stresie pod koniec miesiąca. Trinkow analizuje Twoje dochody, stałe opłaty i cele, wyliczając bezpieczny, czysty dzienny limit wydatków.
+
+Wydawaj każdego dnia ze spokojną głową, wiedząc, że rachunki i oszczędności są w pełni zabezpieczone.
+
+GŁÓWNE FUNKCJE:
+
+• Dzienny limit wydatków na żywo: Sprawdzaj po każdym zakupie, ile pieniędzy zostało Ci do końca dnia.
+• Wprowadzanie głosem i szybkie skróty: Dyktuj wydatki lub dodawaj je w ułamku sekundy dzięki inteligentnym szablonom.
+• Oszczędzanie na nawykach: Przekonaj się, jak rezygnacja z kupnej kawy czy spontanicznych zakupów zamienia się w realny kapitał.
+• Kontrola subskrypcji: Zarządzaj wszystkimi opłatami cyklicznymi (streaming, karnety) i unikaj niespodziewanych obciążeń.
+• Przejrzysta analityka i wykresy: Sprawdź dokładnie, na które kategorie ucieka najwięcej pieniędzy w ujęciu tygodniowym i miesięcznym.
+• Konkretne cele oszczędnościowe: Twórz plany na wakacje lub poduszkę finansową i osiągaj je krok po kroku.
+• Bezpiecznie, prywatnie i bez reklam.
+
+Zapanuj nad swoim domowym budżetem dzięki Trinkow!"""
+    }
+}
+
+def generate_google_play_csvs():
+    proj_dir = 'assets/store'
+    docs_dir = '/Users/mustafa/Documents/Trinkow Assets'
+    fastlane_dir = 'fastlane/metadata/android'
+    os.makedirs(proj_dir, exist_ok=True)
+    os.makedirs(docs_dir, exist_ok=True)
+
+    # 1. Standard Google Play Console CSV Format (Language code, Title, Short description, Full description)
+    csv_bcp47 = os.path.join(proj_dir, 'google_play_store_listing_translations.csv')
+    with open(csv_bcp47, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Language code', 'Title', 'Short description', 'Full description'])
+        for lang_code, item in METADATA.items():
+            writer.writerow([lang_code, item['title'], item['short_description'], item['full_description']])
+
+    # 2. Alternative Short Language Code CSV Format (Language, Title, Short description, Full description)
+    csv_short = os.path.join(proj_dir, 'google_play_store_listing_short_codes.csv')
+    with open(csv_short, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Language', 'Title', 'Short description', 'Full description'])
+        for lang_code, item in METADATA.items():
+            writer.writerow([item['short_code'], item['title'], item['short_description'], item['full_description']])
+
+    # 3. Fastlane metadata structure (title.txt, short_description.txt, full_description.txt)
+    for lang_code, item in METADATA.items():
+        loc_dir = os.path.join(fastlane_dir, lang_code)
+        os.makedirs(loc_dir, exist_ok=True)
+        with open(os.path.join(loc_dir, 'title.txt'), 'w', encoding='utf-8') as f:
+            f.write(item['title'])
+        with open(os.path.join(loc_dir, 'short_description.txt'), 'w', encoding='utf-8') as f:
+            f.write(item['short_description'])
+        with open(os.path.join(loc_dir, 'full_description.txt'), 'w', encoding='utf-8') as f:
+            f.write(item['full_description'])
+
+    # Copy CSVs to Documents for easy 1-click finder upload
+    shutil.copy(csv_bcp47, os.path.join(docs_dir, 'google_play_store_listing_translations.csv'))
+    shutil.copy(csv_short, os.path.join(docs_dir, 'google_play_store_listing_short_codes.csv'))
+
+    print("Successfully generated Google Play store listing packages:")
+    print(" - assets/store/google_play_store_listing_translations.csv")
+    print(" - /Users/mustafa/Documents/Trinkow Assets/google_play_store_listing_translations.csv")
+    print(" - fastlane/metadata/android/{11_languages}/")
+
+if __name__ == '__main__':
+    generate_google_play_csvs()
+

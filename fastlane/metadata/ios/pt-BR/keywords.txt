@@ -1,0 +1,1 @@
+orcamento,gastos,poupanca,dinheiro,financas,assinaturas,contas,salario,despesas,carteira,plano
