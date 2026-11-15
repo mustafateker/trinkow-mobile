@@ -13,8 +13,9 @@
     "icon": "./assets/images/trinkow-app-icon.png",
     "ios": {
       "supportsTablet": false,
+      "requireFullScreen": true,
       "bundleIdentifier": "com.triworkster.trinkow",
-      "buildNumber": "21",
+      "buildNumber": "22",
       "usesAppleSignIn": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -26,7 +27,7 @@
     },
     "android": {
       "package": "com.triworkster.trinkow",
-      "versionCode": 21,
+      "versionCode": 22,
       "blockedPermissions": [
         "com.google.android.gms.permission.AD_ID"
       ],
