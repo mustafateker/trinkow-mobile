@@ -1,0 +1,7 @@
+Trinkow macht dein Haushaltsbuch und Budgetmanagement schneller und zuverlässiger!
+
+Neu in dieser Version:
+• Optimierte Berechnungen für tägliche Ausgabenlimits und Budgetübersichten.
+• Verbesserte Spracherfassung und schnellere Kategorieerkennung.
+• Aktualisierte Abo-Verwaltung und Erinnerungen für wiederkehrende Zahlungen.
+• Fehlerbehebungen und UI-Verbesserungen für ein noch flüssigeres Erlebnis.

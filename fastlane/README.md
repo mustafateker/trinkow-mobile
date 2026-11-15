@@ -39,6 +39,14 @@ Native AAB'yi Google Play kapalı test kanalına taslak olarak gönderir
 
 Native AAB'yi Google Play production kanalında yayınlar
 
+### android metadata
+
+```sh
+[bundle exec] fastlane android metadata
+```
+
+Google Play mağaza metaverilerini (başlık, açıklamalar) günceller
+
 ----
 
 

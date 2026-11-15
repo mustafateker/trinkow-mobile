@@ -2,7 +2,7 @@
   "expo": {
     "name": "Trinkow",
     "slug": "trinkow",
-    "version": "0.1.15",
+    "version": "0.1.16",
     "orientation": "default",
     "scheme": "trinkow",
     "userInterfaceStyle": "light",
@@ -14,10 +14,22 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.triworkster.trinkow",
-      "buildNumber": "19",
+      "buildNumber": "21",
       "usesAppleSignIn": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
+        "UIRequiresFullScreen": true,
+        "UIApplicationSceneManifest": {
+          "UIApplicationSupportsMultipleScenes": false,
+          "UISceneConfigurations": {
+            "UIWindowSceneSessionRoleApplication": [
+              {
+                "UISceneConfigurationName": "Default Configuration",
+                "UISceneDelegateClassName": "SceneDelegate"
+              }
+            ]
+          }
+        },
         "NSPhotoLibraryUsageDescription": "Trinkow'un harcama fişi veya profil görseli seçebilmeniz için fotoğraf arşivinize erişmesine izin verin.",
         "NSPhotoLibraryAddUsageDescription": "Trinkow'un bütçe ve harcama özeti görsellerini fotoğraf arşivinize kaydedebilmesine izin verin.",
         "NSFaceIDUsageDescription": "Trinkow'un güvenli oturum bilgilerinizi korumak için Face ID kullanmasına izin verin."
@@ -25,13 +37,13 @@
     },
     "android": {
       "package": "com.triworkster.trinkow",
-      "versionCode": 19,
+      "versionCode": 21,
       "blockedPermissions": [
         "com.google.android.gms.permission.AD_ID"
       ],
       "backgroundColor": "#171C42",
       "adaptiveIcon": {
-        "backgroundColor": "#071A70",
+        "backgroundColor": "#E7F2F4",
         "foregroundImage": "./assets/images/trinkow-android-foreground.png"
       }
     },

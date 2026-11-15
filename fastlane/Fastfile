@@ -43,6 +43,27 @@ platform :android do
       changes_not_sent_for_review: true
     )
   end
+
+  desc "Google Play mağaza metaverilerini (başlık, açıklamalar) günceller"
+  lane :metadata do
+    json_key = ENV.fetch(
+      "GOOGLE_PLAY_JSON_KEY",
+      File.expand_path("../.release-secrets/google-play-service-account.json", __dir__)
+    )
+    UI.user_error!("Google Play JSON anahtarı bulunamadı: #{json_key}") unless File.exist?(json_key)
+
+    upload_to_play_store(
+      package_name: "com.triworkster.trinkow",
+      json_key: json_key,
+      skip_upload_apk: true,
+      skip_upload_aab: true,
+      skip_upload_images: true,
+      skip_upload_screenshots: true,
+      skip_upload_changelogs: true,
+      skip_upload_metadata: false,
+      timeout: 300
+    )
+  end
 end
 
 platform :ios do

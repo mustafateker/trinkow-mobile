@@ -1,0 +1,7 @@
+Trinkow ile bütçe ve harcama yönetimi artık daha hızlı ve kararlı!
+
+Yenilikler:
+• Günlük bütçe ve harcama hesaplamalarında performans iyileştirmeleri yapıldı.
+• Sesli harcama kaydı tanıma hızı ve doğruluğu artırıldı.
+• Abonelik takibi ve yinelenen gider bildirimleri güncellendi.
+• Kullanıcı deneyimini güçlendiren hata düzeltmeleri ve arayüz cilaları eklendi.

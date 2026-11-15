@@ -1,0 +1,7 @@
+Trinkow makes budget and expense tracking faster and more reliable!
+
+What's New:
+• Performance improvements for daily budget and expense calculations.
+• Enhanced speed and accuracy for voice expense entry.
+• Updated subscription management and recurring payment reminders.
+• UI polish and bug fixes for a smoother experience.
