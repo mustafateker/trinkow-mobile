@@ -210,3 +210,4 @@ Doğrulama: `npm test` 95/95, `tsc --noEmit` temiz, `expo export --platform ios`
 
 - **Tasarruf:** "Gerçek birikim" bölümü artık çerçevesiz ve en üstte tek büyük "Toplam birikim" sayısı var (altında bu ayın hareketi, hedef çubuğu, "Birikim hareketi ekle"). Son hareketler hemen altında. "Kategori dağılımı" bottom sheet'ten çıkarılıp sayfada açık gösteriliyor (en çok 5 satır + "Tümünü gör"). "Rutin tasarrufu" açılır satıra döndü. "Aylık analiz" satırları ve ikinci bottom sheet kaldırıldı. Üç tasarruf kavramı hâlâ toplanmıyor, yalnız sayfada ayrı bölümlerde duruyor.
 - **Profil:** Gruplar Planın / Takip / Hesabın. Onboarding'deki "Profil → Bütçe ve rutinler" metni gerçek satır adına ("Gelir ve bütçe") düzeltildi.
+
