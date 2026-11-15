@@ -1,3 +1,4 @@
+import { setProvisioningProfileForPbxproj } from '@expo/config-plugins/build/ios/ProvisioningProfile.js';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -198,11 +199,29 @@ for (const [pYolu, pIcerik] of [
   writeFileSync(pYolu, guncel);
 }
 
-const guncelPbxproj = oncekiPbxproj
+let guncelPbxproj = oncekiPbxproj
   .replaceAll(/MARKETING_VERSION = [^;]+;/g, `MARKETING_VERSION = ${yeniSurum};`)
   .replaceAll(/CURRENT_PROJECT_VERSION = \d+;/g, `CURRENT_PROJECT_VERSION = ${yeniKod};`)
   .replaceAll(/TARGETED_DEVICE_FAMILY = "1,2";/g, 'TARGETED_DEVICE_FAMILY = 1;');
+if (!guncelPbxproj.includes('DEVELOPMENT_TEAM =')) {
+  guncelPbxproj = guncelPbxproj.replaceAll(/(PRODUCT_BUNDLE_IDENTIFIER = [^;]+;)/g, `$1\n\t\t\t\tDEVELOPMENT_TEAM = ${TEAM_ID};`);
+}
 writeFileSync(pbxprojYolu, guncelPbxproj);
+
+setProvisioningProfileForPbxproj(kok, {
+  targetName: 'Trinkow',
+  profileName: 'Trinkow AppStore',
+  appleTeamId: TEAM_ID,
+  buildConfiguration: 'Release',
+  codeSignIdentity: 'Apple Distribution',
+});
+setProvisioningProfileForPbxproj(kok, {
+  targetName: 'ExpoWidgetsTarget',
+  profileName: 'Trinkow Widget AppStore',
+  appleTeamId: TEAM_ID,
+  buildConfiguration: 'Release',
+  codeSignIdentity: 'Apple Distribution',
+});
 
 try {
   // 5. Android Derleme & Yükleme
@@ -268,6 +287,7 @@ try {
     'generic/platform=iOS',
     '-archivePath',
     archiveYolu,
+    `DEVELOPMENT_TEAM=${TEAM_ID}`,
     'archive',
   ]);
 
