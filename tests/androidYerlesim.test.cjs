@@ -62,7 +62,7 @@ test('Trinkow uygulama ikonu ve markalı splash varlıkları yapılandırılmı�
   assert.equal(config.expo.developmentClient.silentLaunch, true);
   assert.equal(config.expo.icon, './assets/images/trinkow-app-icon.png');
   assert.equal(config.expo.android.adaptiveIcon.foregroundImage, './assets/images/trinkow-android-foreground.png');
-  assert.equal(config.expo.android.adaptiveIcon.backgroundColor, '#071A70');
+  assert.equal(config.expo.android.adaptiveIcon.backgroundColor, '#E7F2F4');
   const splash = config.expo.plugins.find((plugin) => Array.isArray(plugin) && plugin[0] === 'expo-splash-screen');
   assert.equal(splash?.[1].image, './assets/images/trinkow-brand-mark.png');
   assert.equal(splash?.[1].backgroundColor, '#071A70');

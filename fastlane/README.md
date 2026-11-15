@@ -31,6 +31,22 @@ Native AAB'yi Google Play internal testing kanalında yayınlar
 
 Native AAB'yi Google Play kapalı test kanalına taslak olarak gönderir
 
+### android production
+
+```sh
+[bundle exec] fastlane android production
+```
+
+Native AAB'yi Google Play production kanalında yayınlar
+
+### android metadata
+
+```sh
+[bundle exec] fastlane android metadata
+```
+
+Google Play mağaza metaverilerini (başlık, açıklamalar) günceller
+
 ----
 
 
@@ -43,6 +59,14 @@ Native AAB'yi Google Play kapalı test kanalına taslak olarak gönderir
 ```
 
 Native IPA'yı App Store Connect / TestFlight'a yükler
+
+### ios appstore
+
+```sh
+[bundle exec] fastlane ios appstore
+```
+
+Native IPA'yı App Store Connect (Production / App Store) kanalına yükler
 
 ----
 

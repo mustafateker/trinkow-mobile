@@ -1,0 +1,7 @@
+¡Trinkow hace que gestionar tu presupuesto y gastos sea más rápido y fluido!
+
+Novedades:
+• Mejoras en el cálculo del límite de gasto diario y balance de presupuesto.
+• Mayor rapidez y precisión en el registro de gastos por voz.
+• Gestión de suscripciones y alertas de cobros recurrentes actualizadas.
+• Corrección de errores y mejoras en la interfaz de usuario.

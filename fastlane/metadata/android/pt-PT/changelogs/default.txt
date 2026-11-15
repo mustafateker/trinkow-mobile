@@ -1,0 +1,7 @@
+O Trinkow torna a gestão do seu orçamento e despesas ainda mais rápida e fiável!
+
+Novidades:
+• Otimização do cálculo do limite de despesas diário e balanço do orçamento.
+• Maior rapidez e precisão no registo de despesas por voz.
+• Gestor de subscrições e alertas de cobranças recorrentes atualizados.
+• Correções de erros e melhorias gerais na interface de utilizador.

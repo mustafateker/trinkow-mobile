@@ -213,14 +213,17 @@ function CizgiGrafik({ noktalar }: { noktalar: GrafikNoktasi[] }) {
   const alt = 128;
   const cizimGenisligi = Math.max(1, genislik);
   const max = Math.max(1, ...noktalar.map((nokta) => nokta.gider));
+  const harcamaVar = noktalar.some((nokta) => nokta.gider > 0);
   const koordinatlar = noktalar.map((nokta, index) => ({
-    x: noktalar.length === 1 ? 0 : (index / (noktalar.length - 1)) * cizimGenisligi,
-    y: alt - (nokta.gider / max) * (alt - ust),
+    x: noktalar.length <= 1 ? 0 : (index / (noktalar.length - 1)) * cizimGenisligi,
+    y: harcamaVar ? alt - (nokta.gider / max) * (alt - ust) : alt,
     gider: nokta.gider,
   }));
   const cizgi = koordinatlar.map((nokta, index) => `${index === 0 ? 'M' : 'L'} ${nokta.x} ${nokta.y}`).join(' ');
   const alan = `${cizgi} L ${cizimGenisligi} ${alt} L 0 ${alt} Z`;
-  const etiketIndeksleri = [0, 7, 14, 21, 29];
+  const etiketIndeksleri = [0, 7, 14, 21, 28, noktalar.length - 1]
+    .filter((idx, pos, arr) => idx >= 0 && idx < noktalar.length && arr.indexOf(idx) === pos)
+    .slice(0, 5);
 
   return <View importantForAccessibility="no-hide-descendants">
     <View style={stil.cizgiGrafik} onLayout={(olay) => setGenislik(Math.round(olay.nativeEvent.layout.width))}>
@@ -232,17 +235,36 @@ function CizgiGrafik({ noktalar }: { noktalar: GrafikNoktasi[] }) {
               <Stop offset="1" stopColor={color.primary} stopOpacity="0.02" />
             </LinearGradient>
           </Defs>
-          {[ust, (ust + alt) / 2, alt].map((y) => <Line key={y} x1="0" x2={cizimGenisligi} y1={y} y2={y} stroke={color.line} strokeWidth="1" />)}
-          <Path d={alan} fill="url(#harcamaAlani)" />
-          <Path d={cizgi} fill="none" stroke={color.primaryDeep} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          {[ust, (ust + alt) / 2, alt].map((y) => (
+            <Line
+              key={y}
+              x1="0"
+              x2={cizimGenisligi}
+              y1={y}
+              y2={y}
+              stroke={color.line}
+              strokeWidth="1"
+              strokeDasharray={y < alt ? '3 3' : undefined}
+            />
+          ))}
+          {harcamaVar ? <Path d={alan} fill="url(#harcamaAlani)" /> : null}
+          {harcamaVar ? (
+            <Path d={cizgi} fill="none" stroke={color.primaryDeep} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          ) : (
+            <Line x1="0" x2={cizimGenisligi} y1={alt} y2={alt} stroke={color.line} strokeWidth="1.5" />
+          )}
           {koordinatlar.map((nokta, index) => nokta.gider > 0 ? (
-            <Circle key={noktalar[index].anahtar} cx={nokta.x} cy={nokta.y} r={nokta.gider === max ? 4 : 2.5} fill={color.surface} stroke={color.primaryDeep} strokeWidth="2" />
+            <Circle key={noktalar[index]?.anahtar ?? index} cx={nokta.x} cy={nokta.y} r={nokta.gider === max ? 4 : 2.5} fill={color.surface} stroke={color.primaryDeep} strokeWidth="2" />
           ) : null)}
         </Svg>
       ) : null}
     </View>
     <View style={stil.cizgiEtiketleri}>
-      {etiketIndeksleri.map((index) => <Txt key={noktalar[index].anahtar} role="micro" tone={color.text2}>{noktalar[index].eksenEtiketi}</Txt>)}
+      {etiketIndeksleri.map((index) => {
+        const nokta = noktalar[index];
+        if (!nokta) return null;
+        return <Txt key={nokta.anahtar} role="micro" tone={color.text2}>{nokta.eksenEtiketi}</Txt>;
+      })}
     </View>
   </View>;
 }

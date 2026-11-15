@@ -1,0 +1,7 @@
+Trinkow rend la gestion de votre budget et de vos dépenses encore plus rapide !
+
+Nouveautés :
+• Optimisation du calcul de la limite de dépense quotidienne et des bilans budgétaires.
+• Amélioration de la vitesse et de la précision de la saisie vocale.
+• Gestion des abonnements et alertes de prélèvements récurrents mises à jour.
+• Corrections de bugs et améliorations de l'interface utilisateur.

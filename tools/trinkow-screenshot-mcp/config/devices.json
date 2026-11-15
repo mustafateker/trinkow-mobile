@@ -1,0 +1,48 @@
+{
+  "header": [
+    { "name": "5244x2950", "width": 5244, "height": 2950, "type": "hero" },
+    { "name": "3840x1646", "width": 3840, "height": 1646, "type": "hero" }
+  ],
+  "search": [
+    { "name": "5244x2950", "width": 5244, "height": 2950, "type": "hero" },
+    { "name": "3840x2560", "width": 3840, "height": 2560, "type": "hero" },
+    { "name": "1920x1280", "width": 1920, "height": 1280, "type": "hero" }
+  ],
+  "iphone_island": {
+    "previews": [
+      { "name": "886x1920-preview-dikey", "width": 886, "height": 1920, "orientation": "portrait", "layout": "iphone_tall" },
+      { "name": "1920x886-preview-yatay", "width": 1920, "height": 886, "orientation": "landscape", "layout": "landscape" }
+    ],
+    "screenshots": [
+      { "name": "1206x2622-dikey", "width": 1206, "height": 2622, "orientation": "portrait", "layout": "iphone_tall" },
+      { "name": "1179x2556-dikey", "width": 1179, "height": 2556, "orientation": "portrait", "layout": "iphone_tall" },
+      { "name": "2622x1206-yatay", "width": 2622, "height": 1206, "orientation": "landscape", "layout": "landscape" },
+      { "name": "2556x1179-yatay", "width": 2556, "height": 1179, "orientation": "landscape", "layout": "landscape" }
+    ]
+  },
+  "ipad_pro": {
+    "previews": [
+      { "name": "1200x1600-preview-dikey", "width": 1200, "height": 1600, "orientation": "portrait", "layout": "ipad_portrait" },
+      { "name": "1600x1200-preview-yatay", "width": 1600, "height": 1200, "orientation": "landscape", "layout": "landscape" }
+    ],
+    "screenshots": [
+      { "name": "2064x2752-dikey", "width": 2064, "height": 2752, "orientation": "portrait", "layout": "ipad_portrait" },
+      { "name": "2048x2732-dikey", "width": 2048, "height": 2732, "orientation": "portrait", "layout": "ipad_portrait" },
+      { "name": "2752x2064-yatay", "width": 2752, "height": 2064, "orientation": "landscape", "layout": "landscape" },
+      { "name": "2732x2048-yatay", "width": 2732, "height": 2048, "orientation": "landscape", "layout": "landscape" }
+    ]
+  },
+  "iphone_duo": {
+    "previews": [
+      { "name": "886x1920-preview-dikey", "width": 886, "height": 1920, "orientation": "portrait", "layout": "duo_portrait" },
+      { "name": "1920x886-preview-yatay", "width": 1920, "height": 886, "orientation": "landscape", "layout": "landscape" }
+    ],
+    "screenshots": [
+      { "name": "2007x2853-dikey", "width": 2007, "height": 2853, "orientation": "portrait", "layout": "duo_portrait" },
+      { "name": "1398x2034-dikey", "width": 1398, "height": 2034, "orientation": "portrait", "layout": "duo_portrait" },
+      { "name": "2853x2007-yatay", "width": 2853, "height": 2007, "orientation": "landscape", "layout": "landscape" },
+      { "name": "2034x1398-yatay", "width": 2034, "height": 1398, "orientation": "landscape", "layout": "landscape" }
+    ]
+  }
+}
+

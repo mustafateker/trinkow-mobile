@@ -1,0 +1,7 @@
+Trinkow face gestionarea bugetului și a cheltuielilor mult mai rapidă și sigură!
+
+Noutăți:
+• Îmbunătățiri ale calculului limitei zilnice de cheltuieli și ale soldului general.
+• Viteză și precizie sporite pentru înregistrarea vocală a cheltuielilor.
+• Sistem actualizat pentru abonamente și alerte de plăți recurente.
+• Remedieri de erori și optimizări ale interfeței de utilizator.

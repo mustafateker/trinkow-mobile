@@ -1,0 +1,7 @@
+Trinkow rende la gestione del budget e delle spese ancora più veloce e affidabile!
+
+Novità:
+• Ottimizzato il calcolo del limite di spesa giornaliero e del saldo mensile.
+• Maggiore rapidità e precisione nell'inserimento vocale delle spese.
+• Monitoraggio degli abbonamenti e notifiche per le spese ricorrenti aggiornati.
+• Risoluzione di problemi e miglioramenti all'interfaccia utente.

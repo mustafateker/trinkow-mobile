@@ -1,0 +1,7 @@
+Trinkow usnadňuje správu rozpočtu a sledování výdajů rychleji a spolehlivěji!
+
+Novinky:
+• Zpřesnění výpočtu denního limitu výdajů a celkového rozpočtu.
+• Rychlejší a přesnější hlasové zadávání výdajů.
+• Aktualizovaná správa předplatných a upozornění na opakované platby.
+• Opravy chyb a vylepšení uživatelského rozhraní.

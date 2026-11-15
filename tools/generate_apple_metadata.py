@@ -1,0 +1,474 @@
+import os
+import csv
+
+locales = {
+    "tr": {
+        "title": "Trinkow: Günlük Bütçe Takibi",
+        "subtitle": "Harcama Takibi ve Tasarruf",
+        "promo": "Gelirini, sabit giderlerini ve birikim hedefini günlük net harcama limitine dönüştür. Sesle harcama ekle, rutinlerinden tasarruf et ve aboneliklerini tek ekranda yönet!",
+        "keywords": "harcama,para,birikim,finans,hesap,gelir,abonelik,maaş,fatura,taksit,cüzdan,ekonomi,kumbara,borç,plan",
+        "desc": """Evdeki hesabı çarşıya uydur! Trinkow; karmaşık muhasebe tabloları veya banka hesaplarına bağlanma zorunluluğu olmadan, bugün güvenle ne kadar harcayabileceğini 10 saniyede gösteren akıllı kişisel bütçe, harcama ve tasarruf asistanıdır.
+
+Aylık net gelirini, sabit giderlerini (kira, faturalar, ulaşım, kredi/taksit) ve aylık birikim hedefini gir; Trinkow maaş gününe kadar her gün harcayabileceğin net limiti otomatik hesaplasın.
+
+ÖNE ÇIKAN ÖZELLİKLER
+
+• Anlık Günlük Harcama Limiti:
+“Ay sonu nasıl gelecek?” stresine son ver. Gün içinde harcama ekledikçe kalan günlük bütçeni halka göstergede anlık olarak takip et.
+
+• Sesli ve Tek Dokunuşla Harcama Girişi:
+Uzun formlarla vakit kaybetme! Mikrofona dokunup “Markette kartla 450 lira” veya “Öğle menüsü 265 lira” gibi doğal bir cümle söyle; Trinkow tutarı, kategoriyi, ürünü ve ödeme yöntemini saniyeler içinde otomatik doldursun.
+
+• Rutin Tasarrufu ve Gerçek Birikim:
+Kahve, dışarıda yemek veya atıştırmalık gibi günlük rutinlerini tanımla. Rutinlerinden vazgeçtiğin günlerde harcamadığın tutarın “Rutin Tasarrufu” olarak birikimine nasıl dönüştüğünü somut olarak gör.
+
+• Abonelik ve Sabit Ödeme Takibi:
+Netflix, Spotify, iCloud, YouTube ve tüm aylık aboneliklerini tek listede topla. Aylık toplam abonelik yükünü ve yaklaşan yenilenme günlerini önceden görerek sürpriz ödemelerden kurtul.
+
+• Akıllı Kategori Tahmini ve Harcama Analizleri:
+Haftalık, aylık ve yıllık harcama grafiklerini incele. En çok hangi kategoride (Market, Restoran, Kafe, Ulaşım vb.) harcama yaptığını ve gelirinin yüzde kaçını kullandığını net pasta grafiklerle analiz et.
+
+• Taksit ve Seri Takibi:
+Kredi kartı taksitlerini aylara göre izle, her gün düzenli kayıt girerek finansal farkındalık serini koru.
+
+• Gizlilik ve Güvenlik Öncelikli:
+Trinkow banka hesap şifreni veya kart numaranı asla istemez. Tüm verilerin güvenli bulut altyapısında korunur ve dilediğin an Ayarlar menüsünden dışa aktarılabilir veya tamamen silinebilir.
+
+Kullanım Şartları (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Gizlilik Politikası: https://trinkow-backend.triworkster.com/gizlilik
+Destek: https://trinkow-backend.triworkster.com/hesap-silme"""
+    },
+    "en-US": {
+        "title": "Trinkow: Daily Budget Tracker",
+        "subtitle": "Expense Manager & Savings",
+        "promo": "Turn your income and fixed bills into a clear daily spending limit. Add expenses by voice, save from daily habits, and track all your subscriptions in one place!",
+        "keywords": "budget,expense,tracker,spending,money,finance,savings,daily,wallet,bills,subscription,income,planner",
+        "desc": """Take control of your money with confidence! Trinkow is the smart daily budget, expense tracker, and savings assistant that tells you in 10 seconds exactly how much you can spend today—without tedious spreadsheets or connecting your bank accounts.
+
+Enter your monthly income, fixed expenses (rent, bills, utilities, loan installments), and savings goal; Trinkow automatically calculates your safe daily spending limit until next payday.
+
+KEY FEATURES
+
+• Real-Time Daily Spending Limit:
+End the end-of-month stress. Watch your daily limit adjust in real time on an intuitive circular gauge with every expense you log.
+
+• Voice-Powered & One-Tap Expense Logging:
+No more manual forms! Tap the microphone and say “$35 groceries by card” or “$12 lunch”—Trinkow instantly identifies the amount, category, item, and payment method.
+
+• Routine Savings & Real Accumulation:
+Set up recurring daily habits like coffee, takeout, or snacks. When you skip a habit, see your unspent money turn into real savings right away.
+
+• Subscription & Bill Management:
+Keep track of Netflix, Spotify, iCloud, YouTube, and all recurring payments. Avoid surprise renewals with clear payment schedules and monthly totals.
+
+• Smart Analytics & Visual Breakdown:
+Explore interactive weekly, monthly, and annual charts. See which categories take the biggest share of your income with beautiful breakdown graphs.
+
+• Installments & Daily Streak Tracking:
+Plan future credit card payments and build lifelong healthy financial habits with daily awareness streaks.
+
+• Privacy & Security First:
+Trinkow never asks for your bank credentials or card numbers. Your financial data is securely protected, never sold, and easily exportable or deletable anytime.
+
+Terms of Use (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Privacy Policy: https://trinkow-backend.triworkster.com/gizlilik
+Support: https://trinkow-backend.triworkster.com/hesap-silme"""
+    },
+    "de-DE": {
+        "title": "Trinkow: Budget & Ausgaben",
+        "subtitle": "Ausgabenmanager & Sparen",
+        "promo": "Verwandle dein Einkommen in ein klares Tagesausgabenlimit. Erfasse Ausgaben per Sprache, spare mit Routinen und behalte alle Abonnements auf einem Bildschirm im Blick!",
+        "keywords": "budget,ausgaben,sparen,geld,finanzen,rechnungen,haushalt,sparplan,abo,konto,sparbuch,einnahmen",
+        "desc": """Volle Kontrolle über deine Finanzen! Trinkow ist dein smarter Assistent für Tagesbudget, Ausgaben und Sparen. Erfahre in 10 Sekunden genau, wie viel du heute sicher ausgeben kannst – ganz ohne Tabellen oder Bankkontoverbindung.
+
+Gib dein monatliches Einkommen, feste Fixkosten (Miete, Rechnungen, Kredite) und Sparziel ein. Trinkow berechnet automatisch dein tägliches Limit bis zum nächsten Gehaltstag.
+
+HAUPTFUNKTIONEN
+
+• Echtzeit-Tagesausgabenlimit:
+Schluss mit Geldsorgen am Monatsende. Behalte dein Restbudget mit der intuitiven Ringanzeige bei jeder Ausgabe im Blick.
+
+• Sprachgestützte Schnellerfassung:
+Keine langen Formulare mehr! Tippe aufs Mikrofon und sprich natürlich wie „30 Euro im Supermarkt mit Karte“. Betrag, Kategorie und Zahlungsart werden sofort ausgefüllt.
+
+• Routine-Ersparnis & echtes Sparen:
+Erfasse Gewohnheiten wie Kaffee oder Lieferessen. Wenn du darauf verzichtest, siehst du sofort, wie dein gespartes Geld zu echtem Vermögen wird.
+
+• Abo- und Fixkostenverwaltung:
+Verwalte Netflix, Spotify, iCloud und wiederkehrende Zahlungen übersichtlich. Vermeide böse Überraschungen durch vorausschauende Terminerinnerungen.
+
+• Intelligente Ausgabenanalysen:
+Detaillierte Wochen-, Monats- und Jahresdiagramme zeigen dir genau, welche Kategorien den größten Teil deines Einkommens beanspruchen.
+
+• Ratenzahlungen & Gewohnheits-Streaks:
+Behalte Kreditkartenzahlungen im Auge und stärke dein Finanzbewusstsein durch tägliche Serien.
+
+• Datenschutz an erster Stelle:
+Trinkow verlangt weder Bankpasswörter noch Kartennummern. Deine Daten bleiben stets geschützt, sicher und jederzeit löschbar.
+
+Nutzungsbedingungen (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Datenschutzrichtlinie: https://trinkow-backend.triworkster.com/gizlilik
+Support: https://trinkow-backend.triworkster.com/hesap-silme"""
+    },
+    "fr-FR": {
+        "title": "Trinkow: Budget Quotidien",
+        "subtitle": "Gestion Dépenses & Épargne",
+        "promo": "Transformez vos revenus en limite de dépense quotidienne. Ajoutez des dépenses à la voix, épargnez sur vos routines et gérez tous vos abonnements en un coup d'œil !",
+        "keywords": "budget,depenses,argent,epargne,finance,gestion,abonnements,factures,compte,salaire,economies",
+        "desc": """Maîtrisez votre budget sans stress ! Trinkow est l'assistant intelligent de budget quotidien, suivi des dépenses et épargne qui vous indique en 10 secondes combien vous pouvez dépenser aujourd'hui, sans feuilles de calcul ni connexion bancaire.
+
+Renseignez vos revenus, vos charges fixes (loyer, factures, crédits) et votre objectif d'épargne. Trinkow calcule automatiquement votre limite quotidienne sécurisée jusqu'à la prochaine paie.
+
+FONCTIONNALITÉS CLÉS
+
+• Limite de dépense quotidienne en temps réel :
+Fini l'angoisse des fins de mois difficiles. Suivez l'évolution de votre budget restant sur une jauge circulaire intuitive à chaque dépense enregistrée.
+
+• Saisie vocale et instantanée :
+Gagnez du temps ! Appuyez sur le micro et dites simplement « 25 euros courses par carte » : Trinkow détecte automatiquement le montant, la catégorie et le moyen de paiement.
+
+• Épargne sur vos routines quotidiennes :
+Définissez vos habitudes (café, repas à emporter, snacks). Chaque fois que vous y renoncez, voyez concrètement ces sommes non dépensées alimenter votre épargne.
+
+• Gestion des abonnements et charges récurrentes :
+Centralisez Netflix, Spotify, iCloud et tous vos prélèvements mensuels. Anticipez les renouvellements et évitez les frais imprévus.
+
+• Analyses détaillées et graphiques clairs :
+Consultez vos graphiques hebdomadaires, mensuels et annuels pour découvrir les postes de dépenses qui pèsent le plus lourd sur vos revenus.
+
+• Suivi des paiements échelonnés et séries de suivi :
+Gérez vos échéances de cartes et renforcez votre discipline financière grâce aux séries d'enregistrement quotidiennes.
+
+• Confidentialité et sécurité totales :
+Trinkow ne demande aucun identifiant bancaire ni numéro de carte. Vos données sont sécurisées et restent entièrement sous votre contrôle.
+
+Conditions d'utilisation (EULA) : https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Politique de confidentialité : https://trinkow-backend.triworkster.com/gizlilik
+Assistance : https://trinkow-backend.triworkster.com/hesap-silme"""
+    },
+    "es-ES": {
+        "title": "Trinkow: Control de Gastos",
+        "subtitle": "Gestor de Gastos y Ahorro",
+        "promo": "Convierte tus ingresos en un límite de gasto diario neto. Añade gastos por voz, ahorra en tus rutinas diarias y gestiona todas tus suscripciones en una sola pantalla.",
+        "keywords": "presupuesto,gastos,dinero,ahorro,finanzas,suscripciones,facturas,cuenta,ingresos,cartera,plan",
+        "desc": """¡Lleva el control de tu dinero sin complicaciones! Trinkow es el asistente inteligente de presupuesto diario, registro de gastos y ahorro personal que te dice en 10 segundos cuánto puedes gastar hoy con seguridad, sin tablas complejas ni conectar tu banco.
+
+Introduce tus ingresos mensuales, gastos fijos (alquiler, facturas, préstamos) y meta de ahorro; Trinkow calcula al instante tu límite diario disponible hasta el próximo cobro.
+
+CARACTERÍSTICAS DESTACADAS
+
+• Límite de gasto diario en tiempo real:
+Olvídate del estrés de final de mes. Observa cómo se ajusta tu límite en un indicador circular claro con cada compra que registres.
+
+• Registro por voz y en un toque:
+¡Ahorra tiempo! Toca el micrófono y di frases naturales como «45 euros en el súper con tarjeta» o «12 euros almuerzo»: Trinkow completa el importe, categoría y método de pago al instante.
+
+• Ahorro en rutinas y metas reales:
+Define tus hábitos diarios como café o comida fuera. Cuando decidas no gastar, comprueba de forma tangible cómo ese dinero se suma directamente a tus ahorros.
+
+• Control de suscripciones y pagos fijos:
+Reúne Netflix, Spotify, iCloud y todos tus pagos periódicos en una sola lista. Conoce tus fechas de renovación y evita cobros inesperados.
+
+• Análisis inteligentes de gastos:
+Explora gráficos semanales, mensuales y anuales interactivos. Descubre qué categorías consumen mayor porcentaje de tus ingresos.
+
+• Seguimiento de cuotas y rachas de control:
+Controla compras a plazos con tarjeta y consolida buenos hábitos financieros manteniendo tu racha diaria activa.
+
+• Privacidad y seguridad garantizadas:
+Trinkow nunca te pedirá contraseñas bancarias ni números de tarjeta. Tu información financiera está protegida y bajo tu control total.
+
+Términos de uso (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Política de privacidad: https://trinkow-backend.triworkster.com/gizlilik
+Soporte: https://trinkow-backend.triworkster.com/hesap-silme"""
+    },
+    "it": {
+        "title": "Trinkow: Spese e Budget",
+        "subtitle": "Gestore Spese e Risparmio",
+        "promo": "Trasforma il tuo stipendio in un limite di spesa giornaliero. Aggiungi spese a voce, risparmia sulle tue routine e tieni sotto controllo tutti i tuoi abbonamenti!",
+        "keywords": "budget,spese,risparmio,soldi,finanza,abbonamenti,bollette,conto,stipendio,entrate,portafoglio",
+        "desc": """Gestisci il tuo denaro con serenità! Trinkow è l'assistente smart per il budget giornaliero, il tracciamento delle spese e il risparmio che ti mostra in 10 secondi quanto puoi spendere oggi, senza fogli di calcolo né connessione al conto bancario.
+
+Inserisci stipendio, spese fisse (affitto, bollette, finanziamenti) e obiettivo di risparmio; Trinkow calcola in automatico il tuo limite sicuro per ogni giorno fino al prossimo stipendio.
+
+CARATTERISTICHE PRINCIPALI
+
+• Limite di spesa giornaliero in tempo reale:
+Dì addio all'ansia di fine mese. Tieni d'occhio il budget rimanente grazie a un indicatore ad anello chiaro e immediato.
+
+• Registrazione vocale rapida:
+Basta moduli infiniti! Tocca il microfono e dì semplicemente «45 euro al supermercato con carta»: Trinkow compila importo, categoria e metodo di pagamento in pochi istanti.
+
+• Risparmio da routine e accumulo reale:
+Imposta le tue abitudini quotidiane (caffè al bar, pranzi fuori). Quando vi rinunci, osserva il denaro non speso trasformarsi subito in risparmio concreto.
+
+• Gestione abbonamenti e costi ricorrenti:
+Raggruppa Netflix, Spotify, iCloud e tutte le tue scadenze mensili in un'unica schermata ed evita rinnovi imprevisti.
+
+• Statistiche e analisi dettagliate:
+Grafici settimanali, mensili e annuali per capire quali categorie incidono maggiormente sulle tue entrate.
+
+• Tracciamento rate e serie quotidiane:
+Monitora gli acquisti a rate e costruisci solide abitudini finanziarie registrando le spese ogni giorno.
+
+• Privacy e sicurezza al primo posto:
+Trinkow non richiede credenziali bancarie né numeri di carta. I tuoi dati restano sempre al sicuro e completamente sotto il tuo controllo.
+
+Condizioni d'uso (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Informativa sulla privacy: https://trinkow-backend.triworkster.com/gizlilik
+Assistenza: https://trinkow-backend.triworkster.com/hesap-silme"""
+    },
+    "pt-BR": {
+        "title": "Trinkow: Orçamento Diário",
+        "subtitle": "Gestão de Gastos e Poupança",
+        "promo": "Transforma o teu rendimento num limite diário claro. Adiciona despesas por voz, poupa com as tuas rotinas e gere todas as tuas assinaturas num único ecrã!",
+        "keywords": "orcamento,gastos,poupanca,dinheiro,financas,assinaturas,contas,salario,despesas,carteira,plano",
+        "desc": """Tenha controle total do seu dinheiro! O Trinkow é o assistente inteligente de orçamento diário, controle de gastos e poupança que mostra em 10 segundos quanto você pode gastar hoje, sem planilhas complicadas nem conexão com contas bancárias.
+
+Informe sua renda líquida, despesas fixas (aluguel, contas, parcelas) e meta de poupança; o Trinkow calcula automaticamente o seu limite diário seguro até o próximo pagamento.
+
+RECURSOS PRINCIPAIS
+
+• Limite diário em tempo real:
+Acabe com o estresse do fim do mês. Acompanhe seu saldo diário em um medidor circular intuitivo a cada compra registrada.
+
+• Registro por voz e com um toque:
+Não perca tempo preenchendo formulários! Toque no microfone e diga «R$ 45 no mercado no cartão»: o Trinkow preenche valor, categoria e forma de pagamento instantaneamente.
+
+• Economia de rotinas e poupança real:
+Cadastre hábitos diários como café na rua ou delivery. Nos dias em que decidir economizar, veja esse valor se transformar diretamente em dinheiro poupado.
+
+• Gestão de assinaturas e pagamentos fixos:
+Reúna Netflix, Spotify, iCloud e todas as suas contas em um só lugar. Acompanhe as datas de renovação e evite surpresas.
+
+• Análises inteligentes e gráficos detalhados:
+Gráficos semanais, mensais e anuais claros para você saber exatamente quais categorias consomem a maior parte da sua renda.
+
+• Controle de parcelas e ofensivas diárias:
+Acompanhe compras parceladas no cartão e fortaleça sua disciplina financeira registrando seus gastos todos os dias.
+
+• Privacidade e segurança em primeiro lugar:
+O Trinkow nunca pede senhas bancárias ou dados de cartão. Suas informações ficam protegidas e você pode exportá-las ou apagá-las quando desejar.
+
+Termos de Uso (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Política de Privacidade: https://trinkow-backend.triworkster.com/gizlilik
+Suporte: https://trinkow-backend.triworkster.com/hesap-silme"""
+    },
+    "ru": {
+        "title": "Trinkow: Дневной Бюджет",
+        "subtitle": "Учет расходов и накопления",
+        "promo": "Преврати доход в понятный дневной лимит расходов. Вноси траты голосом, копи на привычках и держи все подписки под контролем на одном удобном экране!",
+        "keywords": "бюджет,расходы,деньги,финансы,экономия,подписки,счета,доходы,кошелек,учет,накопления,план",
+        "desc": """Управляй личными финансами легко и без стресса! Trinkow — это умный помощник для ведения дневного бюджета, учета расходов и накоплений. За 10 секунд узнай, сколько можно потратить сегодня, без сложных таблиц и привязки банковских карт.
+
+Укажи ежемесячный доход, обязательные траты (аренда, счета, кредиты) и цель накоплений. Trinkow автоматически рассчитает безопасный дневной лимит расходов до следующей зарплаты.
+
+ГЛАВНЫЕ ВОЗМОЖНОСТИ
+
+• Дневной лимит расходов в реальном времени:
+Забудь о тревоге перед концом месяца. Следи за остатком дневного бюджета на наглядной круговой шкале с каждой внесенной тратой.
+
+• Голосовой ввод расходов за секунды:
+Не трать время на ручной ввод! Нажми на микрофон и скажи «450 рублей в магазине картой» — Trinkow мгновенно определит сумму, категорию и способ оплаты.
+
+• Экономия на привычках и реальные накопления:
+Отслеживай ежедневные рутины: кофе навынос, фастфуд или перекусы. Отказавшись от привычки, сразу увидишь, как сэкономленные деньги превращаются в накопления.
+
+• Учет регулярных подписок и платежей:
+Собери Netflix, Spotify, iCloud, YouTube и все ежемесячные сервисы в едином списке. Контролируй даты списаний и избегай непредвиденных расходов.
+
+• Умная аналитика и наглядные графики:
+Изучай понятные отчеты за неделю, месяц и год. Узнай, какие категории отнимают наибольшую долю твоего бюджета.
+
+• Рассрочки и ежедневные серии осознанности:
+Планируй кредитные платежи и закрепляй полезные финансовые привычки, ежедневно отмечая расходы.
+
+• Приоритет безопасности и приватности:
+Trinkow никогда не запрашивает пароли от банков или номера карт. Все данные надежно защищены и могут быть выгружены или удалены в любой момент.
+
+Условия использования (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Политика конфиденциальности: https://trinkow-backend.triworkster.com/gizlilik
+Поддержка: https://trinkow-backend.triworkster.com/hesap-silme"""
+    },
+    "pl": {
+        "title": "Trinkow: Dzienny Budżet",
+        "subtitle": "Wydatki i Oszczędności",
+        "promo": "Zamień dochód w dzienny limit wydatków. Dodawaj wydatki głosem, oszczędzaj na codziennych nawykach i zarządzaj wszystkimi subskrypcjami na jednym ekranie!",
+        "keywords": "budzet,wydatki,oszczedzanie,pieniadze,finanse,subskrypcje,rachunki,portfel,dochody,skarbonka",
+        "desc": """Kontroluj swoje finanse z łatwością! Trinkow to inteligentny asystent budżetu dziennego, śledzenia wydatków i oszczędzania, który w 10 sekund pokaże Ci, ile możesz dziś bezpiecznie wydać – bez skomplikowanych tabel i podpinania kont bankowych.
+
+Wprowadź miesięczny dochód, koszty stałe (czynsz, rachunki, raty) oraz cel oszczędnościowy; Trinkow automatycznie wyliczy Twój bezpieczny dzienny limit wydatków do kolejnej wypłaty.
+
+NAJWAŻNIEJSZE FUNKCJE
+
+• Dzienny limit wydatków w czasie rzeczywistym:
+Koniec ze stresem pod koniec miesiąca. Śledź pozostały budżet na intuicyjnym wskaźniku pierścieniowym przy każdym wydatku.
+
+• Błyskawiczne dodawanie wydatków głosem:
+Nie trać czasu na formularze! Dotknij mikrofonu i powiedz naturalnie: „45 zł w sklepie kartą” – Trinkow automatycznie uzupełni kwotę, kategorię i metodę płatności.
+
+• Oszczędzanie na nawykach i realne oszczędności:
+Zdefiniuj codzienne rutyny (kawa na mieście, jedzenie na wynos). Rezygnując z nich w danym dniu, zobaczysz, jak zaoszczędzone pieniądze zasilają Twoje konto oszczędnościowe.
+
+• Śledzenie subskrypcji i płatności stałych:
+Zbierz Netflix, Spotify, iCloud i wszystkie stałe opłaty w jednym miejscu. Kontroluj terminy odnowień i unikaj nieprzyjemnych niespodzianek.
+
+• Inteligentna analiza wydatków:
+Przeglądaj interaktywne wykresy tygodniowe, miesięczne i roczne. Sprawdź, które kategorie pochłaniają największą część Twoich dochodów.
+
+• Śledzenie rat i codzienna passa świadomości:
+Planuj spłaty kart kredytowych i buduj zdrowe nawyki finansowe dzięki codziennej passie wpisów.
+
+• Pełna prywatność i bezpieczeństwo:
+Trinkow nigdy nie pyta o hasła bankowe ani numery kart. Twoje dane finansowe są w pełni chronione i możesz je w każdej chwili wyeksportować lub usunąć.
+
+Warunki użytkowania (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Polityka prywatności: https://trinkow-backend.triworkster.com/gizlilik
+Wsparcie: https://trinkow-backend.triworkster.com/hesap-silme"""
+    },
+    "cs": {
+        "title": "Trinkow: Denní Rozpočet",
+        "subtitle": "Správce výdajů a úspor",
+        "promo": "Přeměň své příjmy na jasný denní limit výdajů. Zadávej výdaje hlasem, šetři na svých návycích a spravuj všechna předplatná přehledně na jedné obrazovce!",
+        "keywords": "rozpocet,vydaje,uspory,penize,finance,predplatne,ucty,prijmy,penezenka,sporici,naklady,sporeni",
+        "desc": """Měj své peníze pevně pod kontrolou! Trinkow je chytrý asistent pro denní rozpočet, sledování výdajů a úspory, který ti za 10 sekund ukáže, kolik můžeš dnes bezpečně utratit – bez tabulek a připojování bankovních účtů.
+
+Zadej svůj měsíční příjem, fixní výdaje (nájem, účty, splátky) a cíl úspor; Trinkow automaticky spočítá tvůj bezpečný denní limit až do další výplaty.
+
+HLAVNÍ FUNKCE
+
+• Denní limit výdajů v reálném čase:
+Konec stresu na konci měsíce. Sleduj zbývající denní rozpočet na přehledném kruhovém ukazateli s každou zaznamenanou platbou.
+
+• Rychlé hlasové zadávání výdajů:
+Neztrácej čas formuláři! Klepni na mikrofon a řekni: „350 Kč v obchodě kartou“ – Trinkow okamžitě rozpozná částku, kategorii i platební metodu.
+
+• Úspory z rutin a reálné šetření:
+Nastav si každodenní návyky, jako je káva s sebou nebo obědy venku. Když rutinu vynecháš, uvidíš, jak neutracené peníze okamžitě rostou ve tvých úsporách.
+
+• Přehled předplatných a stálých plateb:
+Měj Netflix, Spotify, iCloud i všechny pravidelné platby na jednom místě. Předejdi nečekaným platbám díky přehlednému kalendáři obnovení.
+
+• Chytré analýzy a přehledné grafy:
+Prohlížej si týdenní, měsíční a roční statistiky. Zjisti, které kategorie odčerpávají největší podíl z tvých příjmów.
+
+• Splátky a denní série finančního přehledu:
+Sleduj nákupy na splátky a posiluj své finanční návyky díky pravidelným denním záznamům.
+
+• Důraz na soukromí a bezpečí:
+Trinkow nikdy nevyžaduje hesla k bankovním účtům ani čísla karet. Tvá data jsou v bezpečí a můžeš je kdykoli exportovat nebo smazat.
+
+Podmínky použití (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Zásady ochrany osobních údajů: https://trinkow-backend.triworkster.com/gizlilik
+Podpora: https://trinkow-backend.triworkster.com/hesap-silme"""
+    },
+    "ro": {
+        "title": "Trinkow: Buget Zilnic",
+        "subtitle": "Cheltuieli și Economii",
+        "promo": "Transformă venitul într-o limită zilnică de cheltuieli. Adaugă cheltuieli prin voce, economisește din rutine și gestionează toate abonamentele pe un singur ecran!",
+        "keywords": "buget,cheltuieli,economii,bani,finante,abonamente,facturi,portofel,venituri,salariu,plan",
+        "desc": """Preia controlul banilor tăi fără stres! Trinkow este asistentul inteligent pentru buget zilnic, evidența cheltuielilor și economii care îți arată în 10 secunde exact cât poți cheltui astăzi în siguranță, fără tabele complicate și fără conectarea conturilor bancare.
+
+Introdu venitul lunar, cheltuielile fixe (chirie, facturi, rate) și obiectivul de economisire; Trinkow îți calculează automat limita zilnică sigură până la următorul salariu.
+
+FUNCȚIONALITĂȚI PRINCIPALE
+
+• Limită zilnică de cheltuieli în timp real:
+Scapă de grija sfârșitului de lună. Urmărește bugetul rămas pe un indicator circular intuitiv la fiecare cheltuială adăugată.
+
+• Înregistrare vocală rapidă:
+Nu mai pierde timpul completând formulare! Apasă microfonul și spune simplu: „65 lei la supermarket cu cardul” – Trinkow completează suma, categoria și metoda de plată instantaneu.
+
+• Economii din rutine și economisire reală:
+Setează-ți obiceiurile zilnice (cafea în oraș, comenzi de mâncare). Când renunți la o cheltuială, vezi direct cum banii necheltuiți se transformă în economii reale.
+
+• Gestionarea abonamentelor și plăților recurente:
+Adună Netflix, Spotify, iCloud și toate plățile lunare într-o singură listă. Vezi din timp datele de reînnoire și evită surprizele neplăcute.
+
+• Statistici inteligente și grafice detaliate:
+Consultă graficele săptămânale, lunare și anuale pentru a afla ce categorii consumă cea mai mare parte din venitul tău.
+
+• Monitorizare rate și serie zilnică de conștientizare:
+Ține evidența ratelor la card și creează-ți obiceiuri financiare sănătoase înregistrând tranzacțiile în fiecare zi.
+
+• Confidențialitate și securitate înainte de toate:
+Trinkow nu solicită niciodată parole bancare sau datele cardurilor tale. Informațiile tale rămân protejate și pot fi descărcate sau șterse oricând dorești.
+
+Termeni de utilizare (EULA): https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
+Politica de confidențialitate: https://trinkow-backend.triworkster.com/gizlilik
+Asistență: https://trinkow-backend.triworkster.com/hesap-silme"""
+    }
+}
+
+# Validation
+errors = []
+for loc, data in locales.items():
+    if len(data["title"]) > 30:
+        errors.append(f"[{loc}] Title exceeds 30 chars: {len(data['title'])} ({data['title']})")
+    if len(data["subtitle"]) > 30:
+        errors.append(f"[{loc}] Subtitle exceeds 30 chars: {len(data['subtitle'])} ({data['subtitle']})")
+    if len(data["promo"]) > 170:
+        errors.append(f"[{loc}] Promo text exceeds 170 chars: {len(data['promo'])} ({data['promo']})")
+    if len(data["keywords"]) > 100:
+        errors.append(f"[{loc}] Keywords exceed 100 chars: {len(data['keywords'])} ({data['keywords']})")
+    if len(data["desc"]) > 4000:
+        errors.append(f"[{loc}] Description exceeds 4000 chars: {len(data['desc'])}")
+
+if errors:
+    print("VALIDATION FAILED:")
+    for e in errors:
+        print("  -", e)
+    exit(1)
+else:
+    print("ALL 11 LOCALES PASSED APPLE APP STORE CONSTRAINTS!")
+
+# Write Fastlane files
+base_fastlane = "fastlane/metadata/ios"
+for loc, data in locales.items():
+    dir_path = os.path.join(base_fastlane, loc)
+    os.makedirs(dir_path, exist_ok=True)
+    with open(os.path.join(dir_path, "name.txt"), "w", encoding="utf-8") as f:
+        f.write(data["title"].strip())
+    with open(os.path.join(dir_path, "subtitle.txt"), "w", encoding="utf-8") as f:
+        f.write(data["subtitle"].strip())
+    with open(os.path.join(dir_path, "promotional_text.txt"), "w", encoding="utf-8") as f:
+        f.write(data["promo"].strip())
+    with open(os.path.join(dir_path, "description.txt"), "w", encoding="utf-8") as f:
+        f.write(data["desc"].strip())
+    with open(os.path.join(dir_path, "keywords.txt"), "w", encoding="utf-8") as f:
+        f.write(data["keywords"].strip())
+    with open(os.path.join(dir_path, "support_url.txt"), "w", encoding="utf-8") as f:
+        f.write("https://trinkow-backend.triworkster.com/hesap-silme")
+    with open(os.path.join(dir_path, "privacy_url.txt"), "w", encoding="utf-8") as f:
+        f.write("https://trinkow-backend.triworkster.com/gizlilik")
+
+# Write CSV files
+csv_fields = ["locale", "title", "subtitle", "promotional_text", "keywords", "description", "support_url", "privacy_url", "eula_url"]
+csv_rows = []
+for loc, data in locales.items():
+    csv_rows.append({
+        "locale": loc,
+        "title": data["title"],
+        "subtitle": data["subtitle"],
+        "promotional_text": data["promo"],
+        "keywords": data["keywords"],
+        "description": data["desc"],
+        "support_url": "https://trinkow-backend.triworkster.com/hesap-silme",
+        "privacy_url": "https://trinkow-backend.triworkster.com/gizlilik",
+        "eula_url": "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"
+    })
+
+csv_paths = [
+    "assets/store/apple_app_store_listing_translations.csv",
+    os.path.expanduser("~/Documents/Trinkow Assets/apple_app_store_listing_translations.csv")
+]
+
+for p in csv_paths:
+    os.makedirs(os.path.dirname(p), exist_ok=True)
+    with open(p, "w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=csv_fields)
+        writer.writeheader()
+        writer.writerows(csv_rows)
+    print(f"Generated CSV: {p}")
+
+print("Fastlane iOS metadata populated successfully.")

@@ -1,0 +1,7 @@
+Trinkow sprawia, że zarządzanie budżetem i wydatkami jest jeszcze szybsze i wygodniejsze!
+
+Nowości:
+• Ulepszone obliczanie dziennego limitu wydatków i bilansu budżetowego.
+• Większa szybkość i dokładność przy wprowadzaniu wydatków głosowo.
+• Zaktualizowany menedżer subskrypcji i przypomnienia o płatnościach cyklicznych.
+• Poprawki błędów i usprawnienia interfejsu użytkownika.

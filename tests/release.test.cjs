@@ -67,3 +67,26 @@ test('internal ve kapalı test release komutları doğru Google Play kanalların
   assert.match(fastfile, /in_app_update_priority: 5/);
   assert.equal(existsSync(join(kok, 'eas.json')), false);
 });
+
+test('otomatik cross-platform release komutları internal-testflight ve production kanallarını yapılandırır', () => {
+  const paket = oku('package.json');
+  const betik = readFileSync(join(kok, 'scripts/release-all.mjs'), 'utf8');
+  const fastfile = readFileSync(join(kok, 'fastlane/Fastfile'), 'utf8');
+
+  assert.equal(paket.scripts['release:internal-testflight'], 'node scripts/release-all.mjs internal-testflight');
+  assert.equal(paket.scripts['release:internal-testfight'], 'node scripts/release-all.mjs internal-testflight');
+  assert.equal(paket.scripts['release:production'], 'node scripts/release-all.mjs production');
+
+  assert.match(betik, /fastlane', \['android', hedef\.androidLane\]/);
+  assert.match(betik, /fastlane', \['ios', hedef\.iosLane\]/);
+  assert.match(betik, /CURRENT_PROJECT_VERSION/);
+  assert.match(betik, /MARKETING_VERSION/);
+  assert.match(betik, /CFBundleShortVersionString/);
+
+  assert.match(fastfile, /lane :production/);
+  assert.match(fastfile, /track: "production"/);
+  assert.match(fastfile, /lane :testflight/);
+  assert.match(fastfile, /upload_to_testflight/);
+  assert.match(fastfile, /lane :appstore/);
+  assert.match(fastfile, /upload_to_app_store/);
+});

@@ -1,0 +1,2279 @@
+{
+  "tr": {
+    "name": "Türkçe",
+    "code": "tr",
+    "locale": "tr-TR",
+    "currency": "TRY",
+    "currency_symbol": "₺",
+    "tagline": "Evdeki Hesabı Çarşıya Uydurur",
+    "screens": [
+      {
+        "id": 1,
+        "slug": "01_gunluk_butce",
+        "raw": "01_bugun.png",
+        "pair_raw": "05_harcama_ekle.png",
+        "badge": "GÜNLÜK HARCAMA LİMİTİ",
+        "title_white": "Bugün ne kadar\nharcayabileceğini",
+        "title_accent": "10 saniyede gör.",
+        "subtitle": "Gelirini, sabit giderlerini ve birikim hedefini günlük net limite dönüştür."
+      },
+      {
+        "id": 2,
+        "slug": "02_sesli_ve_hizli_ekle",
+        "raw": "05_harcama_ekle.png",
+        "pair_raw": "01_bugun.png",
+        "badge": "SESLİ & HIZLI KAYIT",
+        "title_white": "Söyle ya da dokun,",
+        "title_accent": "anında kaydet.",
+        "subtitle": "Sesli komutla, rutin kısayollarıyla veya akıllı kategori tahminiyle zahmetsizce ekle."
+      },
+      {
+        "id": 3,
+        "slug": "03_rutin_ve_tasarruf",
+        "raw": "02_tasarruf.png",
+        "pair_raw": "03_analiz.png",
+        "badge": "RUTİN & BİRİKİM KAZANIMI",
+        "title_white": "Vazgeçtiğin rutinler",
+        "title_accent": "birikime dönüşsün.",
+        "subtitle": "Atladığın kahve ve günlük alışkanlıklardan ne kadar tasarruf ettiğini takip et."
+      },
+      {
+        "id": 4,
+        "slug": "04_analiz_ve_rapor",
+        "raw": "03_analiz.png",
+        "pair_raw": "06_abonelikler.png",
+        "badge": "DETAYLI FİNANSAL ANALİZ",
+        "title_white": "Paranın nereye",
+        "title_accent": "gittiğini bil.",
+        "subtitle": "Kategori dağılımları ve haftalık harcama eğilimleriyle kontrolü eline al."
+      },
+      {
+        "id": 5,
+        "slug": "05_abonelik_yonetimi",
+        "raw": "06_abonelikler.png",
+        "pair_raw": "07_butce.png",
+        "badge": "AKILLI ABONELİK TAKİBİ",
+        "title_white": "Sürpriz ödemelere",
+        "title_accent": "son ver.",
+        "subtitle": "Yaklaşan yenilemeleri önceden gör, gereksiz abonelikleri hemen tespit et."
+      },
+      {
+        "id": 6,
+        "slug": "06_hedef_ve_butce",
+        "raw": "07_butce.png",
+        "pair_raw": "04_profil.png",
+        "badge": "BÜTÇE & TASARRUF HEDEFİ",
+        "title_white": "Geleceğin için",
+        "title_accent": "güvenle biriktir.",
+        "subtitle": "Aylık bütçe sınırlarını belirle, hayallerindeki hedefe adım adım ulaş."
+      }
+    ],
+    "heroes": [
+      {
+        "id": 1,
+        "slug": "01_header_ana_vitrin",
+        "center_raw": "01_bugun.png",
+        "left_raw": "05_harcama_ekle.png",
+        "right_raw": "03_analiz.png",
+        "headline_lines": [
+          [
+            "Bugün ne kadar",
+            "white"
+          ],
+          [
+            "harcayabileceğini",
+            "white"
+          ],
+          [
+            "10 saniyede gör.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Karmaşık tablolar olmadan; gelirini, sabit giderlerini",
+          "ve birikim hedefini günlük net limite dönüştür."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "₺",
+            "Anlık Günlük Harcama Limiti",
+            "Harcama ekledikçe günün kalan tutarını anında takip et"
+          ],
+          [
+            "#10B981",
+            "✓",
+            "Sesli Kayıt & Rutin Tasarrufu",
+            "Söyleyerek kaydet, vazgeçtiğin rutinleri birikime dönüştür"
+          ],
+          [
+            "#F25F5C",
+            "★",
+            "Kategori Analizi & Abonelikler",
+            "Gelir yükünü grafiklerle izle, yaklaşan ödemeleri kaçırma"
+          ]
+        ]
+      },
+      {
+        "id": 2,
+        "slug": "02_header_tasarruf_ve_plan",
+        "center_raw": "02_tasarruf.png",
+        "left_raw": "06_abonelikler.png",
+        "right_raw": "07_butce.png",
+        "headline_lines": [
+          [
+            "Vazgeçtiğin rutinler",
+            "white"
+          ],
+          [
+            "gerçek birikime",
+            "white"
+          ],
+          [
+            "dönüşsün.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Atladığın kahve ve günlük alışkanlıklardan kazancını,",
+          "yaklaşan aboneliklerini ve akıllı bütçeni tek ekranda yönet."
+        ],
+        "bullets": [
+          [
+            "#10B981",
+            "☕",
+            "Alışkanlık Tasarrufu",
+            "Pahalı rutinleri atlayarak biriken bütçeyi gör"
+          ],
+          [
+            "#5C5AF6",
+            "⚡",
+            "Abonelik Kontrolü",
+            "Tüm yinelenen ödemelerini takvimde takip et"
+          ],
+          [
+            "#F59E0B",
+            "🎯",
+            "Garantili Hedefler",
+            "Bütçe sınırların içinde kalarak tasarruf et"
+          ]
+        ]
+      },
+      {
+        "id": 3,
+        "slug": "03_search_analiz_ve_birikim",
+        "center_raw": "03_analiz.png",
+        "left_raw": "02_tasarruf.png",
+        "right_raw": "06_abonelikler.png",
+        "headline_lines": [
+          [
+            "Paranın nereye",
+            "white"
+          ],
+          [
+            "gittiğini net",
+            "white"
+          ],
+          [
+            "grafiklerle izle.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Haftalık eğilimleri, kategori dağılımını, rutin",
+          "tasarrufunu ve aboneliklerini tek bakışta kontrol et."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "📊",
+            "Detaylı Harcama Dağılımı",
+            "Hangi kategoriye ne kadar harcadığını anında gör"
+          ],
+          [
+            "#10B981",
+            "📈",
+            "Haftalık Eğilimler",
+            "Gider trendlerini önceden fark et ve önlem al"
+          ],
+          [
+            "#F25F5C",
+            "🔔",
+            "Yenileme Uyarıları",
+            "Gereksiz abonelik masraflarından anında kurtul"
+          ]
+        ]
+      }
+    ]
+  },
+  "en": {
+    "name": "English",
+    "code": "en",
+    "locale": "en-US",
+    "currency": "USD",
+    "currency_symbol": "$",
+    "tagline": "Make your money work for you",
+    "screens": [
+      {
+        "id": 1,
+        "slug": "01_gunluk_butce",
+        "raw": "01_bugun.png",
+        "pair_raw": "05_harcama_ekle.png",
+        "badge": "DAILY SPENDING LIMIT",
+        "title_white": "Know what you can spend",
+        "title_accent": "in 10 seconds.",
+        "subtitle": "Turn your income, fixed bills, and goals into a clear daily safe limit."
+      },
+      {
+        "id": 2,
+        "slug": "02_sesli_ve_hizli_ekle",
+        "raw": "05_harcama_ekle.png",
+        "pair_raw": "01_bugun.png",
+        "badge": "VOICE & INSTANT ENTRY",
+        "title_white": "Speak or tap,",
+        "title_accent": "log in seconds.",
+        "subtitle": "Add expenses hands-free with voice recognition and smart category tagging."
+      },
+      {
+        "id": 3,
+        "slug": "03_rutin_ve_tasarruf",
+        "raw": "02_tasarruf.png",
+        "pair_raw": "03_analiz.png",
+        "badge": "ROUTINES & SMART SAVINGS",
+        "title_white": "Turn skipped habits",
+        "title_accent": "into real savings.",
+        "subtitle": "Watch skipped coffee and daily habits grow into measurable wealth."
+      },
+      {
+        "id": 4,
+        "slug": "04_analiz_ve_rapor",
+        "raw": "03_analiz.png",
+        "pair_raw": "06_abonelikler.png",
+        "badge": "DEEP FINANCIAL INSIGHTS",
+        "title_white": "Know exactly where",
+        "title_accent": "your money goes.",
+        "subtitle": "Visualize category breakdowns and weekly trends with crystal clear charts."
+      },
+      {
+        "id": 5,
+        "slug": "05_abonelik_yonetimi",
+        "raw": "06_abonelikler.png",
+        "pair_raw": "07_butce.png",
+        "badge": "SUBSCRIPTION TRACKER",
+        "title_white": "No more surprise",
+        "title_accent": "recurring bills.",
+        "subtitle": "Never miss a renewal date and instantly identify services you no longer need."
+      },
+      {
+        "id": 6,
+        "slug": "06_hedef_ve_butce",
+        "raw": "07_butce.png",
+        "pair_raw": "04_profil.png",
+        "badge": "BUDGETS & GOALS",
+        "title_white": "Build financial peace",
+        "title_accent": "step by step.",
+        "subtitle": "Set monthly budget caps and reach your dream targets on schedule."
+      }
+    ],
+    "heroes": [
+      {
+        "id": 1,
+        "slug": "01_header_ana_vitrin",
+        "center_raw": "01_bugun.png",
+        "left_raw": "05_harcama_ekle.png",
+        "right_raw": "03_analiz.png",
+        "headline_lines": [
+          [
+            "Know what you can",
+            "white"
+          ],
+          [
+            "spend each day",
+            "white"
+          ],
+          [
+            "in 10 seconds.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "No complex spreadsheets needed; convert your income and bills",
+          "into a clean daily spending limit in seconds."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "$",
+            "Real-Time Safe Limit",
+            "Live daily balance updates automatically with every expense"
+          ],
+          [
+            "#10B981",
+            "✓",
+            "Voice & Routine Savings",
+            "Log with your voice and convert skipped habits into savings"
+          ],
+          [
+            "#F25F5C",
+            "★",
+            "Analytics & Subscriptions",
+            "Clear category breakdowns and proactive renewal reminders"
+          ]
+        ]
+      },
+      {
+        "id": 2,
+        "slug": "02_header_tasarruf_ve_plan",
+        "center_raw": "02_tasarruf.png",
+        "left_raw": "06_abonelikler.png",
+        "right_raw": "07_butce.png",
+        "headline_lines": [
+          [
+            "Turn skipped habits",
+            "white"
+          ],
+          [
+            "into measurable",
+            "white"
+          ],
+          [
+            "wealth.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Watch skipped coffees, track recurring subscriptions,",
+          "and manage your smart monthly budget on one clean screen."
+        ],
+        "bullets": [
+          [
+            "#10B981",
+            "☕",
+            "Habit Savings",
+            "See how skipping daily extras builds real net worth"
+          ],
+          [
+            "#5C5AF6",
+            "⚡",
+            "Subscription Guard",
+            "Track recurring renewals before you get charged"
+          ],
+          [
+            "#F59E0B",
+            "🎯",
+            "Guaranteed Goals",
+            "Stay strictly within monthly limits and reach your goals"
+          ]
+        ]
+      },
+      {
+        "id": 3,
+        "slug": "03_search_analiz_ve_birikim",
+        "center_raw": "03_analiz.png",
+        "left_raw": "02_tasarruf.png",
+        "right_raw": "06_abonelikler.png",
+        "headline_lines": [
+          [
+            "Master your money",
+            "white"
+          ],
+          [
+            "with instant",
+            "white"
+          ],
+          [
+            "visual insights.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Monitor weekly spending trends, category distributions,",
+          "routine savings, and upcoming bills at a single glance."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "📊",
+            "Category Breakdown",
+            "See exactly which areas take up your budget"
+          ],
+          [
+            "#10B981",
+            "📈",
+            "Weekly Trends",
+            "Spot high spending trends early and take control"
+          ],
+          [
+            "#F25F5C",
+            "🔔",
+            "Renewal Alerts",
+            "Cut forgotten subscriptions instantly and save money"
+          ]
+        ]
+      }
+    ]
+  },
+  "de": {
+    "name": "Deutsch",
+    "code": "de",
+    "locale": "de-DE",
+    "currency": "EUR",
+    "currency_symbol": "€",
+    "tagline": "Damit deine Rechnung aufgeht",
+    "screens": [
+      {
+        "id": 1,
+        "slug": "01_gunluk_butce",
+        "raw": "01_bugun.png",
+        "pair_raw": "05_harcama_ekle.png",
+        "badge": "TÄGLICHES AUSGABENLIMIT",
+        "title_white": "Dein Tagesbudget",
+        "title_accent": "in 10 Sekunden.",
+        "subtitle": "Verwandle Einkommen, Fixkosten und Sparziele in ein klares Tageslimit."
+      },
+      {
+        "id": 2,
+        "slug": "02_sesli_ve_hizli_ekle",
+        "raw": "05_harcama_ekle.png",
+        "pair_raw": "01_bugun.png",
+        "badge": "SPRACHE & SCHNELLEINGABE",
+        "title_white": "Sprechen oder tippen,",
+        "title_accent": "sofort erfasst.",
+        "subtitle": "Erfasse Ausgaben mühelos per Spracheingabe oder mit einem Fingertipp."
+      },
+      {
+        "id": 3,
+        "slug": "03_rutin_ve_tasarruf",
+        "raw": "02_tasarruf.png",
+        "pair_raw": "03_analiz.png",
+        "badge": "ROUTINEN & SPARERFOLGE",
+        "title_white": "Kleine Gewohnheiten,",
+        "title_accent": "große Ersparnis.",
+        "subtitle": "Verfolge jeden eingesparten Kaffee und baue sichtbares Guthaben auf."
+      },
+      {
+        "id": 4,
+        "slug": "04_analiz_ve_rapor",
+        "raw": "03_analiz.png",
+        "pair_raw": "06_abonelikler.png",
+        "badge": "FINANZANALYSE & BERICHTE",
+        "title_white": "Behalte jeden Cent",
+        "title_accent": "genau im Blick.",
+        "subtitle": "Übersichtliche Diagramme nach Kategorien und wöchentlichen Trends."
+      },
+      {
+        "id": 5,
+        "slug": "05_abonelik_yonetimi",
+        "raw": "06_abonelikler.png",
+        "pair_raw": "07_butce.png",
+        "badge": "ABO-VERWALTUNG",
+        "title_white": "Schluss mit bösen",
+        "title_accent": "Abo-Überraschungen.",
+        "subtitle": "Kommende Verlängerungen rechtzeitig erkennen und Kosten stoppen."
+      },
+      {
+        "id": 6,
+        "slug": "06_hedef_ve_butce",
+        "raw": "07_butce.png",
+        "pair_raw": "04_profil.png",
+        "badge": "BUDGET & SPARZIELE",
+        "title_white": "Ziele erreichen mit",
+        "title_accent": "klarem Budget.",
+        "subtitle": "Monatliche Obergrenzen festlegen und Wünsche Schritt für Schritt erfüllen."
+      }
+    ],
+    "heroes": [
+      {
+        "id": 1,
+        "slug": "01_header_ana_vitrin",
+        "center_raw": "01_bugun.png",
+        "left_raw": "05_harcama_ekle.png",
+        "right_raw": "03_analiz.png",
+        "headline_lines": [
+          [
+            "Dein Tagesbudget",
+            "white"
+          ],
+          [
+            "auf einen Blick",
+            "white"
+          ],
+          [
+            "in 10 Sekunden.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Ganz ohne komplizierte Tabellen: Einkommen und Fixkosten",
+          "in ein klares tägliches Ausgabenlimit verwandeln."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "€",
+            "Tagesbudget in Echtzeit",
+            "Sofort sehen, wie viel du heute noch ausgeben kannst"
+          ],
+          [
+            "#10B981",
+            "✓",
+            "Spracheingabe & Sparen",
+            "Ausgaben per Sprache erfassen und Gewohnheiten sparen"
+          ],
+          [
+            "#F25F5C",
+            "★",
+            "Kategorien & Abos",
+            "Alle Fixkosten und anstehende Abbuchungen im Griff"
+          ]
+        ]
+      },
+      {
+        "id": 2,
+        "slug": "02_header_tasarruf_ve_plan",
+        "center_raw": "02_tasarruf.png",
+        "left_raw": "06_abonelikler.png",
+        "right_raw": "07_butce.png",
+        "headline_lines": [
+          [
+            "Kleine Gewohnheiten,",
+            "white"
+          ],
+          [
+            "große Ersparnis",
+            "white"
+          ],
+          [
+            "jeden Tag.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Kaffee sparen, laufende Abonnements überwachen",
+          "und das monatliche Budget auf einem Bildschirm steuern."
+        ],
+        "bullets": [
+          [
+            "#10B981",
+            "☕",
+            "Gewohnheiten sparen",
+            "Jeder Verzicht wird sofort zu echtem Sparerfolg"
+          ],
+          [
+            "#5C5AF6",
+            "⚡",
+            "Abo-Schutz",
+            "Rechtzeitig vor teuren Verlängerungen gewarnt werden"
+          ],
+          [
+            "#F59E0B",
+            "🎯",
+            "Ziele erreichen",
+            "Feste Monatslimits einhalten und Vermögen bilden"
+          ]
+        ]
+      },
+      {
+        "id": 3,
+        "slug": "03_search_analiz_ve_birikim",
+        "center_raw": "03_analiz.png",
+        "left_raw": "02_tasarruf.png",
+        "right_raw": "06_abonelikler.png",
+        "headline_lines": [
+          [
+            "Finanzen im Griff",
+            "white"
+          ],
+          [
+            "mit klaren",
+            "white"
+          ],
+          [
+            "Übersichten.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Wöchentliche Ausgabentrends, Kategoriestatistiken,",
+          "Sparfortschritte und Abonnements auf einen Blick."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "📊",
+            "Kategorie-Analyse",
+            "Präzise sehen, wohin das Geld jeden Monat fließt"
+          ],
+          [
+            "#10B981",
+            "📈",
+            "Ausgaben-Trends",
+            "Entwicklung frühzeitig erkennen und gegensteuern"
+          ],
+          [
+            "#F25F5C",
+            "🔔",
+            "Abo-Erinnerung",
+            "Unnötige Verträge sofort stoppen und Geld behalten"
+          ]
+        ]
+      }
+    ]
+  },
+  "fr": {
+    "name": "Français",
+    "code": "fr",
+    "locale": "fr-FR",
+    "currency": "EUR",
+    "currency_symbol": "€",
+    "tagline": "Le budget qui colle à la réalité",
+    "screens": [
+      {
+        "id": 1,
+        "slug": "01_gunluk_butce",
+        "raw": "01_bugun.png",
+        "pair_raw": "05_harcama_ekle.png",
+        "badge": "LIMITE DE DÉPENSE DU JOUR",
+        "title_white": "Ce que tu peux dépenser",
+        "title_accent": "en 10 secondes.",
+        "subtitle": "Transforme tes revenus et charges fixes en un budget quotidien limpide."
+      },
+      {
+        "id": 2,
+        "slug": "02_sesli_ve_hizli_ekle",
+        "raw": "05_harcama_ekle.png",
+        "pair_raw": "01_bugun.png",
+        "badge": "SAISIE VOCALE & RAPIDE",
+        "title_white": "Dis-le ou tape,",
+        "title_accent": "enregistré illico.",
+        "subtitle": "Ajoute tes dépenses à la voix ou avec les raccourcis intelligents."
+      },
+      {
+        "id": 3,
+        "slug": "03_rutin_ve_tasarruf",
+        "raw": "02_tasarruf.png",
+        "pair_raw": "03_analiz.png",
+        "badge": "HABITUDES & ÉPARGNE",
+        "title_white": "Chaque habitude évitée",
+        "title_accent": "devient une épargne.",
+        "subtitle": "Suis tes économies sur les cafés et petits plaisirs du quotidien."
+      },
+      {
+        "id": 4,
+        "slug": "04_analiz_ve_rapor",
+        "raw": "03_analiz.png",
+        "pair_raw": "06_abonelikler.png",
+        "badge": "ANALYSE FINANCIÈRE",
+        "title_white": "Comprends où part",
+        "title_accent": "chaque euro.",
+        "subtitle": "Répartition par catégories et tendances hebdomadaires claires."
+      },
+      {
+        "id": 5,
+        "slug": "05_abonelik_yonetimi",
+        "raw": "06_abonelikler.png",
+        "pair_raw": "07_butce.png",
+        "badge": "GESTION DES ABONNEMENTS",
+        "title_white": "Fini les prélèvements",
+        "title_accent": "inattendus.",
+        "subtitle": "Anticipe les renouvellements et élimine les abonnements inutiles."
+      },
+      {
+        "id": 6,
+        "slug": "06_hedef_ve_butce",
+        "raw": "07_butce.png",
+        "pair_raw": "04_profil.png",
+        "badge": "OBJECTIFS & BUDGET",
+        "title_white": "Construis ton avenir",
+        "title_accent": "sereinement.",
+        "subtitle": "Définis tes plafonds mensuels et atteins tes projets pas à pas."
+      }
+    ],
+    "heroes": [
+      {
+        "id": 1,
+        "slug": "01_header_ana_vitrin",
+        "center_raw": "01_bugun.png",
+        "left_raw": "05_harcama_ekle.png",
+        "right_raw": "03_analiz.png",
+        "headline_lines": [
+          [
+            "Ce que tu peux dépenser",
+            "white"
+          ],
+          [
+            "chaque jour",
+            "white"
+          ],
+          [
+            "en 10 secondes.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Sans tableaux complexes : convertis tes revenus et factures",
+          "en une limite quotidienne nette et facile à suivre."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "€",
+            "Budget Net Quotidien",
+            "Vois instantanément ce qu il te reste pour la journée"
+          ],
+          [
+            "#10B981",
+            "✓",
+            "Voix & Habitudes",
+            "Enregistre à la voix et transforme tes renoncements en épargne"
+          ],
+          [
+            "#F25F5C",
+            "★",
+            "Analyse & Abonnements",
+            "Suis la ventilation de tes dépenses et prévois chaque prélèvement"
+          ]
+        ]
+      },
+      {
+        "id": 2,
+        "slug": "02_header_tasarruf_ve_plan",
+        "center_raw": "02_tasarruf.png",
+        "left_raw": "06_abonelikler.png",
+        "right_raw": "07_butce.png",
+        "headline_lines": [
+          [
+            "Chaque habitude évitée",
+            "white"
+          ],
+          [
+            "devient une vraie",
+            "white"
+          ],
+          [
+            "épargne.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Cafés évités, gestion des abonnements récurrents",
+          "et respect des objectifs mensuels sur un écran unique."
+        ],
+        "bullets": [
+          [
+            "#10B981",
+            "☕",
+            "Épargne Routines",
+            "Vois chaque petite économie faire grandir ton compte"
+          ],
+          [
+            "#5C5AF6",
+            "⚡",
+            "Alerte Abonnements",
+            "Anticipe les prélèvements avant d être débité"
+          ],
+          [
+            "#F59E0B",
+            "🎯",
+            "Objectifs Réalisés",
+            "Reste dans ton budget et concrétise tes projets"
+          ]
+        ]
+      },
+      {
+        "id": 3,
+        "slug": "03_search_analiz_ve_birikim",
+        "center_raw": "03_analiz.png",
+        "left_raw": "02_tasarruf.png",
+        "right_raw": "06_abonelikler.png",
+        "headline_lines": [
+          [
+            "Maîtrise ton argent",
+            "white"
+          ],
+          [
+            "avec des visuels",
+            "white"
+          ],
+          [
+            "clairs et nets.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Tendances hebdomadaires, répartition des catégories,",
+          "progression de l épargne et gestion des factures régulières."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "📊",
+            "Répartition Graphique",
+            "Découvre immédiatement où part ton argent"
+          ],
+          [
+            "#10B981",
+            "📈",
+            "Tendances Hebdo",
+            "Identifie les dérapages avant la fin du mois"
+          ],
+          [
+            "#F25F5C",
+            "🔔",
+            "Rappels Automatiques",
+            "Supprime les abonnements dont tu ne te sers plus"
+          ]
+        ]
+      }
+    ]
+  },
+  "es": {
+    "name": "Español",
+    "code": "es",
+    "locale": "es-ES",
+    "currency": "EUR",
+    "currency_symbol": "€",
+    "tagline": "Hace que tus cuentas cuadren",
+    "screens": [
+      {
+        "id": 1,
+        "slug": "01_gunluk_butce",
+        "raw": "01_bugun.png",
+        "pair_raw": "05_harcama_ekle.png",
+        "badge": "LÍMITE DIARIO DE GASTO",
+        "title_white": "Lo que puedes gastar hoy",
+        "title_accent": "en 10 segundos.",
+        "subtitle": "Convierte ingresos, gastos fijos y ahorro en un límite diario claro."
+      },
+      {
+        "id": 2,
+        "slug": "02_sesli_ve_hizli_ekle",
+        "raw": "05_harcama_ekle.png",
+        "pair_raw": "01_bugun.png",
+        "badge": "VOZ Y REGISTRO RÁPIDO",
+        "title_white": "Habla o toca,",
+        "title_accent": "guarda al instante.",
+        "subtitle": "Registra gastos por voz o con atajos inteligentes sin perder tiempo."
+      },
+      {
+        "id": 3,
+        "slug": "03_rutin_ve_tasarruf",
+        "raw": "02_tasarruf.png",
+        "pair_raw": "03_analiz.png",
+        "badge": "RUTINAS Y AHORRO REAL",
+        "title_white": "Tus hábitos diarios",
+        "title_accent": "ahora suman ahorro.",
+        "subtitle": "Controla cuánto ahorras al saltarte un café o compras impulsivas."
+      },
+      {
+        "id": 4,
+        "slug": "04_analiz_ve_rapor",
+        "raw": "03_analiz.png",
+        "pair_raw": "06_abonelikler.png",
+        "badge": "ANÁLISIS FINANCIERO",
+        "title_white": "Descubre adónde",
+        "title_accent": "va tu dinero.",
+        "subtitle": "Gráficos intuitivos por categorías y tendencias de gasto semanales."
+      },
+      {
+        "id": 5,
+        "slug": "05_abonelik_yonetimi",
+        "raw": "06_abonelikler.png",
+        "pair_raw": "07_butce.png",
+        "badge": "CONTROL DE SUSCRIPCIONES",
+        "title_white": "Sin sorpresas en",
+        "title_accent": "tus pagos fijos.",
+        "subtitle": "Visualiza cobros futuros y cancela suscripciones que ya no usas."
+      },
+      {
+        "id": 6,
+        "slug": "06_hedef_ve_butce",
+        "raw": "07_butce.png",
+        "pair_raw": "04_profil.png",
+        "badge": "PRESUPUESTO Y METAS",
+        "title_white": "Alcanza tus sueños",
+        "title_accent": "paso a paso.",
+        "subtitle": "Define límites mensuales y cumple tus metas financieras con tranquilidad."
+      }
+    ],
+    "heroes": [
+      {
+        "id": 1,
+        "slug": "01_header_ana_vitrin",
+        "center_raw": "01_bugun.png",
+        "left_raw": "05_harcama_ekle.png",
+        "right_raw": "03_analiz.png",
+        "headline_lines": [
+          [
+            "Lo que puedes gastar hoy",
+            "white"
+          ],
+          [
+            "descúbrelo",
+            "white"
+          ],
+          [
+            "en 10 segundos.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Sin tablas complejas: convierte tus ingresos y gastos fijos",
+          "en un presupuesto seguro diario con un solo vistazo."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "€",
+            "Límite Diario Seguro",
+            "Comprueba tu disponible en tiempo real tras cada gasto"
+          ],
+          [
+            "#10B981",
+            "✓",
+            "Voz y Ahorro en Rutinas",
+            "Añade gastos por voz y convierte hábitos en ahorros reales"
+          ],
+          [
+            "#F25F5C",
+            "★",
+            "Gráficos y Suscripciones",
+            "Ten bajo control todos tus recibos y tendencias semanales"
+          ]
+        ]
+      },
+      {
+        "id": 2,
+        "slug": "02_header_tasarruf_ve_plan",
+        "center_raw": "02_tasarruf.png",
+        "left_raw": "06_abonelikler.png",
+        "right_raw": "07_butce.png",
+        "headline_lines": [
+          [
+            "Tus hábitos diarios",
+            "white"
+          ],
+          [
+            "ahora suman",
+            "white"
+          ],
+          [
+            "ahorro real.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Registra cada café ahorrado, revisa renovaciones",
+          "y mantén tu presupuesto mensual al día en un solo lugar."
+        ],
+        "bullets": [
+          [
+            "#10B981",
+            "☕",
+            "Ahorro de Hábitos",
+            "Comprueba cómo pequeños sacrificios aumentan tu colchón"
+          ],
+          [
+            "#5C5AF6",
+            "⚡",
+            "Aviso de Renovación",
+            "Recibe alertas antes de que te cobren suscripciones"
+          ],
+          [
+            "#F59E0B",
+            "🎯",
+            "Metas con Éxito",
+            "Respeta tu límite mensual y alcanza tus sueños"
+          ]
+        ]
+      },
+      {
+        "id": 3,
+        "slug": "03_search_analiz_ve_birikim",
+        "center_raw": "03_analiz.png",
+        "left_raw": "02_tasarruf.png",
+        "right_raw": "06_abonelikler.png",
+        "headline_lines": [
+          [
+            "Controla tu dinero",
+            "white"
+          ],
+          [
+            "con gráficos",
+            "white"
+          ],
+          [
+            "claros y simples.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Evolución semanal, porcentaje de gastos por categoría,",
+          "ahorro acumulado y pagos recurrentes sin complicaciones."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "📊",
+            "Desglose por Categorías",
+            "Conoce exactamente a dónde se destina tu sueldo"
+          ],
+          [
+            "#10B981",
+            "📈",
+            "Tendencias Semanales",
+            "Detecta patrones de gasto antes de fin de mes"
+          ],
+          [
+            "#F25F5C",
+            "🔔",
+            "Gestión de Recibos",
+            "Elimina servicios que ya no utilizas y ahorra"
+          ]
+        ]
+      }
+    ]
+  },
+  "it": {
+    "name": "Italiano",
+    "code": "it",
+    "locale": "it-IT",
+    "currency": "EUR",
+    "currency_symbol": "€",
+    "tagline": "Fa quadrare i conti",
+    "screens": [
+      {
+        "id": 1,
+        "slug": "01_gunluk_butce",
+        "raw": "01_bugun.png",
+        "pair_raw": "05_harcama_ekle.png",
+        "badge": "LIMITE DI SPESA GIORNALIERO",
+        "title_white": "Quanto puoi spendere",
+        "title_accent": "in 10 secondi.",
+        "subtitle": "Trasforma entrate, spese fisse e risparmi in un limite netto giornaliero."
+      },
+      {
+        "id": 2,
+        "slug": "02_sesli_ve_hizli_ekle",
+        "raw": "05_harcama_ekle.png",
+        "pair_raw": "01_bugun.png",
+        "badge": "VOCE & INSERIMENTO RAPIDO",
+        "title_white": "Parla o tocca,",
+        "title_accent": "salva all istante.",
+        "subtitle": "Aggiungi spese con comandi vocali o scorciatoie intelligenti."
+      },
+      {
+        "id": 3,
+        "slug": "03_rutin_ve_tasarruf",
+        "raw": "02_tasarruf.png",
+        "pair_raw": "03_analiz.png",
+        "badge": "ABITUDINI & RISPARMIO",
+        "title_white": "Le routine saltate",
+        "title_accent": "diventano risparmi.",
+        "subtitle": "Monitora il denaro risparmiato rinunciando a spese superflue."
+      },
+      {
+        "id": 4,
+        "slug": "04_analiz_ve_rapor",
+        "raw": "03_analiz.png",
+        "pair_raw": "06_abonelikler.png",
+        "badge": "ANALISI FINANZIARIA",
+        "title_white": "Scopri dove finisce",
+        "title_accent": "il tuo denaro.",
+        "subtitle": "Grafici dettagliati per categoria e andamento settimanale delle spese."
+      },
+      {
+        "id": 5,
+        "slug": "05_abonelik_yonetimi",
+        "raw": "06_abonelikler.png",
+        "pair_raw": "07_butce.png",
+        "badge": "GESTIONE ABBONAMENTI",
+        "title_white": "Basta addebiti",
+        "title_accent": "a sorpresa.",
+        "subtitle": "Riconosci i rinnovi imminenti e cancella i servizi inutilizzati."
+      },
+      {
+        "id": 6,
+        "slug": "06_hedef_ve_butce",
+        "raw": "07_butce.png",
+        "pair_raw": "04_profil.png",
+        "badge": "BUDGET & OBIETTIVI",
+        "title_white": "Raggiungi i tuoi sogni",
+        "title_accent": "con serenità.",
+        "subtitle": "Imposta tetti mensili e risparmia passo dopo passo con fiducia."
+      }
+    ],
+    "heroes": [
+      {
+        "id": 1,
+        "slug": "01_header_ana_vitrin",
+        "center_raw": "01_bugun.png",
+        "left_raw": "05_harcama_ekle.png",
+        "right_raw": "03_analiz.png",
+        "headline_lines": [
+          [
+            "Quanto puoi spendere",
+            "white"
+          ],
+          [
+            "ogni singolo giorno",
+            "white"
+          ],
+          [
+            "in 10 secondi.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Senza fogli complicati: converti stipendio e bollette",
+          "in un budget quotidiano chiaro e facile da gestire."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "€",
+            "Disponibilità Giornaliera",
+            "Aggiornamento istantaneo del saldo rimanente dopo ogni spesa"
+          ],
+          [
+            "#10B981",
+            "✓",
+            "Comando Vocale & Risparmio",
+            "Registra al volo a voce e trasforma le rinunce in gruzzolo"
+          ],
+          [
+            "#F25F5C",
+            "★",
+            "Grafici & Scadenze Abbonamenti",
+            "Tieni d occhio le categorie e anticipa i rinnovi periodici"
+          ]
+        ]
+      },
+      {
+        "id": 2,
+        "slug": "02_header_tasarruf_ve_plan",
+        "center_raw": "02_tasarruf.png",
+        "left_raw": "06_abonelikler.png",
+        "right_raw": "07_butce.png",
+        "headline_lines": [
+          [
+            "Le routine saltate",
+            "white"
+          ],
+          [
+            "diventano vero",
+            "white"
+          ],
+          [
+            "risparmio.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Caffè saltati, scadenze di abbonamenti e budget",
+          "mensile controllati comodamente in un unica schermata."
+        ],
+        "bullets": [
+          [
+            "#10B981",
+            "☕",
+            "Risparmio Abitudini",
+            "Guarda come le piccole rinunce accrescono i tuoi risparmi"
+          ],
+          [
+            "#5C5AF6",
+            "⚡",
+            "Controllo Rinnovi",
+            "Avvisi preventivi prima che scatti il rinnovo dell abbonamento"
+          ],
+          [
+            "#F59E0B",
+            "🎯",
+            "Obiettivi Concreti",
+            "Resta dentro i limiti prefissati e realizza i tuoi piani"
+          ]
+        ]
+      },
+      {
+        "id": 3,
+        "slug": "03_search_analiz_ve_birikim",
+        "center_raw": "03_analiz.png",
+        "left_raw": "02_tasarruf.png",
+        "right_raw": "06_abonelikler.png",
+        "headline_lines": [
+          [
+            "Gestisci il denaro",
+            "white"
+          ],
+          [
+            "con grafici",
+            "white"
+          ],
+          [
+            "chiari e precisi.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Andamento settimanale delle uscite, percentuali di spesa,",
+          "accumulo risparmi e controllo totale dei servizi ricorrenti."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "📊",
+            "Ripartizione Spese",
+            "Scopri con esattezza dove finisce il tuo budget"
+          ],
+          [
+            "#10B981",
+            "📈",
+            "Trend Settimanali",
+            "Intercetta le uscite eccessive prima della fine del mese"
+          ],
+          [
+            "#F25F5C",
+            "🔔",
+            "Disdici Subito",
+            "Elimina le spese fantasma e mantieni più liquidità"
+          ]
+        ]
+      }
+    ]
+  },
+  "cs": {
+    "name": "Čeština",
+    "code": "cs",
+    "locale": "cs-CZ",
+    "currency": "CZK",
+    "currency_symbol": "Kč",
+    "tagline": "Rozpočet, který vyjde i v obchodě",
+    "screens": [
+      {
+        "id": 1,
+        "slug": "01_gunluk_butce",
+        "raw": "01_bugun.png",
+        "pair_raw": "05_harcama_ekle.png",
+        "badge": "DENNÍ LIMIT VÝDAJŮ",
+        "title_white": "Kolik můžeš utratit",
+        "title_accent": "za 10 sekund.",
+        "subtitle": "Převeď příjmy, fixní platby a cíle do jasného denního limitu."
+      },
+      {
+        "id": 2,
+        "slug": "02_sesli_ve_hizli_ekle",
+        "raw": "05_harcama_ekle.png",
+        "pair_raw": "01_bugun.png",
+        "badge": "HLAS A RYCHLÝ ZÁPIS",
+        "title_white": "Řekni nebo klepni,",
+        "title_accent": "zapsáno hned.",
+        "subtitle": "Zadávej výdaje hlasem nebo pomocí chytrých kategorií bez námahy."
+      },
+      {
+        "id": 3,
+        "slug": "03_rutin_ve_tasarruf",
+        "raw": "02_tasarruf.png",
+        "pair_raw": "03_analiz.png",
+        "badge": "NÁVYKY A ÚSPORY",
+        "title_white": "Odepřené návyky se",
+        "title_accent": "promění v úspory.",
+        "subtitle": "Sleduj, kolik ušetříš na vynechané kávě a denních drobnostech."
+      },
+      {
+        "id": 4,
+        "slug": "04_analiz_ve_rapor",
+        "raw": "03_analiz.png",
+        "pair_raw": "06_abonelikler.png",
+        "badge": "PODROBNÁ ANALÝZA",
+        "title_white": "Měj přehled, kam",
+        "title_accent": "peníze mizí.",
+        "subtitle": "Přehledné grafy výdajů podle kategorií a týdenních trendů."
+      },
+      {
+        "id": 5,
+        "slug": "05_abonelik_yonetimi",
+        "raw": "06_abonelikler.png",
+        "pair_raw": "07_butce.png",
+        "badge": "SPRÁVA PŘEDPLATNÉHO",
+        "title_white": "Konec nečekaným",
+        "title_accent": "platbám.",
+        "subtitle": "Uvidíš blížící se obnovení a včas zrušíš nepotřebné služby."
+      },
+      {
+        "id": 6,
+        "slug": "06_hedef_ve_butce",
+        "raw": "07_butce.png",
+        "pair_raw": "04_profil.png",
+        "badge": "ROZPOČET A CÍLE",
+        "title_white": "Buduj rezervu",
+        "title_accent": "krok za krokem.",
+        "subtitle": "Nastav měsíční stropy a dosáhni svých finančních cílů."
+      }
+    ],
+    "heroes": [
+      {
+        "id": 1,
+        "slug": "01_header_ana_vitrin",
+        "center_raw": "01_bugun.png",
+        "left_raw": "05_harcama_ekle.png",
+        "right_raw": "03_analiz.png",
+        "headline_lines": [
+          [
+            "Kolik můžeš utratit",
+            "white"
+          ],
+          [
+            "každý den",
+            "white"
+          ],
+          [
+            "za 10 sekund.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Bez nepřehledných tabulek: propočítej výplatu i poplatky",
+          "do bezpečného denního limitu na jedno kliknutí."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "Kč",
+            "Okamžitý Denní Limit",
+            "Po každém nákupu hned víš, kolik ti na dnešek zbývá"
+          ],
+          [
+            "#10B981",
+            "✓",
+            "Hlasové Zadávání & Úspory",
+            "Zapisuj hlasem a měň vynechané zvyky v reálné peníze"
+          ],
+          [
+            "#F25F5C",
+            "★",
+            "Grafy & Hlídač Předplatného",
+            "Měj přehled o kategoriích a nenech se překvapit poplatky"
+          ]
+        ]
+      },
+      {
+        "id": 2,
+        "slug": "02_header_tasarruf_ve_plan",
+        "center_raw": "02_tasarruf.png",
+        "left_raw": "06_abonelikler.png",
+        "right_raw": "07_butce.png",
+        "headline_lines": [
+          [
+            "Odepřené návyky",
+            "white"
+          ],
+          [
+            "se promění v",
+            "white"
+          ],
+          [
+            "skutečné úspory.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Ušetřené kávy, přehled opakovaných plateb a měsíční",
+          "rozpočet pohromadě na jedné přehledné obrazovce."
+        ],
+        "bullets": [
+          [
+            "#10B981",
+            "☕",
+            "Úspory z Návyků",
+            "Sleduj, jak malé odepření tvoří velkou finanční jistotu"
+          ],
+          [
+            "#5C5AF6",
+            "⚡",
+            "Předplatná pod Kontrolou",
+            "Včasné upozornění před stržením pravidelné platby"
+          ],
+          [
+            "#F59E0B",
+            "🎯",
+            "Splněné Cíle",
+            "Dodržuj stanovené stropy a naspoř na své sny"
+          ]
+        ]
+      },
+      {
+        "id": 3,
+        "slug": "03_search_analiz_ve_birikim",
+        "center_raw": "03_analiz.png",
+        "left_raw": "02_tasarruf.png",
+        "right_raw": "06_abonelikler.png",
+        "headline_lines": [
+          [
+            "Měj své finance",
+            "white"
+          ],
+          [
+            "plně pod kontrolou",
+            "white"
+          ],
+          [
+            "v grafech.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Týdenní trendy útrat, rozdělení do kategorií,",
+          "naspořené částky a přehled všech plateb na jednom místě."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "📊",
+            "Přehled Kategorií",
+            "Zjisti přesně, za co utrácíš nejvíce peněz"
+          ],
+          [
+            "#10B981",
+            "📈",
+            "Týdenní Vývoj",
+            "Odhal nebezpečné výkyvy ještě před koncem měsíce"
+          ],
+          [
+            "#F25F5C",
+            "🔔",
+            "Okamžité Zrušení",
+            "Odstraň nepoužívané služby a ušetři každý měsíc"
+          ]
+        ]
+      }
+    ]
+  },
+  "pt": {
+    "name": "Português",
+    "code": "pt",
+    "locale": "pt-PT",
+    "currency": "EUR",
+    "currency_symbol": "€",
+    "tagline": "Põe as contas de casa a bater certo",
+    "screens": [
+      {
+        "id": 1,
+        "slug": "01_gunluk_butce",
+        "raw": "01_bugun.png",
+        "pair_raw": "05_harcama_ekle.png",
+        "badge": "LIMITE DIÁRIO DE GASTOS",
+        "title_white": "Quanto podes gastar hoje",
+        "title_accent": "em 10 segundos.",
+        "subtitle": "Transforma rendimentos, custos fixos e metas num limite diário claro."
+      },
+      {
+        "id": 2,
+        "slug": "02_sesli_ve_hizli_ekle",
+        "raw": "05_harcama_ekle.png",
+        "pair_raw": "01_bugun.png",
+        "badge": "VOZ E REGISTO RÁPIDO",
+        "title_white": "Fala ou toca,",
+        "title_accent": "registo no instante.",
+        "subtitle": "Adiciona despesas com comandos de voz ou atalhos inteligentes."
+      },
+      {
+        "id": 3,
+        "slug": "03_rutin_ve_tasarruf",
+        "raw": "02_tasarruf.png",
+        "pair_raw": "03_analiz.png",
+        "badge": "ROTINAS E POUPANÇA",
+        "title_white": "Hábitos evitados",
+        "title_accent": "viram poupança real.",
+        "subtitle": "Acompanha quanto poupas ao abdicar de pequenos gastos do dia a dia."
+      },
+      {
+        "id": 4,
+        "slug": "04_analiz_ve_rapor",
+        "raw": "03_analiz.png",
+        "pair_raw": "06_abonelikler.png",
+        "badge": "ANÁLISE FINANCEIRA",
+        "title_white": "Descobre para onde",
+        "title_accent": "vai o teu dinheiro.",
+        "subtitle": "Gráficos claros de distribuição por categoria e tendências semanais."
+      },
+      {
+        "id": 5,
+        "slug": "05_abonelik_yonetimi",
+        "raw": "06_abonelikler.png",
+        "pair_raw": "07_butce.png",
+        "badge": "GESTÃO DE SUBSCRIÇÕES",
+        "title_white": "Acaba com surpresas",
+        "title_accent": "nas mensalidades.",
+        "subtitle": "Prevê as próximas renovações e cancela serviços que já não usas."
+      },
+      {
+        "id": 6,
+        "slug": "06_hedef_ve_butce",
+        "raw": "07_butce.png",
+        "pair_raw": "04_profil.png",
+        "badge": "ORÇAMENTO E METAS",
+        "title_white": "Garante o teu futuro",
+        "title_accent": "passo a passo.",
+        "subtitle": "Define limites mensais e atinge os teus objetivos com tranquilidade."
+      }
+    ],
+    "heroes": [
+      {
+        "id": 1,
+        "slug": "01_header_ana_vitrin",
+        "center_raw": "01_bugun.png",
+        "left_raw": "05_harcama_ekle.png",
+        "right_raw": "03_analiz.png",
+        "headline_lines": [
+          [
+            "Quanto podes gastar hoje",
+            "white"
+          ],
+          [
+            "descobre tudo",
+            "white"
+          ],
+          [
+            "em 10 segundos.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Sem tabelas confusas: converte ordenado e contas fixas",
+          "num limite diário seguro e descomplicado."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "€",
+            "Limite Diário Disponível",
+            "Vê o saldo restante atualizar-se de imediato após cada compra"
+          ],
+          [
+            "#10B981",
+            "✓",
+            "Comando de Voz & Poupança",
+            "Regista com a tua voz e transforma renúncias em poupança"
+          ],
+          [
+            "#F25F5C",
+            "★",
+            "Análise & Subscrições",
+            "Tem controlo absoluto das categorias e débitos automáticos"
+          ]
+        ]
+      },
+      {
+        "id": 2,
+        "slug": "02_header_tasarruf_ve_plan",
+        "center_raw": "02_tasarruf.png",
+        "left_raw": "06_abonelikler.png",
+        "right_raw": "07_butce.png",
+        "headline_lines": [
+          [
+            "Hábitos evitados",
+            "white"
+          ],
+          [
+            "transformam-se em",
+            "white"
+          ],
+          [
+            "poupança real.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Cafés evitados, calendário de mensalidades recorrentes",
+          "e orçamento mensal inteligente numa única vista."
+        ],
+        "bullets": [
+          [
+            "#10B981",
+            "☕",
+            "Poupança de Rotinas",
+            "Descobre como pequenos cortes criam um fundo sólido"
+          ],
+          [
+            "#5C5AF6",
+            "⚡",
+            "Aviso de Renovações",
+            "Notificações antecipadas antes de qualquer cobrança"
+          ],
+          [
+            "#F59E0B",
+            "🎯",
+            "Metas Conquistadas",
+            "Mantém-te dentro do orçamento e alcança os teus sonhos"
+          ]
+        ]
+      },
+      {
+        "id": 3,
+        "slug": "03_search_analiz_ve_birikim",
+        "center_raw": "03_analiz.png",
+        "left_raw": "02_tasarruf.png",
+        "right_raw": "06_abonelikler.png",
+        "headline_lines": [
+          [
+            "Controla as contas",
+            "white"
+          ],
+          [
+            "com gráficos",
+            "white"
+          ],
+          [
+            "claros e diretos.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Tendências semanais de despesa, divisão de categorias,",
+          "dinheiro poupado e controlo de subscrições sem esforço."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "📊",
+            "Despesas por Categoria",
+            "Descobre com precisão para onde foge o teu salário"
+          ],
+          [
+            "#10B981",
+            "📈",
+            "Tendências Semanais",
+            "Antecipa desvios de orçamento antes do fim do mês"
+          ],
+          [
+            "#F25F5C",
+            "🔔",
+            "Cancela na Hora",
+            "Elimina mensalidades esquecidas e guarda mais dinheiro"
+          ]
+        ]
+      }
+    ]
+  },
+  "ru": {
+    "name": "Русский",
+    "code": "ru",
+    "locale": "ru-RU",
+    "currency": "RUB",
+    "currency_symbol": "₽",
+    "tagline": "Сводит планы с реальностью",
+    "screens": [
+      {
+        "id": 1,
+        "slug": "01_gunluk_butce",
+        "raw": "01_bugun.png",
+        "pair_raw": "05_harcama_ekle.png",
+        "badge": "ДНЕВНОЙ ЛИМИТ ТРАТ",
+        "title_white": "Сколько можно потратить,",
+        "title_accent": "за 10 секунд.",
+        "subtitle": "Преврати доходы, счета и цели в точный дневной лимит расходов."
+      },
+      {
+        "id": 2,
+        "slug": "02_sesli_ve_hizli_ekle",
+        "raw": "05_harcama_ekle.png",
+        "pair_raw": "01_bugun.png",
+        "badge": "ГОЛОС И БЫСТРЫЙ ВВОД",
+        "title_white": "Скажи или нажми —",
+        "title_accent": "записано мгновенно.",
+        "subtitle": "Добавляй траты голосом или умными быстрыми шаблонами."
+      },
+      {
+        "id": 3,
+        "slug": "03_rutin_ve_tasarruf",
+        "raw": "02_tasarruf.png",
+        "pair_raw": "03_analiz.png",
+        "badge": "ПРИВЫЧКИ И НАКОПЛЕНИЯ",
+        "title_white": "Пропущенная покупка",
+        "title_accent": "станет накоплением.",
+        "subtitle": "Следи, сколько экономишь на кофе и спонтанных мелких тратах."
+      },
+      {
+        "id": 4,
+        "slug": "04_analiz_ve_rapor",
+        "raw": "03_analiz.png",
+        "pair_raw": "06_abonelikler.png",
+        "badge": "ПОДРОБНАЯ АНАЛИТИКА",
+        "title_white": "Знай точно, куда",
+        "title_accent": "уходят деньги.",
+        "subtitle": "Наглядные графики по категориям и динамика расходов за неделю."
+      },
+      {
+        "id": 5,
+        "slug": "05_abonelik_yonetimi",
+        "raw": "06_abonelikler.png",
+        "pair_raw": "07_butce.png",
+        "badge": "КОНТРОЛЬ ПОДПИСОК",
+        "title_white": "Никаких скрытых",
+        "title_accent": "списаний.",
+        "subtitle": "Узнавай о продлении заранее и отменяй лишние регулярные услуги."
+      },
+      {
+        "id": 6,
+        "slug": "06_hedef_ve_butce",
+        "raw": "07_butce.png",
+        "pair_raw": "04_profil.png",
+        "badge": "БЮДЖЕТ И ЦЕЛИ",
+        "title_white": "Иди к мечте",
+        "title_accent": "шаг за шагом.",
+        "subtitle": "Устанавливай лимиты на месяц и уверенно достигай финансовых целей."
+      }
+    ],
+    "heroes": [
+      {
+        "id": 1,
+        "slug": "01_header_ana_vitrin",
+        "center_raw": "01_bugun.png",
+        "left_raw": "05_harcama_ekle.png",
+        "right_raw": "03_analiz.png",
+        "headline_lines": [
+          [
+            "Сколько можно потратить",
+            "white"
+          ],
+          [
+            "каждый день,",
+            "white"
+          ],
+          [
+            "за 10 секунд.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Без сложных таблиц: переведи доходы и обязательные платежи",
+          "в понятный дневной лимит расходов за пару касаний."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "₽",
+            "Дневной Лимит Онлайн",
+            "Мгновенный пересчет доступного остатка после каждой покупки"
+          ],
+          [
+            "#10B981",
+            "✓",
+            "Голос & Копилка Привычек",
+            "Вноси траты голосом и превращай пропущенный кофе в капитал"
+          ],
+          [
+            "#F25F5C",
+            "★",
+            "Аналитика и Подписки",
+            "Полный контроль категорий и напоминания о списаниях"
+          ]
+        ]
+      },
+      {
+        "id": 2,
+        "slug": "02_header_tasarruf_ve_plan",
+        "center_raw": "02_tasarruf.png",
+        "left_raw": "06_abonelikler.png",
+        "right_raw": "07_butce.png",
+        "headline_lines": [
+          [
+            "Пропущенные траты",
+            "white"
+          ],
+          [
+            "становятся реальным",
+            "white"
+          ],
+          [
+            "накоплением.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Экономия на привычках, контроль регулярных подписок",
+          "и грамотное планирование месяца на одном экране."
+        ],
+        "bullets": [
+          [
+            "#10B981",
+            "☕",
+            "Копилка Привычек",
+            "Узнай, как отказ от мелочей создает серьезную подушку"
+          ],
+          [
+            "#5C5AF6",
+            "⚡",
+            "Защита от Списаний",
+            "Предупреждение до того, как продлится ненужная подписка"
+          ],
+          [
+            "#F59E0B",
+            "🎯",
+            "Достижение Целей",
+            "Удерживайся в лимитах и уверенно копи на мечту"
+          ]
+        ]
+      },
+      {
+        "id": 3,
+        "slug": "03_search_analiz_ve_birikim",
+        "center_raw": "03_analiz.png",
+        "left_raw": "02_tasarruf.png",
+        "right_raw": "06_abonelikler.png",
+        "headline_lines": [
+          [
+            "Управляй деньгами",
+            "white"
+          ],
+          [
+            "с наглядными",
+            "white"
+          ],
+          [
+            "графиками.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Динамика расходов за неделю, разбивка по статьям,",
+          "рост накоплений и отслеживание подписок без усилий."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "📊",
+            "Траты по Категориям",
+            "Точно понимай, куда уходит львиная доля бюджета"
+          ],
+          [
+            "#10B981",
+            "📈",
+            "Недельные Тренды",
+            "Замечай перерасход заранее и корректируй траты"
+          ],
+          [
+            "#F25F5C",
+            "🔔",
+            "Быстрая Отмена",
+            "Легко находи забытые сервисы и береги свои деньги"
+          ]
+        ]
+      }
+    ]
+  },
+  "ro": {
+    "name": "Română",
+    "code": "ro",
+    "locale": "ro-RO",
+    "currency": "RON",
+    "currency_symbol": "lei",
+    "tagline": "Potrivește socoteala de acasă cu cea din târg",
+    "screens": [
+      {
+        "id": 1,
+        "slug": "01_gunluk_butce",
+        "raw": "01_bugun.png",
+        "pair_raw": "05_harcama_ekle.png",
+        "badge": "LIMITĂ ZILNICĂ DE CHELTUIELI",
+        "title_white": "Cât poți cheltui azi",
+        "title_accent": "în 10 secunde.",
+        "subtitle": "Transformă venitul, facturile fixe și economiile într-o limită zilnică."
+      },
+      {
+        "id": 2,
+        "slug": "02_sesli_ve_hizli_ekle",
+        "raw": "05_harcama_ekle.png",
+        "pair_raw": "01_bugun.png",
+        "badge": "VOCE ȘI NOTARE RAPIDĂ",
+        "title_white": "Spune sau atinge,",
+        "title_accent": "salvat pe loc.",
+        "subtitle": "Adaugă cheltuieli prin comandă vocală sau comenzi rapide inteligente."
+      },
+      {
+        "id": 3,
+        "slug": "03_rutin_ve_tasarruf",
+        "raw": "02_tasarruf.png",
+        "pair_raw": "03_analiz.png",
+        "badge": "OBICEIURI ȘI ECONOMII",
+        "title_white": "Obiceiurile evitate",
+        "title_accent": "devin economii.",
+        "subtitle": "Urmărește economiile făcute renunțând la cafele și cheltuieli mărunte."
+      },
+      {
+        "id": 4,
+        "slug": "04_analiz_ve_rapor",
+        "raw": "03_analiz.png",
+        "pair_raw": "06_abonelikler.png",
+        "badge": "ANALIZĂ FINANCIARĂ",
+        "title_white": "Află exact unde",
+        "title_accent": "se duc banii tăi.",
+        "subtitle": "Grafice clare pe categorii și tendințe săptămânale de cheltuieli."
+      },
+      {
+        "id": 5,
+        "slug": "05_abonelik_yonetimi",
+        "raw": "06_abonelikler.png",
+        "pair_raw": "07_butce.png",
+        "badge": "GESTIUNE ABONAMENTE",
+        "title_white": "Gata cu plățile",
+        "title_accent": "surpriză.",
+        "subtitle": "Vezi la timp datele de reînnoire și oprește abonamentele inutile."
+      },
+      {
+        "id": 6,
+        "slug": "06_hedef_ve_butce",
+        "raw": "07_butce.png",
+        "pair_raw": "04_profil.png",
+        "badge": "BUGET ȘI OBIECTIVE",
+        "title_white": "Atinge-ți visurile",
+        "title_accent": "pas cu pas.",
+        "subtitle": "Stabilește plafoane lunare și îndeplinește-ți obiectivele financiare."
+      }
+    ],
+    "heroes": [
+      {
+        "id": 1,
+        "slug": "01_header_ana_vitrin",
+        "center_raw": "01_bugun.png",
+        "left_raw": "05_harcama_ekle.png",
+        "right_raw": "03_analiz.png",
+        "headline_lines": [
+          [
+            "Cât poți cheltui azi",
+            "white"
+          ],
+          [
+            "află totul",
+            "white"
+          ],
+          [
+            "în 10 secunde.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Fără tabele complicate: transformă salariul și cheltuielile fixe",
+          "într-o limită zilnică sigură dintr-o singură privire."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "lei",
+            "Limită Zilnică Disponibilă",
+            "Soldul rămas se actualizează automat după fiecare cheltuială"
+          ],
+          [
+            "#10B981",
+            "✓",
+            "Comandă Vocală & Economii",
+            "Adaugă prin voce și transformă micile renunțări în bani puși deoparte"
+          ],
+          [
+            "#F25F5C",
+            "★",
+            "Grafice & Notificări Abonamente",
+            "Controlează categoriile și anticipează orice plată recurentă"
+          ]
+        ]
+      },
+      {
+        "id": 2,
+        "slug": "02_header_tasarruf_ve_plan",
+        "center_raw": "02_tasarruf.png",
+        "left_raw": "06_abonelikler.png",
+        "right_raw": "07_butce.png",
+        "headline_lines": [
+          [
+            "Obiceiurile evitate",
+            "white"
+          ],
+          [
+            "devin economii",
+            "white"
+          ],
+          [
+            "reale.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Cafele economisite, calendarul abonamentelor",
+          "și bugetul inteligent lunar într-un singur ecran."
+        ],
+        "bullets": [
+          [
+            "#10B981",
+            "☕",
+            "Economii din Obiceiuri",
+            "Vezi cum renunțarea la mărunțișuri îți crește rezerva"
+          ],
+          [
+            "#5C5AF6",
+            "⚡",
+            "Paza Abonamentelor",
+            "Primești alerte înainte de debitarea automată a cardului"
+          ],
+          [
+            "#F59E0B",
+            "🎯",
+            "Obiective Atinse",
+            "Rămâi în limitele stabilite și împlinește-ți planurile"
+          ]
+        ]
+      },
+      {
+        "id": 3,
+        "slug": "03_search_analiz_ve_birikim",
+        "center_raw": "03_analiz.png",
+        "left_raw": "02_tasarruf.png",
+        "right_raw": "06_abonelikler.png",
+        "headline_lines": [
+          [
+            "Controlează-ți banii",
+            "white"
+          ],
+          [
+            "cu grafice",
+            "white"
+          ],
+          [
+            "clare și simple.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Evoluția săptămânală a cheltuielilor, distribuția pe categorii,",
+          "banii puși deoparte și administrarea plăților fără stres."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "📊",
+            "Distribuție pe Categorii",
+            "Descoperă exact unde îți fuge cea mai mare parte din buget"
+          ],
+          [
+            "#10B981",
+            "📈",
+            "Tendințe Săptămânale",
+            "Sesizează din timp depășirile de cheltuieli"
+          ],
+          [
+            "#F25F5C",
+            "🔔",
+            "Anulează pe Loc",
+            "Scapă imediat de abonamentele uitate și salvează bani"
+          ]
+        ]
+      }
+    ]
+  },
+  "pl": {
+    "name": "Polski",
+    "code": "pl",
+    "locale": "pl-PL",
+    "currency": "PLN",
+    "currency_symbol": "zł",
+    "tagline": "Budżet, który zgadza się z życiem",
+    "screens": [
+      {
+        "id": 1,
+        "slug": "01_gunluk_butce",
+        "raw": "01_bugun.png",
+        "pair_raw": "05_harcama_ekle.png",
+        "badge": "DZIENNY LIMIT WYDATKÓW",
+        "title_white": "Ile możesz wydać dziś",
+        "title_accent": "w 10 sekund.",
+        "subtitle": "Zamień dochody, stałe opłaty i cele na przejrzysty dzienny limit."
+      },
+      {
+        "id": 2,
+        "slug": "02_sesli_ve_hizli_ekle",
+        "raw": "05_harcama_ekle.png",
+        "pair_raw": "01_bugun.png",
+        "badge": "GŁOS I SZYBKI ZAPIS",
+        "title_white": "Powiedz lub stuknij,",
+        "title_accent": "zapisane od razu.",
+        "subtitle": "Dodawaj wydatki głosem lub inteligentnymi skrótami w mgnieniu oka."
+      },
+      {
+        "id": 3,
+        "slug": "03_rutin_ve_tasarruf",
+        "raw": "02_tasarruf.png",
+        "pair_raw": "03_analiz.png",
+        "badge": "NAWYKI I OSZCZĘDNOŚCI",
+        "title_white": "Odpuść nawyki,",
+        "title_accent": "zyskaj oszczędności.",
+        "subtitle": "Zobacz, ile oszczędzasz na pominiętej kawie i drobnych nawykach."
+      },
+      {
+        "id": 4,
+        "slug": "04_analiz_ve_rapor",
+        "raw": "03_analiz.png",
+        "pair_raw": "06_abonelikler.png",
+        "badge": "SZCZEGÓŁOWA ANALIZA",
+        "title_white": "Wiedz dokładnie, gdzie",
+        "title_accent": "płyną pieniądze.",
+        "subtitle": "Przejrzyste wykresy według kategorii i tygodniowych trendów wydatków."
+      },
+      {
+        "id": 5,
+        "slug": "05_abonelik_yonetimi",
+        "raw": "06_abonelikler.png",
+        "pair_raw": "07_butce.png",
+        "badge": "KONTROLA SUBSKRYPCJI",
+        "title_white": "Koniec z ukrytymi",
+        "title_accent": "płatnościami.",
+        "subtitle": "Kontroluj terminy odnowień i rezygnuj z niepotrzebnych usług."
+      },
+      {
+        "id": 6,
+        "slug": "06_hedef_ve_butce",
+        "raw": "07_butce.png",
+        "pair_raw": "04_profil.png",
+        "badge": "BUDŻET I CELE",
+        "title_white": "Buduj bezpieczną przyszłość",
+        "title_accent": "krok po kroku.",
+        "subtitle": "Ustalaj miesięczne limity i spokojnie realizuj swoje cele finansowe."
+      }
+    ],
+    "heroes": [
+      {
+        "id": 1,
+        "slug": "01_header_ana_vitrin",
+        "center_raw": "01_bugun.png",
+        "left_raw": "05_harcama_ekle.png",
+        "right_raw": "03_analiz.png",
+        "headline_lines": [
+          [
+            "Ile możesz wydać dziś",
+            "white"
+          ],
+          [
+            "dowiedz się",
+            "white"
+          ],
+          [
+            "w 10 sekund.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Bez uciążliwych arkuszy: zamień dochód i stałe rachunki",
+          "w bezpieczny dzienny limit wydatków w kilka sekund."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "zł",
+            "Dzienny Limit w Czasie Rzeczywistym",
+            "Pozostała kwota przelicza się natychmiast po każdym wydatku"
+          ],
+          [
+            "#10B981",
+            "✓",
+            "Wprowadzanie Głosem & Oszczędzanie",
+            "Mów i zapisuj, zamieniaj pominięte nawyki w kapitał"
+          ],
+          [
+            "#F25F5C",
+            "★",
+            "Wykresy i Subskrypcje",
+            "Kontroluj kategorie wydatków i zapomnij o zaskakujących opłatach"
+          ]
+        ]
+      },
+      {
+        "id": 2,
+        "slug": "02_header_tasarruf_ve_plan",
+        "center_raw": "02_tasarruf.png",
+        "left_raw": "06_abonelikler.png",
+        "right_raw": "07_butce.png",
+        "headline_lines": [
+          [
+            "Pominięte nawyki",
+            "white"
+          ],
+          [
+            "zamieniaj w realne",
+            "white"
+          ],
+          [
+            "oszczędności.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Zaoszczędzona kawa, kalendarz opłat cyklicznych",
+          "i przemyślany miesięczny budżet na jednym ekranie."
+        ],
+        "bullets": [
+          [
+            "#10B981",
+            "☕",
+            "Oszczędności z Nawyków",
+            "Sprawdź, jak małe rezygnacje powiększają Twoją poduszkę"
+          ],
+          [
+            "#5C5AF6",
+            "⚡",
+            "Strażnik Subskrypcji",
+            "Otrzymuj alerty, zanim karta zostanie obciążona"
+          ],
+          [
+            "#F59E0B",
+            "🎯",
+            "Zrealizowane Plany",
+            "Miej budżet w ryzach i spokojnie osiągaj wyznaczone cele"
+          ]
+        ]
+      },
+      {
+        "id": 3,
+        "slug": "03_search_analiz_ve_birikim",
+        "center_raw": "03_analiz.png",
+        "left_raw": "02_tasarruf.png",
+        "right_raw": "06_abonelikler.png",
+        "headline_lines": [
+          [
+            "Zarządzaj budżetem",
+            "white"
+          ],
+          [
+            "z przejrzystymi",
+            "white"
+          ],
+          [
+            "wykresami.",
+            "accent"
+          ]
+        ],
+        "subtitle_lines": [
+          "Tygodniowa dynamika wydatków, podział na kategorie,",
+          "zgromadzone oszczędności i kontrola rachunków bez wysiłku."
+        ],
+        "bullets": [
+          [
+            "#5C5AF6",
+            "📊",
+            "Podział na Kategorie",
+            "Dowiedz się dokładnie, na co przeznaczasz najwięcej pieniędzy"
+          ],
+          [
+            "#10B981",
+            "📈",
+            "Tygodniowe Trendy",
+            "Wyłapuj niepokojące trendy jeszcze przed końcem miesiąca"
+          ],
+          [
+            "#F25F5C",
+            "🔔",
+            "Szybka Rezygnacja",
+            "Wypowiadaj zapomniane subskrypcje i zachowaj więcej gotówki"
+          ]
+        ]
+      }
+    ]
+  }
+}
