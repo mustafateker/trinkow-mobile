@@ -2,7 +2,7 @@
   "expo": {
     "name": "Trinkow",
     "slug": "trinkow",
-    "version": "0.1.16",
+    "version": "0.1.17",
     "orientation": "default",
     "scheme": "trinkow",
     "userInterfaceStyle": "light",
@@ -14,8 +14,9 @@
     "ios": {
       "supportsTablet": false,
       "requireFullScreen": true,
+      "appleTeamId": "3RRAH7Q65B",
       "bundleIdentifier": "com.triworkster.trinkow",
-      "buildNumber": "22",
+      "buildNumber": "23",
       "usesAppleSignIn": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -27,7 +28,7 @@
     },
     "android": {
       "package": "com.triworkster.trinkow",
-      "versionCode": 22,
+      "versionCode": 23,
       "blockedPermissions": [
         "com.google.android.gms.permission.AD_ID"
       ],

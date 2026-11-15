@@ -1,3 +1,4 @@
+import { setProvisioningProfileForPbxproj } from '@expo/config-plugins/build/ios/ProvisioningProfile.js';
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -71,11 +72,29 @@ for (const plistYolu of [infoPlistYolu, widgetInfoPlistYolu]) {
     .replace(/(<key>CFBundleVersion<\/key>\s*<string>)[^<]+(<\/string>)/, `$1${kod}$2`);
   writeFileSync(plistYolu, icerik);
 }
-const pbxproj = readFileSync(pbxprojYolu, 'utf8')
+let pbxproj = readFileSync(pbxprojYolu, 'utf8')
   .replaceAll(/MARKETING_VERSION = [^;]+;/g, `MARKETING_VERSION = ${surum};`)
   .replaceAll(/CURRENT_PROJECT_VERSION = \d+;/g, `CURRENT_PROJECT_VERSION = ${kod};`)
   .replaceAll(/TARGETED_DEVICE_FAMILY = "1,2";/g, 'TARGETED_DEVICE_FAMILY = 1;');
+if (!pbxproj.includes('DEVELOPMENT_TEAM =')) {
+  pbxproj = pbxproj.replaceAll(/(PRODUCT_BUNDLE_IDENTIFIER = [^;]+;)/g, `$1\n\t\t\t\tDEVELOPMENT_TEAM = ${TEAM_ID};`);
+}
 writeFileSync(pbxprojYolu, pbxproj);
+
+setProvisioningProfileForPbxproj(kok, {
+  targetName: 'Trinkow',
+  profileName: 'Trinkow AppStore',
+  appleTeamId: TEAM_ID,
+  buildConfiguration: 'Release',
+  codeSignIdentity: 'Apple Distribution',
+});
+setProvisioningProfileForPbxproj(kok, {
+  targetName: 'ExpoWidgetsTarget',
+  profileName: 'Trinkow Widget AppStore',
+  appleTeamId: TEAM_ID,
+  buildConfiguration: 'Release',
+  codeSignIdentity: 'Apple Distribution',
+});
 
 console.log('3/4 Native iOS Archive ve IPA üretiliyor…');
 rmSync(archiveYolu, { recursive: true, force: true });
@@ -121,6 +140,7 @@ calistir('xcodebuild', [
   'generic/platform=iOS',
   '-archivePath',
   archiveYolu,
+  `DEVELOPMENT_TEAM=${TEAM_ID}`,
   'archive',
 ]);
 
