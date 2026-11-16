@@ -75,7 +75,7 @@ for (const plistYolu of [infoPlistYolu, widgetInfoPlistYolu]) {
 let pbxproj = readFileSync(pbxprojYolu, 'utf8')
   .replaceAll(/MARKETING_VERSION = [^;]+;/g, `MARKETING_VERSION = ${surum};`)
   .replaceAll(/CURRENT_PROJECT_VERSION = \d+;/g, `CURRENT_PROJECT_VERSION = ${kod};`)
-  .replaceAll(/TARGETED_DEVICE_FAMILY = "1,2";/g, 'TARGETED_DEVICE_FAMILY = 1;');
+  .replaceAll(/TARGETED_DEVICE_FAMILY = 1;/g, 'TARGETED_DEVICE_FAMILY = "1,2";');
 if (!pbxproj.includes('DEVELOPMENT_TEAM =')) {
   pbxproj = pbxproj.replaceAll(/(PRODUCT_BUNDLE_IDENTIFIER = [^;]+;)/g, `$1\n\t\t\t\tDEVELOPMENT_TEAM = ${TEAM_ID};`);
 }

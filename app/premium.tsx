@@ -412,29 +412,32 @@ function FallbackPaywall({
       <View style={{ height: insets.top, backgroundColor: color.navDark }} />
       <ScrollView style={stil.kaydir} contentContainerStyle={stil.kaydirIcerik} showsVerticalScrollIndicator={false}>
         <View style={stil.kahraman}>
-          <View style={stil.heroUstSatir}>
-            <View />
-            <IconButton
-              icon="x"
-              accessibilityLabel={t['eylem.kapat']}
-              tone="#FFFFFF"
-              background={color.navGlassBg}
-              pressedBackground={color.navGlassBgPressed}
-              onPress={() => onVazgec('kapat')}
-            />
-          </View>
+          <View style={stil.tabletKapsayici}>
+            <View style={stil.heroUstSatir}>
+              <View />
+              <IconButton
+                icon="x"
+                accessibilityLabel={t['eylem.kapat']}
+                tone="#FFFFFF"
+                background={color.navGlassBg}
+                pressedBackground={color.navGlassBgPressed}
+                onPress={() => onVazgec('kapat')}
+              />
+            </View>
 
-          <View style={{ height: rhythm.blockInCard }} />
-          <Txt role="h1" tone="#FFFFFF">
-            {t['premium.baslik']}
-          </Txt>
-          <View style={{ height: rhythm.group }} />
-          <Txt role="body" tone={color.navMuted}>
-            {t[tur === 'indirim' ? 'premium.alt.indirim' : 'premium.alt.standart']}
-          </Txt>
+            <View style={{ height: rhythm.blockInCard }} />
+            <Txt role="h1" tone="#FFFFFF">
+              {t['premium.baslik']}
+            </Txt>
+            <View style={{ height: rhythm.group }} />
+            <Txt role="body" tone={color.navMuted}>
+              {t[tur === 'indirim' ? 'premium.alt.indirim' : 'premium.alt.standart']}
+            </Txt>
+          </View>
         </View>
 
         <View style={stil.panel}>
+          <View style={stil.tabletKapsayici}>
           {premium ? (
             <View style={stil.aktifKart}>
               <Icon name="check" size={24} color={color.successInk} />
@@ -509,40 +512,43 @@ function FallbackPaywall({
               </View>
             </>
           )}
+          </View>
         </View>
       </ScrollView>
 
       <View style={[stil.altSabit, { paddingBottom: Math.max(insets.bottom, rhythm.group) }]}>
-        {premium ? (
-          <Button variant="primary" label={t['premium.eylem.devam']} onPress={onDevamEt} />
-        ) : (
-          <>
-            {satinAlmaHatasi ? (
-              <>
-                <Txt role="caption" tone={color.warningInk} style={stil.ortaliMetin}>
-                  {t['premium.hata.satin_alma']}
+        <View style={stil.tabletKapsayici}>
+          {premium ? (
+            <Button variant="primary" label={t['premium.eylem.devam']} onPress={onDevamEt} />
+          ) : (
+            <>
+              {satinAlmaHatasi ? (
+                <>
+                  <Txt role="caption" tone={color.warningInk} style={stil.ortaliMetin}>
+                    {t['premium.hata.satin_alma']}
+                  </Txt>
+                  <View style={{ height: rhythm.group }} />
+                </>
+              ) : null}
+              <View style={stil.guvenceSatiri}>
+                <Icon name="shield-check" size={14} color={color.text3} />
+                <Txt role="micro" tone={color.text3}>
+                  {metin('premium.guvence.iptal', { magaza: MAGAZA_ADI })}
                 </Txt>
-                <View style={{ height: rhythm.group }} />
-              </>
-            ) : null}
-            <View style={stil.guvenceSatiri}>
-              <Icon name="shield-check" size={14} color={color.text3} />
-              <Txt role="micro" tone={color.text3}>
-                {metin('premium.guvence.iptal', { magaza: MAGAZA_ADI })}
-              </Txt>
-            </View>
-            <Button
-              variant="primary"
-              label={denemeGunu !== null ? metin('premium.eylem.deneme', { gun: denemeGunu }) : t['premium.eylem.satin_al']}
-              loading={mesgul === 'satin'}
-              loadingLabel={t['premium.isleniyor']}
-              disabled={secili === null || mesgul === 'geri'}
-              onPress={() => void satinAlmayiBaslat()}
-            />
-            <View style={{ height: rhythm.sameObject }} />
-            <Button variant="ghost" label={ikincilEtiket} disabled={mesgul !== null} onPress={() => onVazgec('atla')} />
-          </>
-        )}
+              </View>
+              <Button
+                variant="primary"
+                label={denemeGunu !== null ? metin('premium.eylem.deneme', { gun: denemeGunu }) : t['premium.eylem.satin_al']}
+                loading={mesgul === 'satin'}
+                loadingLabel={t['premium.isleniyor']}
+                disabled={secili === null || mesgul === 'geri'}
+                onPress={() => void satinAlmayiBaslat()}
+              />
+              <View style={{ height: rhythm.sameObject }} />
+              <Button variant="ghost" label={ikincilEtiket} disabled={mesgul !== null} onPress={() => onVazgec('atla')} />
+            </>
+          )}
+        </View>
       </View>
     </View>
   );
@@ -677,6 +683,11 @@ const stil = StyleSheet.create({
     paddingHorizontal: layout.screenPaddingX,
     paddingTop: rhythm.section,
     paddingBottom: rhythm.pad,
+  },
+  tabletKapsayici: {
+    width: '100%',
+    maxWidth: layout.tabletMaxContentWidth,
+    alignSelf: 'center',
   },
   aktifKart: {
     padding: rhythm.pad,

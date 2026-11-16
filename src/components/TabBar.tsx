@@ -4,7 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, type IconName } from '@/components/Icon';
 import { Txt } from '@/components/Txt';
-import { clay, color, radius, rhythm, size } from '@/theme/tokens';
+import { clay, color, layout, radius, rhythm, size } from '@/theme/tokens';
 import { t } from '@/content/metinler';
 import { metin } from '@/i18n/cekirdek';
 
@@ -127,6 +127,9 @@ const stil = StyleSheet.create({
     borderTopLeftRadius: radius.hero,
     borderTopRightRadius: radius.hero,
     overflow: 'visible',
+    maxWidth: layout.tabletMaxContentWidth,
+    width: '100%',
+    alignSelf: 'center',
   },
   cubuk: {
     flexDirection: 'row',

@@ -25,19 +25,23 @@ export function AuthShell({
     <View style={stil.ekran}>
       <View style={{ height: insets.top }} />
       <View style={stil.header}>
-        <View style={stil.ustSatir}>
-          {onBack ? <IconButton icon="chevron-left" accessibilityLabel={t['ui.common.back']} tone="#FFFFFF" background={color.navGlassBg} pressedBackground={color.navGlassBgPressed} onPress={onBack} /> : <View style={stil.denge} />}
-          <Txt role="label" tone={color.navMuted}>TRINKOW</Txt>
-          <DilDugmesi />
+        <View style={stil.tabletKapsayici}>
+          <View style={stil.ustSatir}>
+            {onBack ? <IconButton icon="chevron-left" accessibilityLabel={t['ui.common.back']} tone="#FFFFFF" background={color.navGlassBg} pressedBackground={color.navGlassBgPressed} onPress={onBack} /> : <View style={stil.denge} />}
+            <Txt role="label" tone={color.navMuted}>TRINKOW</Txt>
+            <DilDugmesi />
+          </View>
+          <View style={{ height: rhythm.pad }} />
+          <Txt role="h1" tone="#FFFFFF">{title}</Txt>
+          <View style={{ height: rhythm.group }} />
+          <Txt role="body" tone="#BFC6E5">{subtitle}</Txt>
         </View>
-        <View style={{ height: rhythm.pad }} />
-        <Txt role="h1" tone="#FFFFFF">{title}</Txt>
-        <View style={{ height: rhythm.group }} />
-        <Txt role="body" tone="#BFC6E5">{subtitle}</Txt>
       </View>
       <KeyboardAvoidingView style={stil.esnek} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
         <ScrollView keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false} contentContainerStyle={stil.scrollIcerik}>
-          <View style={[stil.panel, { paddingBottom: insets.bottom + rhythm.section }]}>{children}</View>
+          <View style={[stil.panel, { paddingBottom: insets.bottom + rhythm.section }]}>
+            <View style={stil.tabletKapsayici}>{children}</View>
+          </View>
         </ScrollView>
       </KeyboardAvoidingView>
     </View>
@@ -51,5 +55,6 @@ const stil = StyleSheet.create({
   ustSatir: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   denge: { width: 44, height: 44 },
   scrollIcerik: { flexGrow: 1 },
+  tabletKapsayici: { width: '100%', maxWidth: layout.tabletMaxContentWidth, alignSelf: 'center' },
   panel: { flex: 1, backgroundColor: color.surface, borderTopLeftRadius: radius.hero, borderTopRightRadius: radius.hero, paddingHorizontal: layout.screenPaddingX, paddingTop: rhythm.section },
 });

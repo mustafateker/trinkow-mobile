@@ -42,26 +42,28 @@ export const SetupShell = forwardRef<
     <View style={stil.ekran}>
       <View style={{ height: insets.top, backgroundColor: color.navDark }} />
       <View style={stil.koyuBasi}>
-        <View style={stil.ekranBasi}>
-          {onGeri ? (
-            <IconButton
-              icon="chevron-left"
-              accessibilityLabel={t['a11y.onceki_adim']}
-              tone="#FFFFFF"
-              background={color.navGlassBg}
-              pressedBackground={color.navGlassBgPressed}
-              onPress={onGeri}
-            />
-          ) : (
+        <View style={stil.tabletKapsayici}>
+          <View style={stil.ekranBasi}>
+            {onGeri ? (
+              <IconButton
+                icon="chevron-left"
+                accessibilityLabel={t['a11y.onceki_adim']}
+                tone="#FFFFFF"
+                background={color.navGlassBg}
+                pressedBackground={color.navGlassBgPressed}
+                onPress={onGeri}
+              />
+            ) : (
+              <View style={stil.denge} />
+            )}
+            <Txt role="micro" tone={color.navMuted}>
+              {obSayac(adim, toplam)}
+            </Txt>
             <View style={stil.denge} />
-          )}
-          <Txt role="micro" tone={color.navMuted}>
-            {obSayac(adim, toplam)}
-          </Txt>
-          <View style={stil.denge} />
-        </View>
-        <View style={stil.adimCubugu}>
-          <StepIndicator adim={adim} toplam={toplam} />
+          </View>
+          <View style={stil.adimCubugu}>
+            <StepIndicator adim={adim} toplam={toplam} />
+          </View>
         </View>
       </View>
       <KeyboardAvoidingView
@@ -74,9 +76,13 @@ export const SetupShell = forwardRef<
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={stil.scrollIcerik}>
-          <View style={stil.panel}>{children}</View>
+          <View style={stil.panel}>
+            <View style={stil.tabletKapsayici}>{children}</View>
+          </View>
         </ScrollView>
-        <View style={[stil.altSabit, { paddingBottom: Math.max(insets.bottom, rhythm.group) }]}>{altSabit}</View>
+        <View style={[stil.altSabit, { paddingBottom: Math.max(insets.bottom, rhythm.group) }]}>
+          <View style={stil.tabletKapsayici}>{altSabit}</View>
+        </View>
       </KeyboardAvoidingView>
     </View>
   );
@@ -97,6 +103,7 @@ const stil = StyleSheet.create({
   denge: { width: size.iconButton, height: size.iconButton },
   adimCubugu: { paddingHorizontal: layout.screenPaddingX },
   scrollIcerik: { flexGrow: 1 },
+  tabletKapsayici: { width: '100%', maxWidth: layout.tabletMaxContentWidth, alignSelf: 'center' },
   panel: {
     flex: 1,
     backgroundColor: color.bg,

@@ -153,7 +153,9 @@ export function GunlukSayfa({
         </View>
         <ScrollView style={kabukStil.scroll} contentContainerStyle={stil.kaydirIcerik} showsVerticalScrollIndicator={false}>
           <ContentPanel style={stil.pad}>
-            <ErrorState onRetry={veri.yenile} />
+            <View style={stil.tabletKapsayici}>
+              <ErrorState onRetry={veri.yenile} />
+            </View>
           </ContentPanel>
         </ScrollView>
       </View>
@@ -168,7 +170,9 @@ export function GunlukSayfa({
         </View>
         <ScrollView style={kabukStil.scroll} contentContainerStyle={stil.kaydirIcerik} showsVerticalScrollIndicator={false}>
           <ContentPanel>
-            <GunlukIskeleti />
+            <View style={stil.tabletKapsayici}>
+              <GunlukIskeleti />
+            </View>
           </ContentPanel>
         </ScrollView>
       </View>
@@ -223,6 +227,7 @@ export function GunlukSayfa({
 
       <ScrollView style={kabukStil.scroll} contentContainerStyle={stil.kaydirIcerik} showsVerticalScrollIndicator={false}>
         <ContentPanel>
+        <View style={stil.tabletKapsayici}>
         <View style={stil.pad}>
           <HeroCard
             gunFarki={gunFarki}
@@ -432,6 +437,7 @@ export function GunlukSayfa({
             </View>
           </>
         ) : null}
+        </View>
         </ContentPanel>
       </ScrollView>
 
@@ -459,38 +465,40 @@ function Baslik({
 }) {
   const { h1, ustSatir } = gunlukBaslik(gunFarki, tarih);
   return (
-    <View style={stil.ekranBasi}>
-      <View style={stil.esnek}>
-        <Txt role="caption" tone={color.navMuted}>
-          {ustSatir}
-        </Txt>
-        <Txt role="h2" tone="#FFFFFF" numberOfLines={1}>
-          {h1}
-        </Txt>
-      </View>
-      <View style={{ width: rhythm.group }} />
-      {seriYukleniyor ? (
-        <Skeleton width={104} height={40} />
-      ) : seriDurum && !seriDurum.kapali ? (
-        <Chip
-          ad={seriCipEtiketi(seriDurum.mevcutSeri)}
-          onPress={() => router.push('/seri')}
-          accessibilityLabel={seriCipA11y(seriDurum.mevcutSeri)}
+    <View style={stil.tabletKapsayici}>
+      <View style={stil.ekranBasi}>
+        <View style={stil.esnek}>
+          <Txt role="caption" tone={color.navMuted}>
+            {ustSatir}
+          </Txt>
+          <Txt role="h2" tone="#FFFFFF" numberOfLines={1}>
+            {h1}
+          </Txt>
+        </View>
+        <View style={{ width: rhythm.group }} />
+        {seriYukleniyor ? (
+          <Skeleton width={104} height={40} />
+        ) : seriDurum && !seriDurum.kapali ? (
+          <Chip
+            ad={seriCipEtiketi(seriDurum.mevcutSeri)}
+            onPress={() => router.push('/seri')}
+            accessibilityLabel={seriCipA11y(seriDurum.mevcutSeri)}
+          />
+        ) : null}
+        <View style={{ width: rhythm.group }} />
+        <IconButton
+          icon="calendar"
+          accessibilityLabel={t['gunluk.a11y.takvim']}
+          tone="#FFFFFF"
+          background={color.navGlassBg}
+          pressedBackground={color.navGlassBgPressed}
+          gloss={false}
+          // K-064/2 — Günlük'te bakılan gün bugün değilse Gün seçici'ye taşınır;
+          // seçim halkası kaldırıldığı için (K-061) o gün "Açık gün {g} {Ay}"
+          // metniyle söylenir (bkz. gun-sec.tsx).
+          onPress={() => router.push(`/gun-sec${gunFarki !== 0 ? `?acikGun=${gunFarki}` : ''}` as never)}
         />
-      ) : null}
-      <View style={{ width: rhythm.group }} />
-      <IconButton
-        icon="calendar"
-        accessibilityLabel={t['gunluk.a11y.takvim']}
-        tone="#FFFFFF"
-        background={color.navGlassBg}
-        pressedBackground={color.navGlassBgPressed}
-        gloss={false}
-        // K-064/2 — Günlük'te bakılan gün bugün değilse Gün seçici'ye taşınır;
-        // seçim halkası kaldırıldığı için (K-061) o gün "Açık gün {g} {Ay}"
-        // metniyle söylenir (bkz. gun-sec.tsx).
-        onPress={() => router.push(`/gun-sec${gunFarki !== 0 ? `?acikGun=${gunFarki}` : ''}` as never)}
-      />
+      </View>
     </View>
   );
 }
@@ -607,6 +615,7 @@ function GunlukIskeleti() {
 
 const stil = StyleSheet.create({
   sayfa: { flex: 1, backgroundColor: color.navDark },
+  tabletKapsayici: { width: '100%', maxWidth: layout.tabletMaxContentWidth, alignSelf: 'center' },
   kaydirIcerik: { paddingBottom: layout.scrollPadBottom, flexGrow: 1 },
   koyuBasi: { backgroundColor: color.navDark, paddingBottom: layout.headerPadBottom },
   pad: { paddingHorizontal: layout.screenPaddingX },

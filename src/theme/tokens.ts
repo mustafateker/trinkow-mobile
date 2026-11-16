@@ -202,6 +202,8 @@ export const layout = {
   headerPadBottom: space[4],
   /** §3.1 kaydırılan içeriğin sonu */
   scrollPadBottom: space[5],
+  /** Tablet ve geniş ekranlarda form ve kartların aşırı yayılmasını önleyen sınır */
+  tabletMaxContentWidth: 540,
 } as const;
 
 /* ------------------------------------------------------------- §4 RADIUS */

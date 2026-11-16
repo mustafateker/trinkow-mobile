@@ -44,14 +44,20 @@ export function RevScreen({title,children,tab,header,contentGap=24}:{title:strin
     <View style={{height:i.top,backgroundColor:color.navDark}} />
     <KeyboardAvoidingView style={[s.screen,{paddingBottom:tab?0:i.bottom}]} behavior={Platform.OS==='ios'?'padding':'height'}>
       <View style={s.koyuBasi}>
-        {header ?? <View style={s.header}>
-          {tab ? null : <IconButton icon="chevron-left" accessibilityLabel={t['eylem.geri']} tone="#FFFFFF" background={color.navGlassBg} pressedBackground={color.navGlassBgPressed} onPress={()=>router.canGoBack()?router.back():router.replace('/')} />}
-          <Txt role="h2" tone="#FFFFFF" style={{flex:1}}>{title}</Txt>
-          {tab ? null : <IconButton icon="ayarlar" accessibilityLabel={t['ayar.baslik']} tone="#FFFFFF" background={color.navGlassBg} pressedBackground={color.navGlassBgPressed} onPress={()=>router.push('/ayarlar')}/>}
-        </View>}
+        <View style={s.tabletKapsayici}>
+          {header ?? <View style={s.header}>
+            {tab ? null : <IconButton icon="chevron-left" accessibilityLabel={t['eylem.geri']} tone="#FFFFFF" background={color.navGlassBg} pressedBackground={color.navGlassBgPressed} onPress={()=>router.canGoBack()?router.back():router.replace('/')} />}
+            <Txt role="h2" tone="#FFFFFF" style={{flex:1}}>{title}</Txt>
+            {tab ? null : <IconButton icon="ayarlar" accessibilityLabel={t['ayar.baslik']} tone="#FFFFFF" background={color.navGlassBg} pressedBackground={color.navGlassBgPressed} onPress={()=>router.push('/ayarlar')}/>}
+          </View>}
+        </View>
       </View>
       <ScrollView style={s.scroll} keyboardShouldPersistTaps="handled" contentContainerStyle={s.scrollIcerik}>
-        <ContentPanel style={{padding:layout.screenPaddingX,paddingBottom:32,gap:contentGap}}>{children}</ContentPanel>
+        <ContentPanel style={{padding:layout.screenPaddingX,paddingBottom:32}}>
+          <View style={[s.tabletKapsayici, { gap: contentGap, flexGrow: 1 }]}>
+            {children}
+          </View>
+        </ContentPanel>
       </ScrollView>
       {tab && !klavyeAcik ? <TabDock active={tab} /> : null}
     </KeyboardAvoidingView>
@@ -83,6 +89,7 @@ export const s=StyleSheet.create({
   // görünmesini sağlar. Tasarruf ve Profil de aynı koyu→açık geçişi alır.
   scroll:{flex:1,minHeight:0,backgroundColor:color.navDark},
   scrollIcerik:{flexGrow:1},
+  tabletKapsayici:{width:'100%',maxWidth:layout.tabletMaxContentWidth,alignSelf:'center'},
   panelBase:{flex:1,backgroundColor:color.surface,borderTopLeftRadius:radius.hero,borderTopRightRadius:radius.hero,paddingTop:rhythm.section},
   card:{padding:16,borderRadius:radius.tile,backgroundColor:color.surface,borderWidth:1,borderColor:color.line,gap:12},
   row:{flexDirection:'row',alignItems:'center',justifyContent:'space-between',gap:12},

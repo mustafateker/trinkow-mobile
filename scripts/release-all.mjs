@@ -202,7 +202,7 @@ for (const [pYolu, pIcerik] of [
 let guncelPbxproj = oncekiPbxproj
   .replaceAll(/MARKETING_VERSION = [^;]+;/g, `MARKETING_VERSION = ${yeniSurum};`)
   .replaceAll(/CURRENT_PROJECT_VERSION = \d+;/g, `CURRENT_PROJECT_VERSION = ${yeniKod};`)
-  .replaceAll(/TARGETED_DEVICE_FAMILY = "1,2";/g, 'TARGETED_DEVICE_FAMILY = 1;');
+  .replaceAll(/TARGETED_DEVICE_FAMILY = 1;/g, 'TARGETED_DEVICE_FAMILY = "1,2";');
 if (!guncelPbxproj.includes('DEVELOPMENT_TEAM =')) {
   guncelPbxproj = guncelPbxproj.replaceAll(/(PRODUCT_BUNDLE_IDENTIFIER = [^;]+;)/g, `$1\n\t\t\t\tDEVELOPMENT_TEAM = ${TEAM_ID};`);
 }
