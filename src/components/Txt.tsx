@@ -31,13 +31,16 @@ type Props = Omit<TextProps, 'role'> & {
   style?: StyleProp<TextStyle>;
 };
 
-export function Txt({ role, tone, style, ...rest }: Props) {
+export function Txt({ role, tone, style, adjustsFontSizeToFit, minimumFontScale, ...rest }: Props) {
+  const autoFit = rest.numberOfLines === 1 && (role === 'hero' || role === 'display' || role === 'h1' || role === 'h2');
   return (
     <Text
+      adjustsFontSizeToFit={adjustsFontSizeToFit ?? autoFit}
+      minimumFontScale={minimumFontScale ?? (autoFit ? 0.8 : undefined)}
       {...rest}
       // Kullanıcının sistem yazı boyutu ayarı düzeni bozmamalı: kahraman
       // sayı ve tutarlar piksele kilitli kutularda durur (§7.5 iç alan 156).
-      maxFontSizeMultiplier={role === 'hero' || role === 'display' ? 1.2 : 1.5}
+      maxFontSizeMultiplier={role === 'hero' || role === 'display' ? 1.2 : 1.4}
       style={[type[role], { color: tone ?? varsayilanRenk[role] }, style]}
     />
   );

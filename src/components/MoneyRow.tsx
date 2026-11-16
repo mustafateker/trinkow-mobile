@@ -71,7 +71,7 @@ export function MoneyRow({
         {dikey ? (
           <Txt role="body">{label}</Txt>
         ) : (
-          <Txt role="body" style={stil.etiket} numberOfLines={1} ellipsizeMode="tail">
+          <Txt role="body" style={stil.etiket} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85} ellipsizeMode="tail">
             {label}
           </Txt>
         )}

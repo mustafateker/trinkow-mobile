@@ -98,7 +98,7 @@ export function Button({
                 <View style={{ width: rhythm.group }} />
               </>
             ) : null}
-            <Txt role={textRole} tone={metinRengi} numberOfLines={1}>
+            <Txt role={textRole} tone={metinRengi} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.82}>
               {metin}
             </Txt>
             {loading ? (

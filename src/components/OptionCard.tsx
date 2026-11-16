@@ -46,7 +46,7 @@ export function OptionCard({
       </View>
       <View style={{ width: rhythm.pad }} />
       <View style={stil.esnek}>
-        <Txt role="bodyStrong">{title}</Txt>
+        <Txt role="bodyStrong" numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{title}</Txt>
         <View style={{ height: rhythm.group }} />
         <Txt role="caption">{caption}</Txt>
       </View>

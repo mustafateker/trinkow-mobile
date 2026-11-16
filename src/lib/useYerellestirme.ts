@@ -1,17 +1,14 @@
 import { useSyncExternalStore } from 'react';
 
 import {
-  yerellestirmeAnlikDeger,
   yerellestirmeDegisimineAbone,
   yerellestirmeTercihi,
-} from '@/lib/yerellestirme';
+  type YerellestirmeTercihi,
+} from './yerellestirme';
 
-export function useYerellestirme() {
-  useSyncExternalStore(
-    yerellestirmeDegisimineAbone,
-    yerellestirmeAnlikDeger,
-    yerellestirmeAnlikDeger,
-  );
-  return yerellestirmeTercihi();
+/**
+ * Dil veya para birimi değiştiğinde bileşeni yeniden çizen React hook'u.
+ */
+export function useYerellestirme(): YerellestirmeTercihi {
+  return useSyncExternalStore(yerellestirmeDegisimineAbone, yerellestirmeTercihi, yerellestirmeTercihi);
 }
-

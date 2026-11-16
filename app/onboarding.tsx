@@ -10,17 +10,23 @@ import { MoneyRow } from '@/components/MoneyRow';
 import { OptionCard } from '@/components/OptionCard';
 import { RoutineRow } from '@/components/RoutineRow';
 import { RoutineSheet } from '@/components/RoutineSheet';
+import { SegmentedControl } from '@/components/SegmentedControl';
 import { SetupShell, type SetupShellHandle } from '@/components/SetupShell';
 import { Txt } from '@/components/Txt';
 import { obRutinGunlukToplam, obRutinSatirAlt, t } from '@/content/metinler';
 import { HEDEF_ETIKET_ALAN, OZET_ACIKLAMA } from '@/content/hedefEtiketleri';
+import { paraBirimiKaydet } from '@/db/ayarTercihleri';
 import { onboardingKaydet, type Niyet } from '@/db/profil';
 import { posthog } from '@/config/posthog';
+import { aktifDil } from '@/i18n/cekirdek';
 import { useReduceMotion } from '@/lib/hareket';
 import type { KategoriKodu } from '@/lib/kategoriler';
 import { paraSimgesi, paraYaz, sayiyaCevir, tutarGirisindenKurus } from '@/lib/para';
 import { budgetPut, emptyBudget, routinePut, routinesGet, yeniId, type Routine } from '@/lib/revApi';
 import { indirimPaywallGosterilsinMi } from '@/lib/uyelik';
+import { useYerellestirme } from '@/lib/useYerellestirme';
+import { yerellestirmeAyarla, type ParaBirimi } from '@/lib/yerellestirme';
+import { yerellestirmeyiSakla } from '@/lib/yerellestirmeDeposu';
 import { veriDegisti } from '@/lib/veriBus';
 import { clay, color, motion, radius, rhythm, TABULAR } from '@/theme/tokens';
 import { useDil } from '@/i18n/useDil';
@@ -41,8 +47,15 @@ const NIYET_SIRASI: [Niyet, IconName][] = [
 
 type GiderAlan = 'kira' | 'fatura' | 'ulasim' | 'kredi';
 
+const PARA_SECENEKLERI: { value: ParaBirimi; label: string }[] = [
+  { value: 'TRY', label: '₺ TL' },
+  { value: 'EUR', label: '€ EUR' },
+  { value: 'USD', label: '$ USD' },
+];
+
 export default function Onboarding() {
   useDil();
+  const { paraBirimi } = useYerellestirme();
   const shellRef = useRef<SetupShellHandle>(null);
   const reduceMotion = useReduceMotion();
   const anim = useRef(new Animated.Value(1)).current;
@@ -125,6 +138,12 @@ export default function Onboarding() {
       iptal = true;
     };
   }, [adim]);
+
+  async function paraBirimiGuncelle(yeniBirim: ParaBirimi) {
+    yerellestirmeAyarla({ paraBirimi: yeniBirim });
+    await yerellestirmeyiSakla(aktifDil(), yeniBirim);
+    void paraBirimiKaydet(yeniBirim).catch(() => {});
+  }
 
   async function butceyiKaydet() {
     if (butceMesgul) return;
@@ -313,6 +332,14 @@ export default function Onboarding() {
                 </>
               ) : null}
               <View style={{ height: rhythm.section }} />
+              <SectionHeader>{t['ayar.para_birimi']}</SectionHeader>
+              <View style={{ height: rhythm.group }} />
+              <SegmentedControl
+                secenekler={PARA_SECENEKLERI}
+                deger={paraBirimi}
+                onChange={(b) => void paraBirimiGuncelle(b)}
+              />
+              <View style={{ height: rhythm.section }} />
               <SectionHeader>{t['ob.butce.gelir_bolum']}</SectionHeader>
               <View style={{ height: rhythm.group }} />
               <Kart>
@@ -430,11 +457,23 @@ export default function Onboarding() {
                     </Txt>
                   </View>
                 ) : (
-                  <View style={stil.heroSatir}>
-                    <Txt role={limitUzun ? 'display' : 'hero'}>{limitGosterim}</Txt>
-                    <View style={{ width: rhythm.group }} />
-                    <Txt role={limitUzun ? 'amount' : 'display'}>{paraSimgesi()}</Txt>
-                  </View>
+                  <>
+                    <View style={stil.heroSatir}>
+                      <Txt role={limitUzun ? 'display' : 'hero'}>{limitGosterim}</Txt>
+                      <View style={{ width: rhythm.group }} />
+                      <Txt role={limitUzun ? 'amount' : 'display'}>{paraSimgesi()}</Txt>
+                    </View>
+                    <View style={{ height: rhythm.group }} />
+                    <View style={stil.formulKutusu}>
+                      <Txt role="label" tone={color.primaryDeep}>
+                        {`(${paraYaz(tutarGirisindenKurus(gelir))} − ${paraYaz(giderToplamKurus + tutarGirisindenKurus(hedef) + tutarGirisindenKurus(borc))}) ÷ 30 = ${limitGosterim} ${paraSimgesi()}`}
+                      </Txt>
+                      <View style={{ height: 4 }} />
+                      <Txt role="caption" tone={color.text2}>
+                        {t['ob.ozet.nasil']}
+                      </Txt>
+                    </View>
+                  </>
                 )}
               </View>
               <View style={{ height: rhythm.section }} />
@@ -514,6 +553,7 @@ const stil = StyleSheet.create({
   sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   rutinBos: { padding: rhythm.pad, borderRadius: radius.tile, backgroundColor: color.well, boxShadow: clay.sunken },
   heroPanel: { padding: rhythm.pad, borderRadius: radius.hero, backgroundColor: color.primarySoft, boxShadow: clay.raisedLg },
+  formulKutusu: { padding: rhythm.pad, borderRadius: radius.card, backgroundColor: color.surface, boxShadow: clay.sunken },
   heroSatir: { flexDirection: 'row', alignItems: 'baseline' },
   limitIskelet: { width: 132, height: 32, borderRadius: radius.tile, backgroundColor: color.well, boxShadow: clay.sunken },
   ozetSatir: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: rhythm.blockInCard },

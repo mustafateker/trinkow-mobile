@@ -1,3 +1,4 @@
+import { getLocales } from 'expo-localization';
 import * as SecureStore from 'expo-secure-store';
 import { Platform } from 'react-native';
 
@@ -11,6 +12,33 @@ import {
 } from '@/lib/yerellestirme';
 
 const ANAHTAR = 'trinkow.yerellestirme.v1';
+
+const EURO_BOLGESI = new Set([
+  'AT', 'BE', 'CY', 'EE', 'FI', 'FR', 'DE', 'GR', 'IE', 'IT',
+  'LV', 'LT', 'LU', 'MT', 'NL', 'PT', 'SK', 'SI', 'ES', 'MC',
+  'SM', 'VA', 'AD', 'ME', 'XK'
+]);
+
+/** Cihazın bölgesine göre varsayılan para birimini belirler (EUR, USD veya TRY). */
+export function cihazVarsayilanParaBirimi(): ParaBirimi {
+  try {
+    const locale = getLocales()[0];
+    const currency = locale?.currencyCode?.toUpperCase();
+    if (currency === 'EUR' || currency === 'USD' || currency === 'TRY') {
+      return currency;
+    }
+    const region = locale?.regionCode?.toUpperCase();
+    if (region === 'TR') return 'TRY';
+    if (region && EURO_BOLGESI.has(region)) return 'EUR';
+    if (region === 'US') return 'USD';
+    const lang = locale?.languageCode?.toLowerCase();
+    if (lang === 'tr') return 'TRY';
+    if (lang === 'de' || lang === 'fr' || lang === 'es' || lang === 'it' || lang === 'pt') return 'EUR';
+    return 'USD';
+  } catch {
+    return 'TRY';
+  }
+}
 
 function gecerliParaBirimi(deger: unknown): deger is ParaBirimi {
   return deger === 'TRY' || deger === 'USD' || deger === 'EUR';
@@ -37,7 +65,7 @@ export async function yerellestirmeyiBaslat(): Promise<void> {
       // Bozuk yerel tercih varsayılana düşer.
     }
   }
-  yerellestirmeAyarla({ paraBirimi: 'TRY' });
+  yerellestirmeAyarla({ paraBirimi: cihazVarsayilanParaBirimi() });
 }
 
 /** Ayarlar'dan: dil değiştiyse uygular ve kaydeder (`diliDegistir`), para birimini uygular ve saklar. */

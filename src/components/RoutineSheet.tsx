@@ -8,11 +8,11 @@ import { MirrorWell } from '@/components/MirrorWell';
 import { MoneyRow } from '@/components/MoneyRow';
 import { TextField } from '@/components/TextField';
 import { Txt } from '@/components/Txt';
-import { obRutinAynaFormul, t } from '@/content/metinler';
+import { obRutinAynaFormul, obRutinGunlukToplam, obRutinSatirAlt, t } from '@/content/metinler';
 import { RUTIN_KATEGORILERI, type KategoriKodu } from '@/lib/kategoriler';
 import { kurustanTutarGirisi, paraYaz, tutarGirisindenKurus } from '@/lib/para';
 import type { Routine } from '@/lib/revApi';
-import { color, layout, rhythm } from '@/theme/tokens';
+import { clay, color, layout, radius, rhythm } from '@/theme/tokens';
 
 export type RutinGirdisi = {
   ad: string;
@@ -54,6 +54,8 @@ export function RoutineSheet({
   const [kategori, setKategori] = useState<KategoriKodu | null>(null);
   const [adet, setAdet] = useState('');
   const [fiyat, setFiyat] = useState('');
+  const [adDokunuldu, setAdDokunuldu] = useState(false);
+  const [adetDokunuldu, setAdetDokunuldu] = useState(false);
   const [fiyatDokunuldu, setFiyatDokunuldu] = useState(false);
 
   useEffect(() => {
@@ -69,6 +71,8 @@ export function RoutineSheet({
       setAdet('');
       setFiyat('');
     }
+    setAdDokunuldu(false);
+    setAdetDokunuldu(false);
     setFiyatDokunuldu(false);
   }, [visible, editing]);
 
@@ -76,6 +80,8 @@ export function RoutineSheet({
   const fiyatKurus = tutarGirisindenKurus(fiyat);
   const gunlukKurus = adetSayi * fiyatKurus;
   const aynaGoster = adetSayi > 0 && fiyatKurus > 0;
+  const adHatasi = adDokunuldu && !ad.trim() ? t['ob.rutin.ad'] : undefined;
+  const adetHatasi = adetDokunuldu && adetSayi <= 0 ? t['ekle.hata.adet'] : undefined;
   const fiyatHatasi = fiyatDokunuldu && fiyatKurus <= 0 ? t['hata.rutin_fiyat_bos'] : undefined;
   const pasif = !ad.trim() || !kategori || fiyatKurus <= 0 || adetSayi <= 0;
   const duzenlemeMi = editing !== null;
@@ -118,6 +124,8 @@ export function RoutineSheet({
         placeholder={t['ob.rutin.ad_ph']}
         value={ad}
         onChangeText={setAd}
+        onBlur={() => setAdDokunuldu(true)}
+        error={adHatasi}
         accessibilityLabel={t['ob.rutin.ad']}
       />
       <View style={{ height: rhythm.pad }} />
@@ -129,7 +137,14 @@ export function RoutineSheet({
         <CategoryPicker value={kategori} onChange={setKategori} secenekler={RUTIN_KATEGORILERI} />
       </View>
       <View style={{ height: rhythm.pad }} />
-      <MoneyRow label={t['ob.rutin.adet']} birim="" value={adet} onChangeText={setAdet} />
+      <MoneyRow
+        label={t['ob.rutin.adet']}
+        birim=""
+        value={adet}
+        onChangeText={setAdet}
+        onBlur={() => setAdetDokunuldu(true)}
+        error={adetHatasi}
+      />
       <View style={{ height: rhythm.group }} />
       <MoneyRow
         label={t['ob.rutin.fiyat']}
@@ -148,11 +163,21 @@ export function RoutineSheet({
             formulYazi={obRutinAynaFormul(adetSayi, paraYaz(fiyatKurus))}
           />
         </>
-      ) : null}
+      ) : (
+        <>
+          <View style={{ height: rhythm.pad }} />
+          <View style={stil.ornekKutu}>
+            <Txt role="caption" tone={color.text2}>
+              {`💡 ${t['ob.rutin.ad_ph']}: ${obRutinSatirAlt(2, paraYaz(350))} → ${obRutinGunlukToplam(paraYaz(700))}`}
+            </Txt>
+          </View>
+        </>
+      )}
     </BottomSheet>
   );
 }
 
 const stil = StyleSheet.create({
   altBlok: { paddingTop: rhythm.pad },
+  ornekKutu: { padding: rhythm.pad, borderRadius: radius.card, backgroundColor: color.well, boxShadow: clay.sunken },
 });

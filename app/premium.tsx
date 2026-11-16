@@ -7,6 +7,7 @@ import { useSafeAreaInsets, type EdgeInsets } from 'react-native-safe-area-conte
 import { Button } from '@/components/Button';
 import { ClayPressable } from '@/components/ClayPressable';
 import { Icon } from '@/components/Icon';
+import { HediyeCarki } from '@/components/HediyeCarki';
 import { IconButton } from '@/components/IconButton';
 import { InfoStrip } from '@/components/InfoStrip';
 import { LegalConsentText } from '@/components/LegalConsentText';
@@ -68,6 +69,16 @@ export default function PremiumEkrani() {
 
   const [offering, setOffering] = useState<PurchasesOffering | null | undefined>(undefined);
   const [deneme, setDeneme] = useState(0);
+  const [carkGoster, setCarkGoster] = useState(kaynak === 'onboarding');
+  const [paketler, setPaketler] = useState<PaywallPaketi[]>([]);
+
+  useEffect(() => {
+    if (kaynak === 'onboarding') {
+      paywallPaketleri('indirim')
+        .then(setPaketler)
+        .catch(() => {});
+    }
+  }, [kaynak]);
 
   useEffect(() => {
     if (kaynak === 'kayit') standartPaywallGosterildi();
@@ -110,6 +121,21 @@ export default function PremiumEkrani() {
 
   if (premium) {
     return <PremiumKutlamaEkrani insets={insets} onDevam={() => devamEt(kaynak)} />;
+  }
+
+  if (carkGoster) {
+    const yillik = paketler.find((p) => p.donem === 'yillik') ?? paketler[0];
+    return (
+      <View style={[stil.ekran, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+        <HediyeCarki
+          standartFiyat={yillik?.standartFiyat}
+          indirimliFiyat={yillik?.fiyat}
+          denemeGunu={yillik?.denemeGunu ?? 7}
+          onFirsatiKullan={() => setCarkGoster(false)}
+          onVazgec={() => vazgec('kapat')}
+        />
+      </View>
+    );
   }
 
   // RevenueCat Paywall bileşeni: Offering hazırsa doğrudan RevenueCat üzerinde tasarlanan paywall gösterilir.

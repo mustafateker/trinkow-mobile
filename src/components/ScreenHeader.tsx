@@ -33,9 +33,9 @@ export function ScreenHeader({
 }) {
   return (
     <View style={stil.kutu}>
-      <View>
-        {ustSatir ? <Txt role="caption">{ustSatir}</Txt> : null}
-        <Txt role="h1">{baslik}</Txt>
+      <View style={stil.baslikKabi}>
+        {ustSatir ? <Txt role="caption" numberOfLines={1}>{ustSatir}</Txt> : null}
+        <Txt role="h1" numberOfLines={1}>{baslik}</Txt>
       </View>
       <View style={stil.eylemler}>
         {ikinciActionIcon && ikinciActionLabel ? (
@@ -56,5 +56,6 @@ const stil = StyleSheet.create({
     paddingBottom: layout.headerPadBottom,
     paddingHorizontal: layout.screenPaddingX,
   },
+  baslikKabi: { flex: 1, minWidth: 0, marginRight: rhythm.group },
   eylemler: { flexDirection: 'row', alignItems: 'center', gap: rhythm.group },
 });

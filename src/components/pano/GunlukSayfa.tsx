@@ -97,11 +97,15 @@ export function GunlukSayfa({
   }, [aktifMi, bugunMu]);
 
   const [ipucuKapatildi, setIpucuKapatildi] = useState(true);
+  const [limitIpucuKapatildi, setLimitIpucuKapatildi] = useState(true);
   useEffect(() => {
     if (!aktifMi || !bugunMu) return;
     let canli = true;
     void ayarOku('gunluk_ipucu_kapatildi').then((v) => {
       if (canli) setIpucuKapatildi(v === '1');
+    });
+    void ayarOku('limit_ipucu_kapatildi').then((v) => {
+      if (canli) setLimitIpucuKapatildi(v === '1');
     });
     return () => {
       canli = false;
@@ -115,6 +119,11 @@ export function GunlukSayfa({
   function ipucuKapat() {
     setIpucuKapatildi(true);
     void ayarYaz('gunluk_ipucu_kapatildi', '1');
+  }
+
+  function limitIpucuKapat() {
+    setLimitIpucuKapatildi(true);
+    void ayarYaz('limit_ipucu_kapatildi', '1');
   }
 
   async function harcamasizIsaretle() {
@@ -245,6 +254,21 @@ export function GunlukSayfa({
             <View style={{ height: rhythm.section }} />
             <View style={stil.pad}>
               <InfoStrip variant="info" metin={`${t['gunluk.seri_baslar.baslik']}. ${t['gunluk.seri_baslar.govde']}`} />
+            </View>
+          </>
+        ) : null}
+
+        {bugunMu && limitIpucuKapatildi === false ? (
+          <>
+            <View style={{ height: rhythm.section }} />
+            <View style={stil.pad}>
+              <InfoStrip
+                variant="info"
+                icon="target"
+                metin={`${t['ob.ozet.limit_etiket']}: ${t['ob.ozet.nasil']}`}
+                onKapat={limitIpucuKapat}
+                kapatEtiketi={t['gunluk.ipucu_kapat']}
+              />
             </View>
           </>
         ) : null}
