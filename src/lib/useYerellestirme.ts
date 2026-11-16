@@ -1,15 +1,12 @@
-import { useSyncExternalStore } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 
 import {
-  dilKodu,
-  paraBirimi,
   yerellestirmeAnlikDeger,
   yerellestirmeDegisimineAbone,
+  type Dil,
+  type ParaBirimi,
   type YerellestirmeTercihi,
 } from './yerellestirme';
-
-let onbellek: YerellestirmeTercihi | null = null;
-let sonAnahtar = '';
 
 /**
  * Dil veya para birimi değiştiğinde bileşeni yeniden çizen React hook'u.
@@ -22,9 +19,8 @@ export function useYerellestirme(): YerellestirmeTercihi {
     yerellestirmeAnlikDeger,
     yerellestirmeAnlikDeger,
   );
-  if (!onbellek || anahtar !== sonAnahtar) {
-    sonAnahtar = anahtar;
-    onbellek = { dil: dilKodu(), paraBirimi: paraBirimi() };
-  }
-  return onbellek;
+  return useMemo(() => {
+    const [dil, para] = anahtar.split(':') as [Dil, ParaBirimi];
+    return { dil, paraBirimi: para };
+  }, [anahtar]);
 }

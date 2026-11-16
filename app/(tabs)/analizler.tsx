@@ -49,7 +49,6 @@ export default function AnalizlerEkrani() {
   if (!uyelik.kilitli) return <AnalizlerIcerik />;
   const header = <View style={stil.header}>
     <View style={stil.esnek}>
-      <Txt role="caption" tone={color.navMuted}>{t['premium.ayar.baslik']}</Txt>
       <Txt role="h2" tone="#FFFFFF">{t['ui.analysis.title']}</Txt>
     </View>
   </View>;

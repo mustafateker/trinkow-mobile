@@ -8,7 +8,7 @@ import { PremiumOzellikleri } from '@/components/PremiumOzellikleri';
 import { Skeleton } from '@/components/Skeleton';
 import { Txt } from '@/components/Txt';
 import { t } from '@/content/metinler';
-import { aktifEtiket, metin, takvim } from '@/i18n/cekirdek';
+import { metin, takvim } from '@/i18n/cekirdek';
 import { kategori } from '@/lib/kategoriler';
 import { paraYaz } from '@/lib/para';
 import { catColor, clay, color, radius, rhythm } from '@/theme/tokens';
@@ -94,7 +94,7 @@ function AnalizOnizleme() {
 
       {/* Zirve Vurgusu Rozeti */}
       <View style={stil.zirveRozet}>
-        <Icon name="sparkles" size={14} color={color.primaryDeep} />
+        <Icon name="trending-up" size={14} color={color.primaryDeep} />
         <Txt role="micro" tone={color.primaryDeep} style={stil.kalin}>
           {haftaninGunleri[5]} · {paraYaz(142000)} ({t['ui.analysis.highest_day']})
         </Txt>
@@ -373,14 +373,6 @@ export function PremiumKilidi({ ozellik, hazir }: { ozellik: KilitliOzellik; haz
   }
   return (
     <View style={stil.konteyner}>
-      <View style={stil.tacRozet}>
-        <Icon name="sparkles" size={14} color={color.warningDeep} />
-        <Txt role="label" tone={color.warningDeep}>
-          {t['premium.baslik'].toLocaleUpperCase(aktifEtiket())}
-        </Txt>
-      </View>
-
-      <View style={{ height: rhythm.group }} />
       <Txt role="h1">{t[METIN[ozellik].baslik]}</Txt>
       <View style={{ height: rhythm.group }} />
       <Txt role="body" tone={color.text2}>
@@ -396,7 +388,6 @@ export function PremiumKilidi({ ozellik, hazir }: { ozellik: KilitliOzellik; haz
       <View style={{ height: rhythm.section }} />
       <Button
         variant="primary"
-        icon="crown"
         label={t['premium.kilit.eylem']}
         onPress={() => router.push({ pathname: '/premium', params: { tur: 'indirim', kaynak: 'kilit' } })}
       />

@@ -40,9 +40,6 @@ export default function TasarruflarEkrani() {
   const header = (
     <View style={stil.ekranBasi}>
       <View style={stil.esnek}>
-        <Txt role="caption" tone={color.navMuted}>
-          {t['premium.ayar.baslik']}
-        </Txt>
         <Txt role="h2" tone="#FFFFFF" numberOfLines={1}>
           {t['tasarruf.baslik']}
         </Txt>

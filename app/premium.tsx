@@ -356,7 +356,6 @@ function FallbackPaywall({
 
   const secili = paketler?.find((paket) => paket.kimlik === seciliKimlik) ?? paketler?.[0] ?? null;
   const denemeGunu = secili?.denemeGunu ?? null;
-  const rozetYuzdesi = tur === 'indirim' ? (paketler?.find((paket) => paket.indirimYuzdesi !== null)?.indirimYuzdesi ?? null) : null;
   const ikincilEtiket =
     kaynak === 'kayit' ? t['premium.eylem.atla'] : kaynak === 'onboarding' ? t['premium.eylem.ucretsiz_devam'] : t['eylem.simdi_degil'];
 
@@ -414,22 +413,7 @@ function FallbackPaywall({
       <ScrollView style={stil.kaydir} contentContainerStyle={stil.kaydirIcerik} showsVerticalScrollIndicator={false}>
         <View style={stil.kahraman}>
           <View style={stil.heroUstSatir}>
-            <View style={stil.heroSolGrup}>
-              <View style={stil.heroIkonKapsayici}>
-                <View style={stil.heroIkonGlow} />
-                <View style={stil.tac}>
-                  <Icon name="crown" size={24} color={color.warning} />
-                </View>
-              </View>
-              {rozetYuzdesi !== null && !premium ? (
-                <View style={stil.indirimRozet}>
-                  <Icon name="sparkles" size={14} color={color.warning} />
-                  <Txt role="label" tone={color.warning}>
-                    {metin('premium.rozet.indirim', { yuzde: rozetYuzdesi }).toLocaleUpperCase(aktifEtiket())}
-                  </Txt>
-                </View>
-              ) : null}
-            </View>
+            <View />
             <IconButton
               icon="x"
               accessibilityLabel={t['eylem.kapat']}
@@ -549,7 +533,6 @@ function FallbackPaywall({
             </View>
             <Button
               variant="primary"
-              icon="crown"
               label={denemeGunu !== null ? metin('premium.eylem.deneme', { gun: denemeGunu }) : t['premium.eylem.satin_al']}
               loading={mesgul === 'satin'}
               loadingLabel={t['premium.isleniyor']}
@@ -574,15 +557,8 @@ function PlanKarti({ paket, secili, onPress }: { paket: PaywallPaketi; secili: b
   const altBilgi = deneme ?? t[yillik ? 'premium.plan.yenileme.yillik' : 'premium.plan.yenileme.aylik'];
 
   return (
-    <View style={[stil.planSarmal, yillik ? stil.planSarmalRozetli : null]}>
-      {yillik ? (
-        <View style={[stil.avantajBadge, !secili ? stil.avantajBadgeSeciliDegil : null]} pointerEvents="none">
-          <Icon name="sparkles" size={14} color="#FFFFFF" />
-          <Txt role="micro" tone="#FFFFFF">
-            {t['premium.plan.en_avantajli'].toLocaleUpperCase(aktifEtiket())}
-          </Txt>
-        </View>
-      ) : null}
+    <View style={stil.planSarmal}>
+      {false ? <View style={stil.avantajBadge} /> : null}
 
       <ClayPressable
         onPress={onPress}
@@ -601,13 +577,6 @@ function PlanKarti({ paket, secili, onPress }: { paket: PaywallPaketi; secili: b
         <View style={stil.planOrta}>
           <View style={stil.planBaslik}>
             <Txt role="bodyStrong">{etiket}</Txt>
-            {paket.indirimYuzdesi !== null ? (
-              <View style={stil.planIndirimHap}>
-                <Txt role="micro" tone={color.successInk}>
-                  {metin('premium.rozet.indirim', { yuzde: paket.indirimYuzdesi })}
-                </Txt>
-              </View>
-            ) : null}
           </View>
           {yillik && paket.aylikKarsilik ? (
             <Txt role="caption" tone={color.primaryText}>

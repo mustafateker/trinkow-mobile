@@ -19,10 +19,9 @@ import Svg, {
 } from 'react-native-svg';
 
 import { Button } from '@/components/Button';
-import { Icon } from '@/components/Icon';
 import { IconButton } from '@/components/IconButton';
 import { Txt } from '@/components/Txt';
-import { aktifDil, aktifEtiket } from '@/i18n/cekirdek';
+import { aktifDil } from '@/i18n/cekirdek';
 import { useDil } from '@/i18n/useDil';
 import { paraSimgesi } from '@/lib/para';
 import { clay, color, layout, radius, rhythm } from '@/theme/tokens';
@@ -219,7 +218,7 @@ const YEREL_METINLER: Record<string, Record<string, string>> = {
     aciklama: 'Bugüne özel şansını dene, Premium indirimini anında yakala!',
     cevirBtn: 'Çarkı Çevir',
     cevriliyor: 'Çevriliyor...',
-    kazandinBaslik: 'Tebrikler! %50 İndirim Kazandın! 🎉',
+    kazandinBaslik: 'Tebrikler! %50 İndirim Kazandın',
     kazandinAciklama: 'Bugüne özel %50 indirimli Trinkow Premium fırsatı hesabına tanımlandı.',
     normalFiyat: 'Standart fiyat:',
     indirimliFiyat: 'Özel fiyatın:',
@@ -234,7 +233,7 @@ const YEREL_METINLER: Record<string, Record<string, string>> = {
     aciklama: 'Spin the wheel now to unlock your exclusive Premium discount!',
     cevirBtn: 'Spin the Wheel',
     cevriliyor: 'Spinning...',
-    kazandinBaslik: 'Congratulations! You Won 50% Off! 🎉',
+    kazandinBaslik: 'Congratulations! You Won 50% Off',
     kazandinAciklama: 'An exclusive 50% discount for Trinkow Premium is now unlocked.',
     normalFiyat: 'Standard price:',
     indirimliFiyat: 'Your special price:',
@@ -249,7 +248,7 @@ const YEREL_METINLER: Record<string, Record<string, string>> = {
     aciklama: 'Drehe jetzt am Rad und sichere dir deinen exklusiven Premium-Rabatt!',
     cevirBtn: 'Rad drehen',
     cevriliyor: 'Dreht sich...',
-    kazandinBaslik: 'Glückwunsch! 50% Rabatt gewonnen! 🎉',
+    kazandinBaslik: 'Glückwunsch! 50% Rabatt gewonnen',
     kazandinAciklama: 'Ein exklusiver Rabatt von 50% auf Trinkow Premium wurde freigeschaltet.',
     normalFiyat: 'Regulärer Preis:',
     indirimliFiyat: 'Dein Sonderpreis:',
@@ -259,12 +258,12 @@ const YEREL_METINLER: Record<string, Record<string, string>> = {
     eylemGec: 'Kostenlos fortfahren',
   },
   fr: {
-    ustRozet: 'FÉLICITATIONS ! CONFIGURATION TERMINÉE',
+    ustRozet: 'CONFIGURATION TERMINÉE',
     baslik: 'Roue de la Fortune Trinkow',
     aciklama: 'Tourne la roue et débloque ta réduction Premium exclusive !',
     cevirBtn: 'Tourner la roue',
     cevriliyor: 'En cours...',
-    kazandinBaslik: 'Félicitations ! 50% de réduction gagnés ! 🎉',
+    kazandinBaslik: 'Félicitations ! 50% de réduction gagnés',
     kazandinAciklama: 'Une remise exclusive de 50% sur Trinkow Premium a été débloquée.',
     normalFiyat: 'Prix standard :',
     indirimliFiyat: 'Ton prix spécial :',
@@ -274,12 +273,12 @@ const YEREL_METINLER: Record<string, Record<string, string>> = {
     eylemGec: 'Continuer gratuitement',
   },
   es: {
-    ustRozet: '¡ENHORABUENA! CONFIGURACIÓN LISTA',
+    ustRozet: 'CONFIGURACIÓN LISTA',
     baslik: 'Ruleta de la Suerte Trinkow',
     aciklama: '¡Gira la ruleta ahora y consigue tu descuento exclusivo en Premium!',
     cevirBtn: 'Girar la ruleta',
     cevriliyor: 'Girando...',
-    kazandinBaslik: '¡Enhorabuena! ¡Ganaste un 50% de descuento! 🎉',
+    kazandinBaslik: '¡Enhorabuena! ¡Ganaste un 50% de descuento!',
     kazandinAciklama: 'Se ha desbloqueado un 50% de descuento exclusivo en Trinkow Premium.',
     normalFiyat: 'Precio habitual:',
     indirimliFiyat: 'Tu precio especial:',
@@ -289,12 +288,12 @@ const YEREL_METINLER: Record<string, Record<string, string>> = {
     eylemGec: 'Continuar gratis',
   },
   it: {
-    ustRozet: 'CONGRATULAZIONI! CONFIGURAZIONE PRONTA',
+    ustRozet: 'CONFIGURAZIONE PRONTA',
     baslik: 'Ruota della Fortuna Trinkow',
     aciklama: 'Gira la ruota e sblocca il tuo sconto Premium esclusivo!',
     cevirBtn: 'Gira la ruota',
     cevriliyor: 'Gira...',
-    kazandinBaslik: 'Congratulazioni! Hai vinto il 50% di sconto! 🎉',
+    kazandinBaslik: 'Congratulazioni! Hai vinto il 50% di sconto!',
     kazandinAciklama: 'È stato sbloccato uno sconto esclusivo del 50% su Trinkow Premium.',
     normalFiyat: 'Prezzo standard:',
     indirimliFiyat: 'Il tuo prezzo speciale:',
@@ -304,12 +303,12 @@ const YEREL_METINLER: Record<string, Record<string, string>> = {
     eylemGec: 'Continua gratis',
   },
   pt: {
-    ustRozet: 'PARABÉNS! CONFIGURAÇÃO CONCLUÍDA',
+    ustRozet: 'CONFIGURAÇÃO CONCLUÍDA',
     baslik: 'Roda da Sorte Trinkow',
     aciklama: 'Gira a roda e desbloqueia o teu desconto Premium exclusivo!',
     cevirBtn: 'Girar a roda',
     cevriliyor: 'A girar...',
-    kazandinBaslik: 'Parabéns! Ganhaste 50% de desconto! 🎉',
+    kazandinBaslik: 'Parabéns! Ganhaste 50% de desconto!',
     kazandinAciklama: 'Foi desbloqueado um desconto exclusivo de 50% no Trinkow Premium.',
     normalFiyat: 'Preço normal:',
     indirimliFiyat: 'O teu preço especial:',
@@ -319,12 +318,12 @@ const YEREL_METINLER: Record<string, Record<string, string>> = {
     eylemGec: 'Continuar grátis',
   },
   ro: {
-    ustRozet: 'FELICITĂRI! CONFIGURARE FINALIZATĂ',
+    ustRozet: 'CONFIGURARE FINALIZATĂ',
     baslik: 'Roata Norocului Trinkow',
     aciklama: 'Învârte roata acum și obține reducerea ta exclusivă Premium!',
     cevirBtn: 'Învârte roata',
     cevriliyor: 'Se învârte...',
-    kazandinBaslik: 'Felicitări! Ai câștigat 50% reducere! 🎉',
+    kazandinBaslik: 'Felicitări! Ai câștigat 50% reducere!',
     kazandinAciklama: 'O reducere exclusivă de 50% pentru Trinkow Premium este activată.',
     normalFiyat: 'Preț standard:',
     indirimliFiyat: 'Prețul tău special:',
@@ -334,12 +333,12 @@ const YEREL_METINLER: Record<string, Record<string, string>> = {
     eylemGec: 'Continuă gratuit',
   },
   pl: {
-    ustRozet: 'GRATULACJE! KONFIGURACJA ZAKOŃCZONA',
+    ustRozet: 'KONFIGURACJA ZAKOŃCZONA',
     baslik: 'Koło Szczęścia Trinkow',
     aciklama: 'Zakręć kołem i odbierz wyjątkową zniżkę na Trinkow Premium!',
     cevirBtn: 'Zakręć kołem',
     cevriliyor: 'Kręci się...',
-    kazandinBaslik: 'Gratulacje! Wygrałeś 50% zniżki! 🎉',
+    kazandinBaslik: 'Gratulacje! Wygrałeś 50% zniżki!',
     kazandinAciklama: 'Dla Ciebie odblokowano 50% rabatu na Trinkow Premium.',
     normalFiyat: 'Cena standardowa:',
     indirimliFiyat: 'Twoja cena:',
@@ -349,12 +348,12 @@ const YEREL_METINLER: Record<string, Record<string, string>> = {
     eylemGec: 'Kontynuuj za darmo',
   },
   ru: {
-    ustRozet: 'ПОЗДРАВЛЯЕМ! НАСТРОЙКА ЗАВЕРШЕНА',
+    ustRozet: 'НАСТРОЙКА ЗАВЕРШЕНА',
     baslik: 'Колесо Удачи Trinkow',
     aciklama: 'Крутите колесо и получите эксклюзивную скидку на Premium!',
     cevirBtn: 'Крутить колесо',
     cevriliyor: 'Крутится...',
-    kazandinBaslik: 'Поздравляем! Вы выиграли скидку 50%! 🎉',
+    kazandinBaslik: 'Поздравляем! Вы выиграли скидку 50%!',
     kazandinAciklama: 'Для вас открыта эксклюзивная скидка 50% на Trinkow Premium.',
     normalFiyat: 'Стандартная цена:',
     indirimliFiyat: 'Специальная цена:',
@@ -364,12 +363,12 @@ const YEREL_METINLER: Record<string, Record<string, string>> = {
     eylemGec: 'Продолжить бесплатно',
   },
   cs: {
-    ustRozet: 'GRATULUJEME! NASTAVENÍ DOKONČENO',
+    ustRozet: 'NASTAVENÍ DOKONČENO',
     baslik: 'Kolo Štěstí Trinkow',
     aciklama: 'Roztoč kolo a získej svou exkluzivní slevu na Premium!',
     cevirBtn: 'Roztočit kolo',
     cevriliyor: 'Točí se...',
-    kazandinBaslik: 'Gratulujeme! Vyhrál jsi 50% slevu! 🎉',
+    kazandinBaslik: 'Gratulujeme! Vyhrál jsi 50% slevu!',
     kazandinAciklama: 'Byla ti odemčena exkluzivní sleva 50% na Trinkow Premium.',
     normalFiyat: 'Běžná cena:',
     indirimliFiyat: 'Tvoje speciální cena:',
@@ -470,12 +469,7 @@ export function HediyeCarki({
     <View style={stil.kapsayici}>
       {/* Üst Kapat Butonu */}
       <View style={stil.ustBar}>
-        <View style={stil.ustRozetKapsayici}>
-          <Icon name="sparkles" size={14} color="#F39B42" />
-          <Txt role="label" tone="#F39B42">
-            {metin.ustRozet.toLocaleUpperCase(aktifEtiket())}
-          </Txt>
-        </View>
+        <View />
         <IconButton
           icon="x"
           accessibilityLabel="Kapat"
@@ -635,13 +629,12 @@ export function HediyeCarki({
             <Circle cx={MERKEZ} cy={MERKEZ} r={24} fill="url(#hubGrad)" />
           </Svg>
 
-          {/* Merkez Buton / İkon */}
+          {/* Merkez Buton */}
           <Pressable
             style={stil.merkezTikla}
             disabled={donuyor || bitti}
-            onPress={cevir}>
-            <Icon name="sparkles" size={20} color="#FFFFFF" />
-          </Pressable>
+            onPress={cevir}
+          />
         </Animated.View>
       </View>
 
@@ -651,7 +644,6 @@ export function HediyeCarki({
       <View style={stil.altEylemAlani}>
         <Button
           variant="primary"
-          icon="sparkles"
           label={donuyor ? metin.cevriliyor : bitti ? metin.eylemKullan : metin.cevirBtn}
           disabled={donuyor}
           onPress={bitti ? () => setModalAcik(true) : cevir}
@@ -673,14 +665,6 @@ export function HediyeCarki({
         onRequestClose={() => setModalAcik(false)}>
         <View style={stil.modalZemin}>
           <View style={stil.modalKart}>
-            <View style={stil.kutlamaTacAlani}>
-              <View style={stil.kutlamaTacDaire}>
-                <Icon name="crown" size={32} color="#F39B42" />
-              </View>
-            </View>
-
-            <View style={{ height: rhythm.group }} />
-
             <Txt role="h1" style={stil.ortaliMetin}>
               {metin.kazandinBaslik}
             </Txt>
@@ -731,7 +715,6 @@ export function HediyeCarki({
 
             <Button
               variant="primary"
-              icon="sparkles"
               label={metin.eylemKullan}
               onPress={() => {
                 setModalAcik(false);
@@ -767,17 +750,6 @@ const stil = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingTop: rhythm.group,
-  },
-  ustRozetKapsayici: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: 'rgba(243, 155, 66, 0.15)',
-    paddingHorizontal: rhythm.group,
-    paddingVertical: 4,
-    borderRadius: radius.pill,
-    borderWidth: 1,
-    borderColor: 'rgba(243, 155, 66, 0.3)',
   },
   ortaliMetin: {
     textAlign: 'center',
@@ -825,21 +797,6 @@ const stil = StyleSheet.create({
     borderRadius: radius.hero,
     padding: rhythm.pad,
     boxShadow: clay.raisedLg,
-  },
-  kutlamaTacAlani: {
-    alignItems: 'center',
-    marginTop: -rhythm.section,
-  },
-  kutlamaTacDaire: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: '#FFF4E5',
-    borderWidth: 3,
-    borderColor: '#F39B42',
-    alignItems: 'center',
-    justifyContent: 'center',
-    boxShadow: clay.raised,
   },
   fiyatPaneli: {
     backgroundColor: color.well,

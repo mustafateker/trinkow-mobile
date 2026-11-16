@@ -168,7 +168,7 @@ export function RoutineSheet({
           <View style={{ height: rhythm.pad }} />
           <View style={stil.ornekKutu}>
             <Txt role="caption" tone={color.text2}>
-              {`💡 ${t['ob.rutin.ad_ph']}: ${obRutinSatirAlt(2, paraYaz(350))} → ${obRutinGunlukToplam(paraYaz(700))}`}
+              {`${t['ob.rutin.ad_ph']}: ${obRutinSatirAlt(2, paraYaz(350))} → ${obRutinGunlukToplam(paraYaz(700))}`}
             </Txt>
           </View>
         </>
