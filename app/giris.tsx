@@ -15,7 +15,7 @@ import { ApiAgHatasi, ApiHatasi, GELISTIRME_GIRISI, appleIleGirisYap, benKimim, 
 import { oturumYaz } from '@/lib/oturumDeposu';
 import { posthog } from '@/config/posthog';
 import { posthogLog } from '@/lib/posthogLog';
-import { SosyalGirisHatasi, appleIleDevamEt, googleIleDevamEt, sosyalSaglayicilar } from '@/lib/sosyalGiris';
+import { SosyalGirisHatasi, appleIleDevamEt, googleIleDevamEt, sonAppleYetkiKodunuAl, sosyalSaglayicilar } from '@/lib/sosyalGiris';
 import { rhythm } from '@/theme/tokens';
 import { t } from '@/content/metinler';
 import { useDil } from '@/i18n/useDil';
@@ -50,7 +50,7 @@ export default function GirisEkrani() {
     try {
       const idTokeni = await appleIleDevamEt();
       if (!idTokeni) return;
-      const cift = await appleIleGirisYap(idTokeni);
+      const cift = await appleIleGirisYap(idTokeni, sonAppleYetkiKodunuAl());
       const ben = await benKimim(cift.erisimTokeni);
       await oturumYaz({ ...cift, kullaniciId: ben.id, email: ben.email, kimlikSaglayici: ben.kimlikSaglayici }, hatirla);
       posthog?.capture('user_signed_in', { authentication_provider: 'apple', remember_session: hatirla });

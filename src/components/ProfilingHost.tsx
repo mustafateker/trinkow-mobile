@@ -67,7 +67,7 @@ export function ProfilingHost() {
 
   useEffect(() => veriDegisimineAbone(kontrolEt), [kontrolEt]);
 
-  if (!soruId) return null;
+  if (!soruId || soruId === 'bildirim') return null;
 
   async function reddet(id: ProfillemeSoruId) {
     try {

@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, BackHandler, ScrollView, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, BackHandler, Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets, type EdgeInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/Button';
@@ -69,11 +69,11 @@ export default function PremiumEkrani() {
 
   const [offering, setOffering] = useState<PurchasesOffering | null | undefined>(undefined);
   const [deneme, setDeneme] = useState(0);
-  const [carkGoster, setCarkGoster] = useState(kaynak === 'onboarding');
+  const [carkGoster, setCarkGoster] = useState(Platform.OS !== 'ios' && kaynak === 'onboarding');
   const [paketler, setPaketler] = useState<PaywallPaketi[]>([]);
 
   useEffect(() => {
-    if (kaynak === 'onboarding') {
+    if (Platform.OS !== 'ios' && kaynak === 'onboarding') {
       paywallPaketleri('indirim')
         .then(setPaketler)
         .catch(() => {});

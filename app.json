@@ -2,7 +2,7 @@
   "expo": {
     "name": "Trinkow",
     "slug": "trinkow",
-    "version": "0.1.17",
+    "version": "0.1.18",
     "orientation": "default",
     "scheme": "trinkow",
     "userInterfaceStyle": "light",
@@ -16,7 +16,7 @@
       "requireFullScreen": true,
       "appleTeamId": "3RRAH7Q65B",
       "bundleIdentifier": "com.triworkster.trinkow",
-      "buildNumber": "23",
+      "buildNumber": "24",
       "usesAppleSignIn": true,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -27,15 +27,12 @@
         "UISupportedInterfaceOrientations~ipad": [
           "UIInterfaceOrientationPortrait",
           "UIInterfaceOrientationPortraitUpsideDown"
-        ],
-        "NSPhotoLibraryUsageDescription": "Trinkow'un harcama fişi veya profil görseli seçebilmeniz için fotoğraf arşivinize erişmesine izin verin.",
-        "NSPhotoLibraryAddUsageDescription": "Trinkow'un bütçe ve harcama özeti görsellerini fotoğraf arşivinize kaydedebilmesine izin verin.",
-        "NSFaceIDUsageDescription": "Trinkow'un güvenli oturum bilgilerinizi korumak için Face ID kullanmasına izin verin."
+        ]
       }
     },
     "android": {
       "package": "com.triworkster.trinkow",
-      "versionCode": 23,
+      "versionCode": 24,
       "blockedPermissions": [
         "com.google.android.gms.permission.AD_ID"
       ],
@@ -61,8 +58,8 @@
       [
         "expo-speech-recognition",
         {
-          "microphonePermission": "Trinkow'un sesli harcama eklemek için mikrofonu kullanmasına izin ver.",
-          "speechRecognitionPermission": "Trinkow'un söylediklerini harcama alanlarına dönüştürmesine izin ver.",
+          "microphonePermission": "Trinkow'un sesli harcama eklemek için mikrofonu kullanmasına izin verin. / Allow Trinkow to use the microphone to add expenses by voice.",
+          "speechRecognitionPermission": "Trinkow'un söylediklerinizi harcama alanlarına dönüştürmesine izin verin. / Allow Trinkow to convert your speech into expense entries.",
           "androidSpeechServicePackages": [
             "com.google.android.googlequicksearchbox",
             "com.google.android.as"

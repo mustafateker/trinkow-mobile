@@ -1722,7 +1722,7 @@ const ro: DilPaketi = {
     'premium.hesap_sil.uyari': 'Ștergerea contului nu îți anulează abonamentul Premium. Ca să nu mai plătești, anulează-l mai întâi din {magaza}.',
     'premium.plan.yenileme.yillik': 'Facturat anual',
     'premium.plan.yenileme.aylik': 'Reînnoit lunar',
-    'premium.guvence.iptal': 'Anulează oricând dintr-o atingere în {magaza}',
+    'premium.guvence.iptal': 'Anulează oricând în {magaza}',
     'premium.kilit.onizleme': 'Previzualizare',
     'premium.kilit.analiz.onizleme_baslik': 'Tendințe și analize',
     'premium.kilit.tasarruf.onizleme_baslik': 'Economii și obiective',

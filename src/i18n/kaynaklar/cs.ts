@@ -1693,7 +1693,7 @@ const cs: DilPaketi = {
     'premium.hesap_sil.uyari': 'Smazání účtu nezruší předplatné Premium. Aby se platby zastavily, nejdřív ho zruš v {magaza}.',
     'premium.plan.yenileme.yillik': 'Roční vyúčtování',
     'premium.plan.yenileme.aylik': 'Měsíční obnovení',
-    'premium.guvence.iptal': 'Zruš kdykoli jedním klepnutím v {magaza}',
+    'premium.guvence.iptal': 'Zruš kdykoli v {magaza}',
     'premium.kilit.onizleme': 'Ukázka',
     'premium.kilit.analiz.onizleme_baslik': 'Trendy výdajů a analýzy',
     'premium.kilit.tasarruf.onizleme_baslik': 'Úspory a cíle',

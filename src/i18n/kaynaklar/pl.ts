@@ -1712,7 +1712,7 @@ const pl: DilPaketi = {
     'premium.hesap_sil.uyari': 'Usunięcie konta nie anuluje subskrypcji Premium. Aby uniknąć kolejnych opłat, najpierw anuluj ją w {magaza}.',
     'premium.plan.yenileme.yillik': 'Rozliczane rocznie',
     'premium.plan.yenileme.aylik': 'Odnawiane co miesiąc',
-    'premium.guvence.iptal': 'Anuluj w dowolnej chwili jednym dotknięciem w {magaza}',
+    'premium.guvence.iptal': 'Anuluj w dowolnej chwili w {magaza}',
     'premium.kilit.onizleme': 'Podgląd',
     'premium.kilit.analiz.onizleme_baslik': 'Trendy i analizy wydatków',
     'premium.kilit.tasarruf.onizleme_baslik': 'Oszczędności i cele',

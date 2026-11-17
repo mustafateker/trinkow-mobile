@@ -5,6 +5,7 @@ import Svg, { Circle, Defs, G, Line, LinearGradient, Path, Stop } from 'react-na
 import { CategoryIconBox } from '@/components/CategoryIconBox';
 import { ErrorState } from '@/components/ErrorState';
 import { PremiumKilidi } from '@/components/PremiumKilidi';
+import { ReklamSeridi } from '@/components/ReklamSeridi';
 import { RevScreen, useRevLoad } from '@/components/RevScreen';
 import { Skeleton } from '@/components/Skeleton';
 import { Txt } from '@/components/Txt';
@@ -53,6 +54,7 @@ export default function AnalizlerEkrani() {
     </View>
   </View>;
   return <RevScreen title={t['ui.analysis.title']} tab="analizler" header={header} contentGap={0}>
+    <ReklamSeridi />
     <PremiumKilidi ozellik="analiz" hazir={uyelik.hazir} />
   </RevScreen>;
 }
@@ -106,6 +108,7 @@ function AnalizlerIcerik() {
   </View>;
 
   return <RevScreen title={t['ui.analysis.title']} tab="analizler" header={header} contentGap={0}>
+    <ReklamSeridi />
     {veri.loading && !veri.data ? <AnalizIskeleti /> : veri.error ? <ErrorState baslik={t['ui.analysis.load_error']} govde={veri.error} onRetry={veri.reload} /> : veri.data ? <AnalizIcerigi veri={veri.data} /> : null}
   </RevScreen>;
 }

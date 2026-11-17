@@ -1724,7 +1724,7 @@ const de: DilPaketi = {
     'premium.hesap_sil.uyari': 'Wenn du dein Konto löschst, wird dein Premium-Abo nicht gekündigt. Damit keine weiteren Kosten anfallen, kündige es zuerst über {magaza}.',
     'premium.plan.yenileme.yillik': 'Jährliche Abrechnung',
     'premium.plan.yenileme.aylik': 'Monatlich kündbar',
-    'premium.guvence.iptal': 'Jederzeit mit einem Tippen über {magaza} kündbar',
+    'premium.guvence.iptal': 'Jederzeit über {magaza} kündbar',
     'premium.kilit.onizleme': 'Vorschau',
     'premium.kilit.analiz.onizleme_baslik': 'Ausgabentrends & Analysen',
     'premium.kilit.tasarruf.onizleme_baslik': 'Ersparnisse & Sparziel',

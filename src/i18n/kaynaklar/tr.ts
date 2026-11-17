@@ -2160,7 +2160,7 @@ export const metinler = {
   'premium.hesap_sil.uyari': 'Hesabını silmek Premium aboneliğini iptal etmez. Ücret alınmaya devam etmesin diye önce {magaza} üzerinden iptal et.',
   'premium.plan.yenileme.yillik': 'Yıllık faturalandırılır',
   'premium.plan.yenileme.aylik': 'Aylık yenilenir',
-  'premium.guvence.iptal': '{magaza} üzerinden istediğin zaman tek dokunuşla iptal et',
+  'premium.guvence.iptal': '{magaza} üzerinden istediğin zaman iptal et',
   'premium.kilit.onizleme': 'Önizleme',
   'premium.kilit.analiz.onizleme_baslik': 'Harcama trendi ve analiz',
   'premium.kilit.tasarruf.onizleme_baslik': 'Birikim ve tasarruf',

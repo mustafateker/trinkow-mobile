@@ -1712,7 +1712,7 @@ const es: DilPaketi = {
     'premium.hesap_sil.uyari': 'Eliminar tu cuenta no cancela tu suscripción Premium. Para que no se te siga cobrando, cancélala primero en {magaza}.',
     'premium.plan.yenileme.yillik': 'Facturación anual',
     'premium.plan.yenileme.aylik': 'Renovación mensual',
-    'premium.guvence.iptal': 'Cancela cuando quieras con un toque en {magaza}',
+    'premium.guvence.iptal': 'Cancela cuando quieras en {magaza}',
     'premium.kilit.onizleme': 'Vista previa',
     'premium.kilit.analiz.onizleme_baslik': 'Tendencias y análisis',
     'premium.kilit.tasarruf.onizleme_baslik': 'Ahorro y metas',

@@ -1733,7 +1733,7 @@ const fr: DilPaketi = {
     'premium.hesap_sil.uyari': 'Supprimer ton compte ne résilie pas ton abonnement Premium. Pour arrêter les paiements, résilie-le d’abord sur {magaza}.',
     'premium.plan.yenileme.yillik': 'Facturé annuellement',
     'premium.plan.yenileme.aylik': 'Renouvelé chaque mois',
-    'premium.guvence.iptal': 'Résilie à tout moment en un geste sur {magaza}',
+    'premium.guvence.iptal': 'Résilie à tout moment sur {magaza}',
     'premium.kilit.onizleme': 'Aperçu',
     'premium.kilit.analiz.onizleme_baslik': 'Tendances et analyses',
     'premium.kilit.tasarruf.onizleme_baslik': 'Épargne et économies',

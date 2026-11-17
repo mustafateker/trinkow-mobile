@@ -215,11 +215,11 @@ const YEREL_METINLER: Record<string, Record<string, string>> = {
   tr: {
     ustRozet: 'TEBRİKLER! KURULUM BİTTİ',
     baslik: 'Trinkow Şans Çarkı',
-    aciklama: 'Bugüne özel şansını dene, Premium indirimini anında yakala!',
+    aciklama: 'Şansını dene, sana özel Premium indirimini anında yakala!',
     cevirBtn: 'Çarkı Çevir',
     cevriliyor: 'Çevriliyor...',
     kazandinBaslik: 'Tebrikler! %50 İndirim Kazandın',
-    kazandinAciklama: 'Bugüne özel %50 indirimli Trinkow Premium fırsatı hesabına tanımlandı.',
+    kazandinAciklama: 'Sana özel %50 indirimli Trinkow Premium fırsatı açıldı.',
     normalFiyat: 'Standart fiyat:',
     indirimliFiyat: 'Özel fiyatın:',
     tasarruf: '%50 Kazanç',

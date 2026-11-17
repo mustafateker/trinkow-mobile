@@ -22,8 +22,16 @@ export class SosyalGirisHatasi extends Error {
 }
 
 let appleModulu: AppleAuthModulu | null = null;
+let sonAppleYetkiKodu: string | null = null;
 let googleYapilandirildi = false;
 let googleModulu: GoogleSignInModulu | null = null;
+
+/** Son Apple girişinden dönen authorizationCode değerini bir kez okur ve temizler. */
+export function sonAppleYetkiKodunuAl(): string | null {
+  const kod = sonAppleYetkiKodu;
+  sonAppleYetkiKodu = null;
+  return kod;
+}
 
 function appleModulunuYukle(): AppleAuthModulu {
   if (appleModulu) return appleModulu;
@@ -93,6 +101,9 @@ export async function appleIleDevamEt(): Promise<string | null> {
     if (!yanit.identityToken) {
       throw new SosyalGirisHatasi('genel');
     }
+    sonAppleYetkiKodu = typeof yanit.authorizationCode === 'string' && yanit.authorizationCode.trim()
+      ? yanit.authorizationCode.trim()
+      : null;
     return yanit.identityToken;
   } catch (hata) {
     if (hata instanceof SosyalGirisHatasi) throw hata;

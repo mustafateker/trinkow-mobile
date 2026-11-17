@@ -1727,7 +1727,7 @@ const en: DilPaketi = {
     'premium.hesap_sil.uyari': "Deleting your account doesn't cancel your Premium subscription. To stop future charges, cancel it in {magaza} first.",
     'premium.plan.yenileme.yillik': 'Billed yearly',
     'premium.plan.yenileme.aylik': 'Renews monthly',
-    'premium.guvence.iptal': 'Cancel anytime with one tap in {magaza}',
+    'premium.guvence.iptal': 'Cancel anytime in {magaza}',
     'premium.kilit.onizleme': 'Preview',
     'premium.kilit.analiz.onizleme_baslik': 'Spending trends & insights',
     'premium.kilit.tasarruf.onizleme_baslik': 'Savings & goals',

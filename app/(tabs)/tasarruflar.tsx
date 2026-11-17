@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ErrorState } from '@/components/ErrorState';
 import { Icon } from '@/components/Icon';
 import { PremiumKilidi } from '@/components/PremiumKilidi';
+import { ReklamSeridi } from '@/components/ReklamSeridi';
 import { RevScreen, useRevLoad } from '@/components/RevScreen';
 import { SavingsSheet, type BirikimGirdisi } from '@/components/SavingsSheet';
 import { CategoryDistributionCard } from '@/components/tasarruf/CategoryDistributionCard';
@@ -48,6 +49,7 @@ export default function TasarruflarEkrani() {
   );
   return (
     <RevScreen title={t['tasarruf.baslik']} tab="tasarruflar" header={header} contentGap={0}>
+      <ReklamSeridi />
       <PremiumKilidi ozellik="tasarruf" hazir={uyelik.hazir} />
     </RevScreen>
   );
@@ -160,6 +162,7 @@ function TasarruflarIcerik() {
 
   return (
     <RevScreen title={t['tasarruf.baslik']} tab="tasarruflar" header={header} contentGap={0}>
+      <ReklamSeridi />
       {load.loading ? <SavingsSkeleton /> : null}
 
       {load.error ? (

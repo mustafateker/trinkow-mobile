@@ -1718,7 +1718,7 @@ const ru: DilPaketi = {
     'premium.hesap_sil.uyari': 'Удаление аккаунта не отменяет подписку Premium. Чтобы списания прекратились, сначала отмени её в {magaza}.',
     'premium.plan.yenileme.yillik': 'Списание раз в год',
     'premium.plan.yenileme.aylik': 'Продление каждый месяц',
-    'premium.guvence.iptal': 'Отмена в любой момент одним касанием в {magaza}',
+    'premium.guvence.iptal': 'Отмена в любой момент в {magaza}',
     'premium.kilit.onizleme': 'Пример',
     'premium.kilit.analiz.onizleme_baslik': 'Динамика и анализ расходов',
     'premium.kilit.tasarruf.onizleme_baslik': 'Накопления и экономия',

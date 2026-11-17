@@ -1730,7 +1730,7 @@ const it: DilPaketi = {
     'premium.hesap_sil.uyari': "Eliminare l'account non disdice l'abbonamento Premium. Per evitare altri addebiti, disdicilo prima su {magaza}.",
     'premium.plan.yenileme.yillik': 'Fatturazione annuale',
     'premium.plan.yenileme.aylik': 'Rinnovo mensile',
-    'premium.guvence.iptal': 'Disdici quando vuoi con un tocco su {magaza}',
+    'premium.guvence.iptal': 'Disdici quando vuoi su {magaza}',
     'premium.kilit.onizleme': 'Anteprima',
     'premium.kilit.analiz.onizleme_baslik': 'Trend di spesa e analisi',
     'premium.kilit.tasarruf.onizleme_baslik': 'Risparmio e obiettivi',

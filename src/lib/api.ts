@@ -188,10 +188,10 @@ export async function googleIleGirisYap(idTokeni: string): Promise<TokenCifti> {
 }
 
 /** `POST /auth/apple` — native Apple Sign-In'in identityToken'ıyla oturum açar. */
-export async function appleIleGirisYap(idTokeni: string): Promise<TokenCifti> {
+export async function appleIleGirisYap(idTokeni: string, yetkiKodu?: string | null): Promise<TokenCifti> {
   const yanit = await istek<{ erisim_tokeni: string; yenileme_tokeni: string }>('/auth/apple', {
     yontem: 'POST',
-    govde: { id_token: idTokeni },
+    govde: yetkiKodu ? { id_token: idTokeni, authorization_code: yetkiKodu } : { id_token: idTokeni },
   });
   return { erisimTokeni: yanit.erisim_tokeni, yenilemeTokeni: yanit.yenileme_tokeni };
 }

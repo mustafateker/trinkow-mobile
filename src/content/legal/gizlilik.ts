@@ -17,10 +17,10 @@ const tr: Bolum[] = [
   {
     baslik: '2. İşlenen veriler',
     paragraflar: [
-      'Hesap ve kimlik doğrulama verileri: e-posta adresi, hashlenmiş parola, Google ile giriş yapıldığında Google hesap kimliği (sub), doğrulanmış e-posta ve oturum kayıtları.',
+      'Hesap ve kimlik doğrulama verileri: e-posta adresi, hashlenmiş parola, Apple ile giriş veya Google ile giriş yapıldığında benzersiz hesap kimliği (sub), doğrulanmış e-posta (veya Apple Özel Aktarım adresi) ve oturum kayıtları.',
       'Kullanıcının girdiği finans ve planlama verileri: gelir ve maaş günü, bütçe, sabit giderler, borçlar, tasarruf hedefleri ve hareketleri, harcama tutarı, kategori, ürün adı, not, tarih/saat, ödeme türü, taksitler, abonelikler, rutinler, favoriler, kategori limitleri ve harcamasız gün kayıtları.',
       'Tercih ve alışkanlık verileri: uygulama tercihleri, onboarding cevapları, bildirim tercihi ve zamanı ile kullanıcının isteğe bağlı olarak girdiği kahve, sigara, alkol, dışarıda yeme gibi rutinler.',
-      'Güvenlik ve teknik veriler: oturum tokenları, parola sıfırlama ve kötüye kullanımı önleme kayıtları ile sunucu erişim kayıtlarında bulunabilecek IP adresi, istek zamanı ve temel cihaz/ağ bilgileri.',
+      'Güvenlik, analitik ve teknik veriler: oturum tokenları, parola sıfırlama ve kötüye kullanımı önleme kayıtları, sunucu erişim kayıtlarında bulunabilecek IP adresi, istek zamanı, temel cihaz/ağ bilgileri ile ürün analitiği ve uygulama içi hata/çökme takibi için işlenen ekran görüntüleme ve etkileşim kayıtları (PostHog).',
       'Premium üyelik ve satın alma verileri: Trinkow Premium satın aldığında veya deneme başlattığında Trinkow hesap kimliğin; satın alınan ürün ve plan; satın alma, deneme, yenileme ve bitiş tarihleri; mağaza işlem kimliği; mağaza (Google Play veya App Store); fiyat, para birimi ve ülke bilgisi ile abonelik durumu. Kart ve ödeme bilgilerin Trinkow’a veya RevenueCat’e iletilmez; ödemeyi mağaza alır.',
       'Sesli harcama özelliğini seçtiğinde mikrofon yalnız konuşmanı cihazın iOS veya Android konuşma tanıma hizmetiyle metne dönüştürmek için kullanılır. Trinkow ham ses kaydını saklamaz veya kendi sunucularına göndermez. Cihazındaki konuşma tanıma hizmeti, işletim sistemi ve cihaz ayarlarına bağlı olarak sesi cihazda ya da kendi hizmet altyapısında işleyebilir.',
       'Trinkow banka/kredi kartı numarası, banka giriş bilgisi, kesin konum, rehber, kamera, ham mikrofon kaydı, fotoğraf veya reklam kimliği toplamaz.',
@@ -46,21 +46,21 @@ const tr: Bolum[] = [
     baslik: '5. Paylaşım ve hizmet sağlayıcılar',
     paragraflar: [
       'Kişisel veriler satılmaz; reklam hedefleme veya üçüncü taraf pazarlama amacıyla paylaşılmaz.',
-      'Hizmetin çalışması için gerekli ölçüde sunucu/barındırma sağlayıcısı, veritabanı altyapısı, parola sıfırlama e-postaları için e-posta iletim sağlayıcısı ve Google ile giriş seçildiğinde Google ile veri paylaşılabilir. Yasal bir zorunluluk doğarsa yetkili kamu kurumlarıyla da paylaşım yapılabilir.',
+      'Hizmetin çalışması için gerekli ölçüde sunucu/barındırma sağlayıcısı, veritabanı altyapısı, parola sıfırlama e-postaları için e-posta iletim sağlayıcısı, ürün analitiği ve hata takibi için PostHog ve sosyal giriş seçildiğinde Apple veya Google ile veri paylaşılabilir. Yasal bir zorunluluk doğarsa yetkili kamu kurumlarıyla da paylaşım yapılabilir.',
       `Premium satın almalarında ödemeyi Google Play veya Apple App Store alır. Satın almaları doğrulamak ve abonelik durumunu yönetmek için hesap kimliğin ve satın alma kayıtların, Trinkow adına hizmet veren uygulama içi satın alma altyapısı RevenueCat, Inc. ile paylaşılır (gizlilik politikası: ${REVENUECAT_GIZLILIK}).`,
     ],
   },
   {
     baslik: '6. Yurt dışına aktarım',
     paragraflar: [
-      'Kullanılan bulut, e-posta, Google kimlik doğrulama ve RevenueCat (ABD) altyapısının sunucuları Türkiye dışında bulunabilir. Bu nedenle veriler, hizmetin sunulması için gerekli ve sınırlı olmak üzere yurt dışındaki hizmet sağlayıcılara aktarılabilir. Aktarım süreçlerinde yürürlükteki mevzuatın öngördüğü uygun güvencelerin sağlanması amaçlanır.',
+      'Kullanılan bulut, e-posta, Apple/Google kimlik doğrulama, PostHog analitik ve RevenueCat (ABD/AB) altyapısının sunucuları Türkiye dışında bulunabilir. Bu nedenle veriler, hizmetin sunulması için gerekli ve sınırlı olmak üzere yurt dışındaki hizmet sağlayıcılara aktarılabilir. Aktarım süreçlerinde yürürlükteki mevzuatın öngördüğü uygun güvencelerin sağlanması amaçlanır.',
     ],
   },
   {
     baslik: '7. Saklama süreleri',
     paragraflar: [
       'Hesap, profil ve finans kayıtları hesabın aktif olduğu süre boyunca veya sen silene kadar saklanır. Yenileme oturum kayıtları varsayılan olarak 30 gün sonra, parola sıfırlama bağlantıları 30 dakika sonra ve kötüye kullanım önleme amacıyla oluşturulan sınırlı hız kayıtları yaklaşık 1 saat sonra geçersiz olur. Premium üyelik ve satın alma kayıtları hesabın aktif olduğu sürece saklanır.',
-      'Hesap silindiğinde aktif veritabanındaki hesap, profil, finans ve Premium üyelik kayıtları ile aktif oturumlar silinir; RevenueCat’teki müşteri kaydın ve satın alma geçmişin de silinir. Google Play ve App Store kendi ödeme kayıtlarını kendi politikalarına göre tutar. Hukuki bir saklama zorunluluğu bulunan kayıtlar zorunlu süre kadar; olağan yedeklerde kalan kopyalar ise yedekleme döngüsü tamamlanana kadar erişimi kısıtlı biçimde tutulabilir.',
+      'Hesap silindiğinde aktif veritabanındaki hesap, profil, finans ve Premium üyelik kayıtları ile aktif oturumlar silinir; Apple ile giriş kullanıldıysa Apple erişim/yenileme belirteci iptal edilir; RevenueCat’teki müşteri kaydın ve satın alma geçmişin de silinir. Google Play ve App Store kendi ödeme kayıtlarını kendi politikalarına göre tutar. Hukuki bir saklama zorunluluğu bulunan kayıtlar zorunlu süre kadar; olağan yedeklerde kalan kopyalar ise yedekleme döngüsü tamamlanana kadar erişimi kısıtlı biçimde tutulabilir.',
     ],
   },
   {
@@ -109,10 +109,10 @@ const en: Bolum[] = [
   {
     baslik: '2. Data we process',
     paragraflar: [
-      'Account and authentication data: email address, hashed password, Google account identifier (sub) and verified email when you sign in with Google, and session records.',
+      'Account and authentication data: email address, hashed password, Apple or Google account identifier (sub) and verified email (or Apple Private Relay address) when you use social sign-in, and session records.',
       'Financial and planning data you enter: income and payday, budget, fixed expenses, debt, savings goals and activity, expense amount, category, item name, note, date/time, payment type, installments, subscriptions, routines, favorites, category limits, and no-spend-day records.',
       'Preference and habit data: app preferences, onboarding answers, notification preference and time, and optional routines you enter, such as coffee, smoking, alcohol, or eating out.',
-      'Security and technical data: session tokens, password reset and abuse-prevention records, and server access logs that may include IP address, request time, and basic device/network information.',
+      'Security, analytics, and technical data: session tokens, password reset and abuse-prevention records, server access logs that may include IP address, request time, and basic device/network information, as well as screen view, product interaction, and error/crash tracking events processed via PostHog.',
       'Premium membership and purchase data: when you buy Trinkow Premium or start a trial, your Trinkow account ID; the product and plan purchased; purchase, trial, renewal, and expiration dates; the store transaction ID; the store (Google Play or the App Store); price, currency, and country; and subscription status. Your card and payment details are not sent to Trinkow or RevenueCat; the store takes the payment.',
       'When you choose voice expense entry, the microphone is used only to turn your speech into text through the iOS or Android speech-recognition service on your device. Trinkow does not store raw audio or send it to its own servers. Depending on your operating-system and device settings, the device speech-recognition service may process audio on-device or through its own service infrastructure.',
       'Trinkow does not collect bank or credit card numbers, bank login credentials, precise location, contacts, camera data, raw microphone recordings, photos, or advertising identifiers.',
@@ -138,21 +138,21 @@ const en: Bolum[] = [
     baslik: '5. Sharing and service providers',
     paragraflar: [
       'Personal data is not sold or shared for ad targeting or third-party marketing.',
-      'As needed to operate the service, data may be shared with server/hosting and database providers, an email delivery provider for password reset messages, and Google if you choose Google sign-in. Data may also be shared with competent public authorities when legally required.',
+      'As needed to operate the service, data may be shared with server/hosting and database providers, an email delivery provider for password reset messages, PostHog for product analytics and error tracking, and Apple or Google if you choose social sign-in. Data may also be shared with competent public authorities when legally required.',
       `For Premium purchases, Google Play or the Apple App Store takes the payment. To verify purchases and manage subscription status, your account ID and purchase records are shared with RevenueCat, Inc., the in-app purchase infrastructure that works on Trinkow’s behalf (privacy policy: ${REVENUECAT_GIZLILIK}).`,
     ],
   },
   {
     baslik: '6. International transfers',
     paragraflar: [
-      'Servers used by cloud, email, Google authentication, and RevenueCat (United States) providers may be located outside your home country. Data may therefore be transferred to service providers abroad to the limited extent necessary to provide the service with appropriate safeguards.',
+      'Servers used by cloud, email, Apple/Google authentication, PostHog analytics, and RevenueCat (United States/EU) providers may be located outside your home country. Data may therefore be transferred to service providers abroad to the limited extent necessary to provide the service with appropriate safeguards.',
     ],
   },
   {
     baslik: '7. Retention',
     paragraflar: [
       'Account, profile, and financial records are retained while your account is active or until you delete them. Refresh-session records expire by default after 30 days, password reset links after 30 minutes, and limited rate records created to prevent abuse after approximately one hour. Premium membership and purchase records are retained while your account is active.',
-      'When an account is deleted, the account, profile, financial and Premium membership records, and active sessions are deleted from the active database, and your customer record and purchase history at RevenueCat are deleted as well. Google Play and the App Store keep their own payment records under their own policies. Records subject to a legal retention obligation may be kept for the required period; copies remaining in routine backups may be retained with access restricted until the backup cycle is complete.',
+      'When an account is deleted, the account, profile, financial and Premium membership records, and active sessions are deleted from the active database, any Sign in with Apple token is revoked, and your customer record and purchase history at RevenueCat are deleted as well. Google Play and the App Store keep their own payment records under their own policies. Records subject to a legal retention obligation may be kept for the required period; copies remaining in routine backups may be retained with access restricted until the backup cycle is complete.',
     ],
   },
   {

@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 
 import { Button } from '@/components/Button';
 import { InfoStrip } from '@/components/InfoStrip';
@@ -114,6 +114,30 @@ const belgelerEn: Record<string, Belge> = {
   },
 };
 
+function platformaUyarla(paragraf: string): string {
+  if (Platform.OS !== 'ios') return paragraf;
+  return paragraf
+    .replace(/Google Play veya Apple App Store/g, 'Apple App Store')
+    .replace(/Apple App Store veya Google Play Store/g, 'Apple App Store')
+    .replace(/Google Play veya App Store/g, 'App Store')
+    .replace(/Google Play ve App Store/g, 'App Store')
+    .replace(/Google Play’de Ödemeler ve abonelikler bölümünden veya App Store’da/g, 'App Store’da')
+    .replace(/Google Play \(Ödemeler ve Abonelikler\) veya App Store \(Abonelikler\)/g, 'App Store (Abonelikler)')
+    .replace(/Google Play or the Apple App Store/g, 'the Apple App Store')
+    .replace(/Apple App Store or Google Play Store/g, 'Apple App Store')
+    .replace(/Google Play or the App Store/g, 'the App Store')
+    .replace(/Google Play or App Store/g, 'App Store')
+    .replace(/Google Play and the App Store/g, 'the App Store')
+    .replace(/in Google Play under Payments & subscriptions or in your Apple Account settings for the App Store/g, 'in your Apple Account settings for the App Store')
+    .replace(/Google Play \(Payments & subscriptions\) or App Store \(Subscriptions\)/g, 'App Store (Subscriptions)')
+    .replace(/iOS Keychain veya Android Keystore/g, 'iOS Keychain')
+    .replace(/iOS Keychain or Android Keystore/g, 'iOS Keychain')
+    .replace(/iOS Keychain \/ Android Keystore/g, 'iOS Keychain')
+    .replace(/iOS veya Android/g, 'iOS')
+    .replace(/iOS or Android/g, 'iOS')
+    .replace(/\(Apple \/ Google\)/g, '(Apple)');
+}
+
 export default function Legal() {
   const { dil } = useYerellestirme();
   const { belge } = useLocalSearchParams<{ belge?: string }>();
@@ -141,7 +165,7 @@ export default function Legal() {
             <View key={bolum.baslik} style={{ gap: rhythm.group }}>
               <Txt role="h2">{bolum.baslik}</Txt>
               {bolum.paragraflar.map((paragraf) => (
-                <Txt key={paragraf} role="body">{paragraf}</Txt>
+                <Txt key={paragraf} role="body">{platformaUyarla(paragraf)}</Txt>
               ))}
             </View>
           ))}
